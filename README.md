@@ -8,6 +8,8 @@
 
 <p>
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white" />
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.11%2B-3776ab?logo=python&logoColor=white" />
+  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-AI%20service-009688?logo=fastapi&logoColor=white" />
   <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16.2.4-111111?logo=nextdotjs&logoColor=white" />
   <img alt="React" src="https://img.shields.io/badge/React-19.2.4-149eca?logo=react&logoColor=white" />
   <img alt="Prisma" src="https://img.shields.io/badge/Prisma-7.8.0-2d3748?logo=prisma&logoColor=white" />
@@ -27,7 +29,10 @@ Base inicial del workspace para U+ Revai.
 - [Flujo recomendado de ramas](#flujo-recomendado-de-ramas)
 - [Stack base](#stack-base)
 - [Instalacion inicial](#instalacion-inicial)
+- [Python y Docker para app-ai-service](#python-y-docker-para-app-ai-service)
+- [Formato del repo con Prettier](#formato-del-repo-con-prettier)
 - [Estructura base sugerida](#estructura-base-sugerida)
+- [Flujo del backend de IA](#flujo-del-backend-de-ia)
 - [Prisma en esta etapa](#prisma-en-esta-etapa)
 - [Convencion para main](#convencion-para-main)
 
@@ -35,16 +40,17 @@ Base inicial del workspace para U+ Revai.
 
 ## Servicios
 
-| Servicio               | Perfil   | Estado actual                                                    | Nota rapida                              |
-| ---------------------- | -------- | ---------------------------------------------------------------- | ---------------------------------------- |
-| `app-auth`             | Backend  | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Base con Prisma y guias `USO_CARPETA.md` |
-| `app-frontend`         | Frontend | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Base UI y cliente por servicios          |
-| `app-review-service`   | Backend  | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para review             |
-| `app-analysis-service` | Backend  | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para analysis           |
-| `app-report-service`   | Backend  | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para reportes           |
-| `app-surveys-service`  | Backend  | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para encuestas          |
+| Servicio               | Perfil     | Estado actual                                                    | Nota rapida                                         |
+| ---------------------- | ---------- | ---------------------------------------------------------------- | --------------------------------------------------- |
+| `app-auth`             | Backend    | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Base con Prisma y guias `USO_CARPETA.md`            |
+| `app-ai-service`       | Backend IA | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | FastAPI para orquestar `review + surveys -> report` |
+| `app-frontend`         | Frontend   | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Base UI y cliente por servicios                     |
+| `app-review-service`   | Backend    | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para review                        |
+| `app-analysis-service` | Backend    | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para analysis                      |
+| `app-report-service`   | Backend    | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para reportes                      |
+| `app-surveys-service`  | Backend    | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para encuestas                     |
 
-Todos los servicios fueron creados con la misma base de Next.js para mantener consistencia en el equipo.
+La mayoria de los servicios fueron creados con la misma base de Next.js para mantener consistencia en el equipo. La excepcion actual es `app-ai-service`, que se deja en Python con FastAPI porque su responsabilidad principal es la orquestacion de IA entre servicios.
 
 ---
 
@@ -103,13 +109,17 @@ Tambien exige buena comunicacion del equipo: cuando un Pull Request se completa 
 
 ## Stack base
 
-La base actual del workspace esta hecha con TypeScript, no con JavaScript.
+La mayor parte del workspace esta hecha con TypeScript, no con JavaScript.
 
 En estilos se esta trabajando con CSS vanilla por ahora. Todavia no se esta usando Tailwind CSS en esta base, porque esa implementacion se dejara para `app-frontend` cuando se trabaje la capa visual del proyecto.
+
+Para el backend de IA se agrega una excepcion intencional: `app-ai-service` usa Python con FastAPI para facilitar integraciones con proveedores LLM, orquestacion de prompts y pipelines de analisis.
 
 | Tecnologia        | Version base |
 | ----------------- | ------------ |
 | Node.js           | `v22.22.0`   |
+| Python            | `3.11+`      |
+| FastAPI           | `>=0.115.0`  |
 | Next.js           | `16.2.4`     |
 | React             | `19.2.4`     |
 | React DOM         | `19.2.4`     |
@@ -133,6 +143,7 @@ Ese archivo define el contexto, las reglas y las decisiones especificas de ese s
 Antes de trabajar en cualquier servicio, revisar primero:
 
 - [app-analysis-service/AGENTS.md](app-analysis-service/AGENTS.md)
+- [app-ai-service/AGENTS.md](app-ai-service/AGENTS.md)
 - [app-auth/AGENTS.md](app-auth/AGENTS.md)
 - [app-frontend/AGENTS.md](app-frontend/AGENTS.md)
 - [app-report-service/AGENTS.md](app-report-service/AGENTS.md)
@@ -143,20 +154,85 @@ Antes de trabajar en cualquier servicio, revisar primero:
 
 ## Instalacion inicial
 
-Cada servicio ya tiene declaradas las dependencias necesarias para trabajar con Next.js y Prisma mas adelante.
+Los servicios Node ya tienen declaradas las dependencias necesarias para trabajar con Next.js y Prisma mas adelante. `app-ai-service` usa dependencias Python declaradas en `pyproject.toml`.
 
 > [!WARNING]
-> La raiz del workspace no tiene un `package.json` unico.
-> Por eso `npm install` no se corre en `/home/anthony/projects/uplus-revai`, sino dentro de cada servicio.
+> La raiz del workspace no tiene un `package.json` unico ni un `pyproject.toml` unico.
+> Por eso la instalacion se hace dentro de cada servicio segun su stack.
 
-Orden recomendado para empezar el proyecto desde cero:
+> [!NOTE]
+> BLOQUE: Setup base de servicios Node y Next.js.
+> Todo lo que sigue en esta seccion aplica a `app-auth`, `app-review-service`, `app-analysis-service`, `app-report-service`, `app-surveys-service` y `app-frontend`.
+
+Instalacion para servicios Node/Next:
 
 ```bash
 cd /home/anthony/projects/uplus-revai/<nombre-del-servicio>
 npm install
 ```
 
-Repetir el mismo paso en cada carpeta raiz de servicio.
+Repetir el paso correspondiente segun el stack de cada servicio.
+
+---
+
+## Python y Docker para `app-ai-service`
+
+> [!IMPORTANT]
+> BLOQUE: Python y Docker.
+> Todo lo que sigue en esta seccion aplica solo a `app-ai-service`.
+
+#### Flujo oficial del equipo
+
+Para `app-ai-service`, el flujo oficial del equipo debe ser Docker.
+
+```bash
+cd /home/anthony/projects/uplus-revai/app-ai-service
+cp env.example .env
+docker compose up --build
+```
+
+Si `review`, `surveys` y `report` siguen corriendo fuera de Docker en tu maquina local, dentro del `.env` conviene usar `host.docker.internal` en vez de `localhost`.
+
+#### Flujo local opcional
+
+Si alguien necesita correrlo sin Docker para iterar mas rapido, puede usar entorno local:
+
+```bash
+cd /home/anthony/projects/uplus-revai/app-ai-service
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
+```
+
+La recomendacion para Python es que el entorno virtual quede dentro del servicio, por ejemplo `app-ai-service/.venv`, y no suelto en la raiz del workspace.
+
+#### Atajo con Makefile
+
+```bash
+cd /home/anthony/projects/uplus-revai/app-ai-service
+make setup
+```
+
+---
+
+## Formato del repo con Prettier
+
+> [!TIP]
+> BLOQUE: Formato y consistencia visual del codigo.
+> Esta seccion aplica a todos los `app-*` del workspace.
+
+Se recomienda instalar en VS Code la extension `Prettier - Code formatter` de `esbenp.prettier-vscode`.
+
+Cada carpeta `app-*` tiene su propio `.prettierrc.json` para mantener formato consistente por servicio.
+
+Esto es especialmente util para:
+
+- Markdown
+- JSON
+- YAML
+- archivos frontend y TypeScript del repo
+
+En `app-ai-service`, Prettier sirve sobre todo para Markdown, YAML, JSON y archivos de configuracion. El formateo de Python se puede estandarizar despues con una herramienta dedicada si el equipo lo define.
 
 ---
 
@@ -164,7 +240,7 @@ Repetir el mismo paso en cada carpeta raiz de servicio.
 
 Dentro de cada servicio se deja una estructura minima para que el equipo tenga un punto de partida comun.
 
-### Backend services
+#### Backend services
 
 Para servicios backend como `app-auth`, `app-review-service`, `app-analysis-service`, `app-report-service` y `app-surveys-service` la estructura sugerida es esta:
 
@@ -178,7 +254,7 @@ Para servicios backend como `app-auth`, `app-review-service`, `app-analysis-serv
 
 En `app-auth` se dejan ademas archivos `USO_CARPETA.md` dentro de las carpetas importantes para indicar que va ahi y que no. Antes de crear archivos nuevos en ese servicio, conviene leer primero esas descripciones locales.
 
-### Frontend
+#### Frontend
 
 Para `app-frontend` la estructura sugerida es esta:
 
@@ -198,7 +274,19 @@ La idea del frontend es conectarse a los servicios usando variables de entorno c
 
 En `app-frontend` se deja tambien un ejemplo minimo de cliente para consumir el service de auth desde `src/services/auth`.
 
-### Notas de estructura
+#### Servicio de IA en Python
+
+Para `app-ai-service` la estructura inicial sugerida es esta:
+
+| Ruta             | Uso esperado                        |
+| ---------------- | ----------------------------------- |
+| `src/main.py`    | entrypoint FastAPI                  |
+| `src/api/routes` | rutas HTTP del servicio             |
+| `src/core`       | configuracion y utilidades base     |
+| `src/services`   | clientes internos y orquestacion IA |
+| `src/schemas`    | contratos de request y response     |
+
+#### Notas de estructura
 
 - `route.ts` se deja como ejemplo para mostrar donde deben vivir los endpoints.
 - `src/generated/prisma` no se crea manualmente; lo genera Prisma con `npx prisma generate`.
@@ -207,9 +295,36 @@ En `app-frontend` se deja tambien un ejemplo minimo de cliente para consumir el 
 
 ---
 
+## Flujo del backend de IA
+
+`app-ai-service` queda pensado como un backend de orquestacion, no como reemplazo de `review`, `surveys` ni `report`.
+
+Flujo esperado:
+
+1. `app-review-service` expone reviews normalizadas por negocio y sucursal.
+2. `app-surveys-service` expone respuestas de encuestas internas para el mismo negocio o sucursal.
+3. `app-ai-service` consume ambas fuentes, construye el contexto y genera analisis con el proveedor LLM configurado.
+4. `app-ai-service` envia el resultado consolidado a `app-report-service`.
+5. `app-report-service` persiste o expone el artefacto final para consumo del dashboard.
+
+Resumen corto del flujo:
+
+```text
+review + surveys -> app-ai-service -> report
+```
+
+> [!TIP]
+> FastAPI es una buena eleccion para este servicio porque te deja separar facil la capa HTTP, la capa de clientes internos y la capa de integracion con el proveedor de IA.
+
+---
+
 ## Prisma en esta etapa
 
-Prisma queda instalado en todos los servicios para que el equipo no tenga que volver a agregar paquetes despues.
+> [!IMPORTANT]
+> BLOQUE: Prisma.
+> Todo lo que sigue en esta seccion aplica a los servicios Node donde se use Prisma. No aplica a `app-ai-service`.
+
+Prisma queda instalado en los servicios Node donde se espera persistencia o acceso relacional directo. `app-ai-service` no depende de Prisma en esta base inicial porque su rol principal es orquestar datos entre servicios y generar analisis.
 
 Por ahora `main` no deja listas las conexiones reales ni las variables de entorno finales. La idea es:
 
@@ -217,7 +332,7 @@ Por ahora `main` no deja listas las conexiones reales ni las variables de entorn
 - dejar el scaffold de cada app consistente
 - documentar el paso a paso para cuando se implemente cada servicio
 
-### Paquetes Prisma ya incluidos
+#### Paquetes Prisma ya incluidos
 
 En cada servicio quedan instalados o declarados estos paquetes:
 
@@ -228,7 +343,7 @@ En cada servicio quedan instalados o declarados estos paquetes:
 - `dotenv`
 - `tsx`
 
-### Pasos sugeridos para implementar Prisma despues
+#### Pasos sugeridos para implementar Prisma despues
 
 Cuando un servicio realmente vaya a usar base de datos, el orden recomendado es este.
 
@@ -313,7 +428,7 @@ Si todo esta bien, la salida esperada es parecida a esta:
 Conexion OK con Prisma: [ { now: 2026-04-26T01:21:25.283Z } ]
 ```
 
-### Prueba de conexion con Prisma
+#### Prueba de conexion con Prisma
 
 La prueba simple recomendada se hace con un archivo `test-prisma.ts` en la carpeta raiz del servicio.
 
@@ -324,7 +439,7 @@ Ese archivo sirve para:
 - instanciar Prisma Client
 - ejecutar una consulta simple como `select now()`
 
-### Variables de entorno para conexion
+#### Variables de entorno para conexion
 
 Se deja un ejemplo en `.env.example` dentro de la carpeta raiz del servicio.
 
@@ -334,7 +449,7 @@ Estructura esperada:
 DIRECT_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE"
 ```
 
-### IMPORTANTE ANTES DE EMPEZAR CON PRISMA
+#### IMPORTANTE ANTES DE EMPEZAR CON PRISMA
 
 Si la base de datos del servicio ya tiene tablas creadas, no empieces creando migraciones nuevas a ciegas.
 
@@ -357,7 +472,7 @@ Recien cuando el `schema.prisma` local represente correctamente lo que ya existe
 
 Si corres `npx prisma migrate dev` sin haber alineado antes el schema local con una base que ya tiene tablas, Prisma puede detectar drift y pedir reset del schema.
 
-### Comandos a repetir cuando cambie el schema
+#### Comandos a repetir cuando cambie el schema
 
 Cada vez que se cree o cambie `prisma/schema.prisma`, correr desde la carpeta raiz del servicio:
 

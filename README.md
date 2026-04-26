@@ -245,6 +245,29 @@ Estructura esperada:
 DIRECT_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE"
 ```
 
+## IMPORTANTE ANTES DE EMPEZAR CON PRISMA
+
+Si la base de datos del servicio ya tiene tablas creadas, no empieces creando migraciones nuevas a ciegas.
+
+Primero debes traer el estado real de la base hacia tu proyecto local:
+
+```bash
+cd /home/anthony/projects/uplus-revai/<nombre-del-servicio>
+npx prisma db pull
+```
+
+Ese comando lee la estructura actual de la base de datos y actualiza `prisma/schema.prisma` con las tablas reales existentes.
+
+Despues de eso, puedes generar el cliente:
+
+```bash
+npx prisma generate
+```
+
+Recien cuando el `schema.prisma` local represente correctamente lo que ya existe en la base, tiene sentido evaluar si debes crear una nueva migracion.
+
+Si corres `npx prisma migrate dev` sin haber alineado antes el schema local con una base que ya tiene tablas, Prisma puede detectar drift y pedir reset del schema.
+
 ## Comandos a repetir cuando cambie el schema
 
 Cada vez que se cree o cambie `prisma/schema.prisma`, correr desde la carpeta raiz del servicio:

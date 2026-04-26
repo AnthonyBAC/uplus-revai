@@ -1,0 +1,12 @@
+services:
+    app-ai-service:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: app-ai-service
+        env_file:
+            - .env
+        ports:
+            - '8000:8000'
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'

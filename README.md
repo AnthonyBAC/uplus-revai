@@ -531,3 +531,13 @@ Flujo esperado:
 No se deben abrir Pull Requests hacia `main` desde ramas de trabajo. El destino normal de integracion es siempre `dev`.
 
 Regla operativa: si un PR ya fue aprobado e integrado en `dev`, el resto del equipo debe actualizar su copia local de `dev` y volver a mezclarla en su rama antes de seguir empujando cambios.
+
+---
+
+## Diagrama de arquitectura
+
+El diagrama base de arquitectura del proyecto esta disponible en:
+
+![Diagrama de arquitectura](docs/u_revai.drawio.svg)
+
+- [Abrir archivo SVG](docs/u_revai.drawio.svg)

@@ -539,5 +539,3 @@ Regla operativa: si un PR ya fue aprobado e integrado en `dev`, el resto del equ
 El diagrama base de arquitectura del proyecto esta disponible en:
 
 ![Diagrama de arquitectura](docs/u_revai.drawio.svg)
-
-- [Abrir archivo SVG](docs/u_revai.drawio.svg)

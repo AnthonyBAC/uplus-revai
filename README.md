@@ -113,15 +113,7 @@ cd /home/anthony/projects/uplus-revai/<nombre-del-servicio>
 npm install
 ```
 
-Repetir el mismo paso en cada carpeta raiz de servicio del workspace.
-
-Si quieres instalar todo el workspace de una vez desde la raiz, puedes correr:
-
-```bash
-for service in app-auth app-frontend app-review-service app-analysis-service app-report-service app-surveys-service; do
-    (cd "$service" && npm install)
-done
-```
+Repetir el mismo paso en cada carpeta raiz de servicio
 
 ## Estructura base sugerida
 

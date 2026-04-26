@@ -29,6 +29,8 @@ Base inicial del workspace para U+ Revai.
 - [Flujo recomendado de ramas](#flujo-recomendado-de-ramas)
 - [Stack base](#stack-base)
 - [Instalacion inicial](#instalacion-inicial)
+- [Python y Docker para app-ai-service](#python-y-docker-para-app-ai-service)
+- [Formato del repo con Prettier](#formato-del-repo-con-prettier)
 - [Estructura base sugerida](#estructura-base-sugerida)
 - [Flujo del backend de IA](#flujo-del-backend-de-ia)
 - [Prisma en esta etapa](#prisma-en-esta-etapa)
@@ -158,6 +160,10 @@ Los servicios Node ya tienen declaradas las dependencias necesarias para trabaja
 > La raiz del workspace no tiene un `package.json` unico ni un `pyproject.toml` unico.
 > Por eso la instalacion se hace dentro de cada servicio segun su stack.
 
+> [!NOTE]
+> BLOQUE: Setup base de servicios Node y Next.js.
+> Todo lo que sigue en esta seccion aplica a `app-auth`, `app-review-service`, `app-analysis-service`, `app-report-service`, `app-surveys-service` y `app-frontend`.
+
 Instalacion para servicios Node/Next:
 
 ```bash
@@ -165,7 +171,31 @@ cd /home/anthony/projects/uplus-revai/<nombre-del-servicio>
 npm install
 ```
 
-Instalacion para `app-ai-service`:
+Repetir el paso correspondiente segun el stack de cada servicio.
+
+---
+
+## Python y Docker para `app-ai-service`
+
+> [!IMPORTANT]
+> BLOQUE: Python y Docker.
+> Todo lo que sigue en esta seccion aplica solo a `app-ai-service`.
+
+#### Flujo oficial del equipo
+
+Para `app-ai-service`, el flujo oficial del equipo debe ser Docker.
+
+```bash
+cd /home/anthony/projects/uplus-revai/app-ai-service
+cp env.example .env
+docker compose up --build
+```
+
+Si `review`, `surveys` y `report` siguen corriendo fuera de Docker en tu maquina local, dentro del `.env` conviene usar `host.docker.internal` en vez de `localhost`.
+
+#### Flujo local opcional
+
+Si alguien necesita correrlo sin Docker para iterar mas rapido, puede usar entorno local:
 
 ```bash
 cd /home/anthony/projects/uplus-revai/app-ai-service
@@ -176,26 +206,33 @@ pip install -e .
 
 La recomendacion para Python es que el entorno virtual quede dentro del servicio, por ejemplo `app-ai-service/.venv`, y no suelto en la raiz del workspace.
 
-Tambien puedes simplificar ese setup con:
+#### Atajo con Makefile
 
 ```bash
 cd /home/anthony/projects/uplus-revai/app-ai-service
 make setup
 ```
 
-O evitar depender del Python local usando Docker:
+---
 
-```bash
-cd /home/anthony/projects/uplus-revai/app-ai-service
-cp env.example .env
-docker compose up --build
-```
+## Formato del repo con Prettier
 
-Para `app-ai-service`, ese flujo con Docker debe considerarse el flujo oficial del equipo.
+> [!TIP]
+> BLOQUE: Formato y consistencia visual del codigo.
+> Esta seccion aplica a todos los `app-*` del workspace.
 
-Tambien se recomienda instalar en VS Code la extension `Prettier - Code formatter` de `esbenp.prettier-vscode`. Cada carpeta `app-*` tiene su propio `.prettierrc.json` para mantener formato consistente por servicio.
+Se recomienda instalar en VS Code la extension `Prettier - Code formatter` de `esbenp.prettier-vscode`.
 
-Repetir el paso correspondiente segun el stack de cada servicio.
+Cada carpeta `app-*` tiene su propio `.prettierrc.json` para mantener formato consistente por servicio.
+
+Esto es especialmente util para:
+
+- Markdown
+- JSON
+- YAML
+- archivos frontend y TypeScript del repo
+
+En `app-ai-service`, Prettier sirve sobre todo para Markdown, YAML, JSON y archivos de configuracion. El formateo de Python se puede estandarizar despues con una herramienta dedicada si el equipo lo define.
 
 ---
 
@@ -203,7 +240,7 @@ Repetir el paso correspondiente segun el stack de cada servicio.
 
 Dentro de cada servicio se deja una estructura minima para que el equipo tenga un punto de partida comun.
 
-### Backend services
+#### Backend services
 
 Para servicios backend como `app-auth`, `app-review-service`, `app-analysis-service`, `app-report-service` y `app-surveys-service` la estructura sugerida es esta:
 
@@ -217,7 +254,7 @@ Para servicios backend como `app-auth`, `app-review-service`, `app-analysis-serv
 
 En `app-auth` se dejan ademas archivos `USO_CARPETA.md` dentro de las carpetas importantes para indicar que va ahi y que no. Antes de crear archivos nuevos en ese servicio, conviene leer primero esas descripciones locales.
 
-### Frontend
+#### Frontend
 
 Para `app-frontend` la estructura sugerida es esta:
 
@@ -237,7 +274,7 @@ La idea del frontend es conectarse a los servicios usando variables de entorno c
 
 En `app-frontend` se deja tambien un ejemplo minimo de cliente para consumir el service de auth desde `src/services/auth`.
 
-### Servicio de IA en Python
+#### Servicio de IA en Python
 
 Para `app-ai-service` la estructura inicial sugerida es esta:
 
@@ -249,7 +286,7 @@ Para `app-ai-service` la estructura inicial sugerida es esta:
 | `src/services`   | clientes internos y orquestacion IA |
 | `src/schemas`    | contratos de request y response     |
 
-### Notas de estructura
+#### Notas de estructura
 
 - `route.ts` se deja como ejemplo para mostrar donde deben vivir los endpoints.
 - `src/generated/prisma` no se crea manualmente; lo genera Prisma con `npx prisma generate`.
@@ -283,6 +320,10 @@ review + surveys -> app-ai-service -> report
 
 ## Prisma en esta etapa
 
+> [!IMPORTANT]
+> BLOQUE: Prisma.
+> Todo lo que sigue en esta seccion aplica a los servicios Node donde se use Prisma. No aplica a `app-ai-service`.
+
 Prisma queda instalado en los servicios Node donde se espera persistencia o acceso relacional directo. `app-ai-service` no depende de Prisma en esta base inicial porque su rol principal es orquestar datos entre servicios y generar analisis.
 
 Por ahora `main` no deja listas las conexiones reales ni las variables de entorno finales. La idea es:
@@ -291,7 +332,7 @@ Por ahora `main` no deja listas las conexiones reales ni las variables de entorn
 - dejar el scaffold de cada app consistente
 - documentar el paso a paso para cuando se implemente cada servicio
 
-### Paquetes Prisma ya incluidos
+#### Paquetes Prisma ya incluidos
 
 En cada servicio quedan instalados o declarados estos paquetes:
 
@@ -302,7 +343,7 @@ En cada servicio quedan instalados o declarados estos paquetes:
 - `dotenv`
 - `tsx`
 
-### Pasos sugeridos para implementar Prisma despues
+#### Pasos sugeridos para implementar Prisma despues
 
 Cuando un servicio realmente vaya a usar base de datos, el orden recomendado es este.
 
@@ -387,7 +428,7 @@ Si todo esta bien, la salida esperada es parecida a esta:
 Conexion OK con Prisma: [ { now: 2026-04-26T01:21:25.283Z } ]
 ```
 
-### Prueba de conexion con Prisma
+#### Prueba de conexion con Prisma
 
 La prueba simple recomendada se hace con un archivo `test-prisma.ts` en la carpeta raiz del servicio.
 
@@ -398,7 +439,7 @@ Ese archivo sirve para:
 - instanciar Prisma Client
 - ejecutar una consulta simple como `select now()`
 
-### Variables de entorno para conexion
+#### Variables de entorno para conexion
 
 Se deja un ejemplo en `.env.example` dentro de la carpeta raiz del servicio.
 
@@ -408,7 +449,7 @@ Estructura esperada:
 DIRECT_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE"
 ```
 
-### IMPORTANTE ANTES DE EMPEZAR CON PRISMA
+#### IMPORTANTE ANTES DE EMPEZAR CON PRISMA
 
 Si la base de datos del servicio ya tiene tablas creadas, no empieces creando migraciones nuevas a ciegas.
 
@@ -431,7 +472,7 @@ Recien cuando el `schema.prisma` local represente correctamente lo que ya existe
 
 Si corres `npx prisma migrate dev` sin haber alineado antes el schema local con una base que ya tiene tablas, Prisma puede detectar drift y pedir reset del schema.
 
-### Comandos a repetir cuando cambie el schema
+#### Comandos a repetir cuando cambie el schema
 
 Cada vez que se cree o cambie `prisma/schema.prisma`, correr desde la carpeta raiz del servicio:
 

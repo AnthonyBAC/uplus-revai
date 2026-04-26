@@ -40,6 +40,27 @@ Cuando la tarea termine, se debe subir esa rama y abrir un Pull Request hacia `d
 git push -u origin feature/<nombre-de-la-rama>
 ```
 
+Antes de subir cambios a una rama de trabajo, primero se debe actualizar esa rama con los cambios mas recientes de `dev`.
+
+## Antes De Hacer Push: Actualiza Tu Rama
+
+```bash
+git switch dev
+git pull origin dev
+git switch feature/<nombre-de-la-rama>
+git merge dev
+```
+
+Recien despues de actualizar la rama local `dev`, volver a la rama en la que se esta trabajando, unir ahi los cambios de `dev` con `git merge dev` y resolver cualquier conflicto, se debe hacer push de la rama de trabajo.
+
+```bash
+git push
+```
+
+Esto ayuda a evitar que cada rama quede atrasada respecto a los cambios ya aprobados en `dev`.
+
+Tambien exige buena comunicacion del equipo: cuando un Pull Request se completa y entra a `dev`, los demas deben saberlo para actualizar su rama local antes de seguir trabajando o antes de subir cambios.
+
 Regla del equipo:
 
 - cualquier servicio o tarea nueva parte desde `dev`
@@ -337,7 +358,11 @@ Flujo esperado:
 1. actualizar o posicionarse en `dev`
 2. crear una rama `feature/*` desde `dev`
 3. desarrollar la tarea en esa rama
-4. abrir Pull Request hacia `dev`
-5. esperar revision y aprobacion antes de integrar
+4. antes de hacer push, actualizar `dev`, volver a la rama propia y hacer merge de `dev`
+5. subir la rama actualizada
+6. abrir Pull Request hacia `dev`
+7. esperar revision y aprobacion antes de integrar
 
 No se deben abrir Pull Requests hacia `main` desde ramas de trabajo. El destino normal de integracion es siempre `dev`.
+
+Regla operativa: si un PR ya fue aprobado e integrado en `dev`, el resto del equipo debe actualizar su copia local de `dev` y volver a mezclarla en su rama antes de seguir empujando cambios.

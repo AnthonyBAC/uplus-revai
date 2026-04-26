@@ -1,0 +1,11 @@
+// NO SE TOCA!!
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+// NO SE TOCA!!
+// ----------------------

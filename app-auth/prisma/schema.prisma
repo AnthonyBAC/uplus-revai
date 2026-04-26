@@ -1,4 +1,3 @@
-// NO SE TOCA!!!
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -7,12 +6,126 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-// NO SE TOCA!!!
-// ---------------------------
 
-enum RoleName {
-  ADMIN
-  TRABAJADOR
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model app_users {
+  id                   String                 @id @db.Uuid
+  email                String                 @unique
+  full_name            String?
+  description          String?
+  is_active            Boolean                @default(true)
+  created_at           DateTime               @default(now())
+  updated_at           DateTime
+  business_memberships business_memberships[]
+  user_branch_accesses user_branch_accesses[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model branches {
+  id                   String                 @id @db.Uuid
+  business_id          String                 @db.Uuid
+  name                 String
+  slug                 String
+  description          String?
+  is_active            Boolean                @default(true)
+  created_at           DateTime               @default(now())
+  updated_at           DateTime
+  businesses           businesses             @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  user_branch_accesses user_branch_accesses[]
+
+  @@unique([business_id, slug])
+  @@unique([id, business_id])
+  @@index([business_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model business_memberships {
+  id                     String                 @id @db.Uuid
+  user_id                String                 @db.Uuid
+  business_id            String                 @db.Uuid
+  role_id                String                 @db.Uuid
+  is_owner               Boolean                @default(false)
+  is_active              Boolean                @default(true)
+  has_full_branch_access Boolean                @default(false)
+  created_at             DateTime               @default(now())
+  updated_at             DateTime
+  businesses             businesses             @relation(fields: [business_id], references: [id], onDelete: Cascade)
+  roles                  roles                  @relation(fields: [role_id], references: [id])
+  app_users              app_users              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_branch_accesses   user_branch_accesses[]
+
+  @@unique([user_id, business_id])
+  @@index([business_id])
+  @@index([role_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model businesses {
+  id                   String                 @id @db.Uuid
+  name                 String
+  slug                 String                 @unique
+  description          String?
+  is_active            Boolean                @default(true)
+  created_at           DateTime               @default(now())
+  updated_at           DateTime
+  branches             branches[]
+  business_memberships business_memberships[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model endpoints {
+  id                        String                      @id @db.Uuid
+  key                       String                      @unique
+  method                    HttpMethod
+  path                      String
+  description               String?
+  is_active                 Boolean                     @default(true)
+  created_at                DateTime                    @default(now())
+  updated_at                DateTime
+  role_endpoint_permissions role_endpoint_permissions[]
+
+  @@unique([method, path])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model role_endpoint_permissions {
+  role_id     String    @db.Uuid
+  endpoint_id String    @db.Uuid
+  description String?
+  allowed     Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  endpoints   endpoints @relation(fields: [endpoint_id], references: [id], onDelete: Cascade)
+  roles       roles     @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@id([role_id, endpoint_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model roles {
+  id                        String                      @id @db.Uuid
+  name                      RoleName                    @unique
+  description               String?
+  can_login                 Boolean                     @default(true)
+  created_at                DateTime                    @default(now())
+  updated_at                DateTime
+  business_memberships      business_memberships[]
+  role_endpoint_permissions role_endpoint_permissions[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model user_branch_accesses {
+  user_id              String               @db.Uuid
+  business_id          String               @db.Uuid
+  branch_id            String               @db.Uuid
+  granted_by_user_id   String?              @db.Uuid
+  created_at           DateTime             @default(now())
+  branches             branches             @relation(fields: [branch_id, business_id], references: [id, business_id], onDelete: Cascade)
+  app_users            app_users?           @relation(fields: [granted_by_user_id], references: [id])
+  business_memberships business_memberships @relation(fields: [user_id, business_id], references: [user_id, business_id], onDelete: Cascade)
+
+  @@id([user_id, branch_id])
+  @@index([branch_id])
+  @@index([business_id])
 }
 
 enum HttpMethod {
@@ -23,127 +136,7 @@ enum HttpMethod {
   DELETE
 }
 
-model AppUser {
-  /// Debe coincidir con el `auth.users.id` de Supabase Auth.
-  id                   String               @id @db.Uuid
-  email                String               @unique
-  fullName             String?              @map("full_name")
-  /// Descripción interna del usuario dentro del sistema.
-  /// Ejemplo: "Administrador principal de la cuenta" o "Trabajador encargado de responder reviews".
-  description          String?
-  isActive             Boolean              @default(true) @map("is_active")
-  memberships          BusinessMembership[]
-  grantedBranchAccesses UserBranchAccess[]  @relation("BranchAccessGrantedBy")
-  createdAt            DateTime             @default(now()) @map("created_at")
-  updatedAt            DateTime             @updatedAt @map("updated_at")
-  @@map("app_users")
-}
-
-model Business {
-  id          String               @id @default(uuid()) @db.Uuid
-  name        String
-  slug        String               @unique
-  description String?
-  isActive    Boolean              @default(true) @map("is_active")
-  branches    Branch[]
-  memberships BusinessMembership[]
-  createdAt   DateTime             @default(now()) @map("created_at")
-  updatedAt   DateTime             @updatedAt @map("updated_at")
-  @@map("businesses")
-}
-
-model Branch {
-  id          String             @id @default(uuid()) @db.Uuid
-  businessId  String             @map("business_id") @db.Uuid
-  business    Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  name        String
-  slug        String
-  description String?
-  isActive    Boolean            @default(true) @map("is_active")
-  userAccesses UserBranchAccess[]
-  createdAt   DateTime           @default(now()) @map("created_at")
-  updatedAt   DateTime           @updatedAt @map("updated_at")
-  @@unique([businessId, slug])
-  @@unique([id, businessId])
-  @@index([businessId])
-  @@map("branches")
-}
-
-model BusinessMembership {
-  id                  String             @id @default(uuid()) @db.Uuid
-  userId              String             @map("user_id") @db.Uuid
-  businessId          String             @map("business_id") @db.Uuid
-  roleId              String             @map("role_id") @db.Uuid
-  user                AppUser            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  business            Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  role                Role               @relation(fields: [roleId], references: [id])
-  isOwner             Boolean            @default(false) @map("is_owner")
-  isActive            Boolean            @default(true) @map("is_active")
-  hasFullBranchAccess Boolean            @default(false) @map("has_full_branch_access")
-  branchAccesses      UserBranchAccess[]
-  createdAt           DateTime           @default(now()) @map("created_at")
-  updatedAt           DateTime           @updatedAt @map("updated_at")
-  @@unique([userId, businessId])
-  @@index([businessId])
-  @@index([roleId])
-  @@map("business_memberships")
-}
-
-model UserBranchAccess {
-  userId          String             @map("user_id") @db.Uuid
-  businessId      String             @map("business_id") @db.Uuid
-  branchId        String             @map("branch_id") @db.Uuid
-  grantedByUserId String?            @map("granted_by_user_id") @db.Uuid
-  membership      BusinessMembership @relation(fields: [userId, businessId], references: [userId, businessId], onDelete: Cascade)
-  branch          Branch             @relation(fields: [branchId, businessId], references: [id, businessId], onDelete: Cascade)
-  grantedByUser   AppUser?           @relation("BranchAccessGrantedBy", fields: [grantedByUserId], references: [id])
-  createdAt       DateTime           @default(now()) @map("created_at")
-  @@id([userId, branchId])
-  @@index([businessId])
-  @@index([branchId])
-  @@map("user_branch_accesses")
-}
-
-model Role {
-  id          String               @id @default(uuid()) @db.Uuid
-  name        RoleName             @unique
-  /// Descripción del rol.
-  /// Ejemplo: "Usuario administrador con acceso completo al sistema".
-  description String?
-  canLogin    Boolean              @default(true) @map("can_login")
-  memberships BusinessMembership[]
-  permissions RoleEndpointPermission[]
-  createdAt   DateTime             @default(now()) @map("created_at")
-  updatedAt   DateTime             @updatedAt @map("updated_at")
-  @@map("roles")
-}
-
-model Endpoint {
-  id          String     @id @default(uuid()) @db.Uuid
-  key         String     @unique
-  method      HttpMethod
-  path        String
-  /// Descripción del endpoint.
-  /// Ejemplo: "Permite listar las reviews del negocio".
-  description String?
-  isActive    Boolean    @default(true) @map("is_active")
-  permissions RoleEndpointPermission[]
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
-  @@unique([method, path])
-  @@map("endpoints")
-}
-
-model RoleEndpointPermission {
-  roleId     String   @map("role_id") @db.Uuid
-  endpointId String   @map("endpoint_id") @db.Uuid
-  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  endpoint   Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
-  /// Descripción del permiso.
-  /// Ejemplo: "Permite que el rol ADMIN pueda eliminar reviews".
-  description String?
-  allowed    Boolean  @default(true)
-  createdAt  DateTime @default(now()) @map("created_at")
-  @@id([roleId, endpointId])
-  @@map("role_endpoint_permissions")
+enum RoleName {
+  ADMIN
+  TRABAJADOR
 }

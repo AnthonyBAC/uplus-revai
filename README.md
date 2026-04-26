@@ -22,7 +22,29 @@ Para bajar este workspace por primera vez:
 ```bash
 git clone git@github.com:AnthonyBAC/uplus-revai.git
 cd uplus-revai
+git switch dev || git switch -c dev --track origin/dev
+git pull origin dev
 ```
+
+Despues de clonar el repositorio, cualquier trabajo nuevo debe partir desde la rama `dev`.
+
+Desde `dev`, se crea una rama nueva para la tarea o servicio que se vaya a trabajar:
+
+```bash
+git switch -c feature/<nombre-de-la-rama>
+```
+
+Cuando la tarea termine, se debe subir esa rama y abrir un Pull Request hacia `dev` para revision.
+
+```bash
+git push -u origin feature/<nombre-de-la-rama>
+```
+
+Regla del equipo:
+
+- cualquier servicio o tarea nueva parte desde `dev`
+- cualquier Pull Request debe apuntar a `dev`
+- `main` no recibe trabajo directo; solo cambios ya revisados e integrados
 
 ## Stack base
 
@@ -309,3 +331,13 @@ No deberia contener aun:
 1. `main`: base estable y limpia.
 2. `dev`: integracion del proyecto.
 3. `feature/*`: trabajo puntual por servicio o tarea.
+
+Flujo esperado:
+
+1. actualizar o posicionarse en `dev`
+2. crear una rama `feature/*` desde `dev`
+3. desarrollar la tarea en esa rama
+4. abrir Pull Request hacia `dev`
+5. esperar revision y aprobacion antes de integrar
+
+No se deben abrir Pull Requests hacia `main` desde ramas de trabajo. El destino normal de integracion es siempre `dev`.

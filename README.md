@@ -35,14 +35,14 @@ Base inicial del workspace para U+ Revai.
 
 ## Servicios
 
-| Servicio | Perfil | Estado actual | Nota rapida |
-| --- | --- | --- | --- |
-| `app-auth` | Backend | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Base con Prisma y guias `USO_CARPETA.md` |
-| `app-frontend` | Frontend | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Base UI y cliente por servicios |
-| `app-review-service` | Backend | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para review |
-| `app-analysis-service` | Backend | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para analysis |
-| `app-report-service` | Backend | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para reportes |
-| `app-surveys-service` | Backend | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para encuestas |
+| Servicio               | Perfil   | Estado actual                                                    | Nota rapida                              |
+| ---------------------- | -------- | ---------------------------------------------------------------- | ---------------------------------------- |
+| `app-auth`             | Backend  | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Base con Prisma y guias `USO_CARPETA.md` |
+| `app-frontend`         | Frontend | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Base UI y cliente por servicios          |
+| `app-review-service`   | Backend  | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para review             |
+| `app-analysis-service` | Backend  | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para analysis           |
+| `app-report-service`   | Backend  | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para reportes           |
+| `app-surveys-service`  | Backend  | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para encuestas          |
 
 Todos los servicios fueron creados con la misma base de Next.js para mantener consistencia en el equipo.
 
@@ -94,6 +94,7 @@ Tambien exige buena comunicacion del equipo: cuando un Pull Request se completa 
 
 > [!IMPORTANT]
 > Regla del equipo:
+>
 > - cualquier servicio o tarea nueva parte desde `dev`
 > - cualquier Pull Request debe apuntar a `dev`
 > - `main` no recibe trabajo directo; solo cambios ya revisados e integrados
@@ -106,20 +107,20 @@ La base actual del workspace esta hecha con TypeScript, no con JavaScript.
 
 En estilos se esta trabajando con CSS vanilla por ahora. Todavia no se esta usando Tailwind CSS en esta base, porque esa implementacion se dejara para `app-frontend` cuando se trabaje la capa visual del proyecto.
 
-| Tecnologia | Version base |
-| --- | --- |
-| Node.js | `v22.22.0` |
-| Next.js | `16.2.4` |
-| React | `19.2.4` |
-| React DOM | `19.2.4` |
-| TypeScript | `^5` |
-| ESLint | `^9` |
-| Prisma CLI | `^7.8.0` |
-| Prisma Client | `^7.8.0` |
-| Prisma Adapter PG | `^7.8.0` |
-| `pg` | `^8.20.0` |
-| `dotenv` | `^17.4.2` |
-| `tsx` | `^4.21.0` |
+| Tecnologia        | Version base |
+| ----------------- | ------------ |
+| Node.js           | `v22.22.0`   |
+| Next.js           | `16.2.4`     |
+| React             | `19.2.4`     |
+| React DOM         | `19.2.4`     |
+| TypeScript        | `^5`         |
+| ESLint            | `^9`         |
+| Prisma CLI        | `^7.8.0`     |
+| Prisma Client     | `^7.8.0`     |
+| Prisma Adapter PG | `^7.8.0`     |
+| `pg`              | `^8.20.0`    |
+| `dotenv`          | `^17.4.2`    |
+| `tsx`             | `^4.21.0`    |
 
 ---
 
@@ -167,13 +168,13 @@ Dentro de cada servicio se deja una estructura minima para que el equipo tenga u
 
 Para servicios backend como `app-auth`, `app-review-service`, `app-analysis-service`, `app-report-service` y `app-surveys-service` la estructura sugerida es esta:
 
-| Ruta | Uso esperado |
-| --- | --- |
-| `src/app` | rutas, paginas y layout de Next.js |
-| `src/app/api/<feature>/route.ts` | endpoints API del servicio |
-| `src/lib` | utilidades, helpers, clientes y configuraciones compartidas |
-| `src/services` | logica de aplicacion o integraciones por servicio |
-| `src/types` | tipos e interfaces compartidas del servicio |
+| Ruta                             | Uso esperado                                                |
+| -------------------------------- | ----------------------------------------------------------- |
+| `src/app`                        | rutas, paginas y layout de Next.js                          |
+| `src/app/api/<feature>/route.ts` | endpoints API del servicio                                  |
+| `src/lib`                        | utilidades, helpers, clientes y configuraciones compartidas |
+| `src/services`                   | logica de aplicacion o integraciones por servicio           |
+| `src/types`                      | tipos e interfaces compartidas del servicio                 |
 
 En `app-auth` se dejan ademas archivos `USO_CARPETA.md` dentro de las carpetas importantes para indicar que va ahi y que no. Antes de crear archivos nuevos en ese servicio, conviene leer primero esas descripciones locales.
 
@@ -181,17 +182,17 @@ En `app-auth` se dejan ademas archivos `USO_CARPETA.md` dentro de las carpetas i
 
 Para `app-frontend` la estructura sugerida es esta:
 
-| Ruta | Uso esperado |
-| --- | --- |
-| `src/app` | rutas, paginas y layout de Next.js |
-| `src/components` | componentes visuales y secciones reutilizables |
-| `src/features` | modulos por dominio de UI |
-| `src/hooks` | hooks reutilizables del frontend |
-| `src/lib/config` | configuracion del frontend, como URLs de servicios |
-| `src/lib/utils` | helpers del frontend |
-| `src/services/http` | cliente base para fetch |
-| `src/services/<service>` | integraciones por servicio backend |
-| `src/types` | tipos de respuestas, UI y contratos del frontend |
+| Ruta                     | Uso esperado                                       |
+| ------------------------ | -------------------------------------------------- |
+| `src/app`                | rutas, paginas y layout de Next.js                 |
+| `src/components`         | componentes visuales y secciones reutilizables     |
+| `src/features`           | modulos por dominio de UI                          |
+| `src/hooks`              | hooks reutilizables del frontend                   |
+| `src/lib/config`         | configuracion del frontend, como URLs de servicios |
+| `src/lib/utils`          | helpers del frontend                               |
+| `src/services/http`      | cliente base para fetch                            |
+| `src/services/<service>` | integraciones por servicio backend                 |
+| `src/types`              | tipos de respuestas, UI y contratos del frontend   |
 
 La idea del frontend es conectarse a los servicios usando variables de entorno con las URLs publicas de despliegue, por ejemplo Vercel u otro gateway. Esas URLs no deben quedar hardcodeadas dentro de componentes.
 
@@ -288,6 +289,7 @@ npx prisma generate
 
 > [!WARNING]
 > Para que ese test funcione, antes deben existir:
+>
 > - `.env` con `DIRECT_URL`
 > - `prisma/schema.prisma`
 > - cliente generado en `src/generated/prisma`

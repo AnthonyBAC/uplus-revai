@@ -1,19 +1,52 @@
 # U+ Revai
 
+<p>
+  <img alt="Branch main" src="https://img.shields.io/badge/main-scaffold%20y%20documentacion-1f6feb?style=for-the-badge" />
+  <img alt="Branch dev" src="https://img.shields.io/badge/dev-integracion%20activa-238636?style=for-the-badge" />
+  <img alt="Workflow feature" src="https://img.shields.io/badge/feature-rama%20de%20trabajo-f59e0b?style=for-the-badge" />
+</p>
+
+<p>
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white" />
+  <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16.2.4-111111?logo=nextdotjs&logoColor=white" />
+  <img alt="React" src="https://img.shields.io/badge/React-19.2.4-149eca?logo=react&logoColor=white" />
+  <img alt="Prisma" src="https://img.shields.io/badge/Prisma-7.8.0-2d3748?logo=prisma&logoColor=white" />
+  <img alt="Node.js" src="https://img.shields.io/badge/Node.js-v22.22.0-339933?logo=nodedotjs&logoColor=white" />
+</p>
+
 Base inicial del workspace para U+ Revai.
 
-Este repositorio se mantiene en `main` solo con scaffold y documentacion. La logica de negocio, modelos finales y conexiones reales se trabajaran despues en `dev` y en ramas por feature.
+> [!IMPORTANT]
+> Este repositorio se mantiene en `main` solo con scaffold y documentacion.
+> La logica de negocio, modelos finales y conexiones reales se trabajaran despues en `dev` y en ramas por feature.
+
+## Navegacion rapida
+
+- [Servicios](#servicios)
+- [Clonar el repositorio](#clonar-el-repositorio)
+- [Flujo recomendado de ramas](#flujo-recomendado-de-ramas)
+- [Stack base](#stack-base)
+- [Instalacion inicial](#instalacion-inicial)
+- [Estructura base sugerida](#estructura-base-sugerida)
+- [Prisma en esta etapa](#prisma-en-esta-etapa)
+- [Convencion para main](#convencion-para-main)
+
+---
 
 ## Servicios
 
-- `app-auth`
-- `app-frontend`
-- `app-review-service`
-- `app-analysis-service`
-- `app-report-service`
-- `app-surveys-service`
+| Servicio               | Perfil   | Estado actual                                                    | Nota rapida                              |
+| ---------------------- | -------- | ---------------------------------------------------------------- | ---------------------------------------- |
+| `app-auth`             | Backend  | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Base con Prisma y guias `USO_CARPETA.md` |
+| `app-frontend`         | Frontend | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Base UI y cliente por servicios          |
+| `app-review-service`   | Backend  | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para review             |
+| `app-analysis-service` | Backend  | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para analysis           |
+| `app-report-service`   | Backend  | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para reportes           |
+| `app-surveys-service`  | Backend  | ![Scaffold](https://img.shields.io/badge/estado-scaffold-2ea043) | Servicio aislado para encuestas          |
 
 Todos los servicios fueron creados con la misma base de Next.js para mantener consistencia en el equipo.
+
+---
 
 ## Clonar el repositorio
 
@@ -26,7 +59,8 @@ git switch dev || git switch -c dev --track origin/dev
 git pull origin dev
 ```
 
-Despues de clonar el repositorio, cualquier trabajo nuevo debe partir desde la rama `dev`.
+> [!TIP]
+> Despues de clonar el repositorio, cualquier trabajo nuevo debe partir desde la rama `dev`.
 
 Desde `dev`, se crea una rama nueva para la tarea o servicio que se vaya a trabajar:
 
@@ -40,20 +74,17 @@ Cuando la tarea termine, se debe subir esa rama y abrir un Pull Request hacia `d
 git push -u origin feature/<nombre-de-la-rama>
 ```
 
-Antes de subir cambios a una rama de trabajo, primero se debe actualizar esa rama con los cambios mas recientes de `dev`.
+---
 
 ## Antes De Hacer Push: Actualiza Tu Rama
+
+Antes de subir cambios a una rama de trabajo, primero se debe actualizar esa rama con los cambios mas recientes de `dev`.
 
 ```bash
 git switch dev
 git pull origin dev
 git switch feature/<nombre-de-la-rama>
 git merge dev
-```
-
-Recien despues de actualizar la rama local `dev`, volver a la rama en la que se esta trabajando, unir ahi los cambios de `dev` con `git merge dev` y resolver cualquier conflicto, se debe hacer push de la rama de trabajo.
-
-```bash
 git push
 ```
 
@@ -61,17 +92,37 @@ Esto ayuda a evitar que cada rama quede atrasada respecto a los cambios ya aprob
 
 Tambien exige buena comunicacion del equipo: cuando un Pull Request se completa y entra a `dev`, los demas deben saberlo para actualizar su rama local antes de seguir trabajando o antes de subir cambios.
 
-Regla del equipo:
+> [!IMPORTANT]
+> Regla del equipo:
+>
+> - cualquier servicio o tarea nueva parte desde `dev`
+> - cualquier Pull Request debe apuntar a `dev`
+> - `main` no recibe trabajo directo; solo cambios ya revisados e integrados
 
-- cualquier servicio o tarea nueva parte desde `dev`
-- cualquier Pull Request debe apuntar a `dev`
-- `main` no recibe trabajo directo; solo cambios ya revisados e integrados
+---
 
 ## Stack base
 
 La base actual del workspace esta hecha con TypeScript, no con JavaScript.
 
 En estilos se esta trabajando con CSS vanilla por ahora. Todavia no se esta usando Tailwind CSS en esta base, porque esa implementacion se dejara para `app-frontend` cuando se trabaje la capa visual del proyecto.
+
+| Tecnologia        | Version base |
+| ----------------- | ------------ |
+| Node.js           | `v22.22.0`   |
+| Next.js           | `16.2.4`     |
+| React             | `19.2.4`     |
+| React DOM         | `19.2.4`     |
+| TypeScript        | `^5`         |
+| ESLint            | `^9`         |
+| Prisma CLI        | `^7.8.0`     |
+| Prisma Client     | `^7.8.0`     |
+| Prisma Adapter PG | `^7.8.0`     |
+| `pg`              | `^8.20.0`    |
+| `dotenv`          | `^17.4.2`    |
+| `tsx`             | `^4.21.0`    |
+
+---
 
 ## AGENTS por servicio
 
@@ -81,30 +132,22 @@ Ese archivo define el contexto, las reglas y las decisiones especificas de ese s
 
 Antes de trabajar en cualquier servicio, revisar primero:
 
-```bash
-/home/anthony/projects/uplus-revai/<nombre-del-servicio>/AGENTS.md
-```
+- [app-analysis-service/AGENTS.md](app-analysis-service/AGENTS.md)
+- [app-auth/AGENTS.md](app-auth/AGENTS.md)
+- [app-frontend/AGENTS.md](app-frontend/AGENTS.md)
+- [app-report-service/AGENTS.md](app-report-service/AGENTS.md)
+- [app-review-service/AGENTS.md](app-review-service/AGENTS.md)
+- [app-surveys-service/AGENTS.md](app-surveys-service/AGENTS.md)
 
-## Versiones base
-
-- Node.js: `v22.22.0`
-- Next.js: `16.2.4`
-- React: `19.2.4`
-- React DOM: `19.2.4`
-- TypeScript: `^5`
-- ESLint: `^9`
-- Prisma CLI: `^7.8.0`
-- Prisma Client: `^7.8.0`
-- Prisma Adapter PG: `^7.8.0`
-- `pg`: `^8.20.0`
-- `dotenv`: `^17.4.2`
-- `tsx`: `^4.21.0`
+---
 
 ## Instalacion inicial
 
 Cada servicio ya tiene declaradas las dependencias necesarias para trabajar con Next.js y Prisma mas adelante.
 
-Importante: la raiz del workspace no tiene un `package.json` unico. Por eso `npm install` no se corre en `/home/anthony/projects/uplus-revai`, sino dentro de cada servicio.
+> [!WARNING]
+> La raiz del workspace no tiene un `package.json` unico.
+> Por eso `npm install` no se corre en `/home/anthony/projects/uplus-revai`, sino dentro de cada servicio.
 
 Orden recomendado para empezar el proyecto desde cero:
 
@@ -113,44 +156,56 @@ cd /home/anthony/projects/uplus-revai/<nombre-del-servicio>
 npm install
 ```
 
-Repetir el mismo paso en cada carpeta raiz de servicio
+Repetir el mismo paso en cada carpeta raiz de servicio.
+
+---
 
 ## Estructura base sugerida
 
 Dentro de cada servicio se deja una estructura minima para que el equipo tenga un punto de partida comun.
 
+### Backend services
+
 Para servicios backend como `app-auth`, `app-review-service`, `app-analysis-service`, `app-report-service` y `app-surveys-service` la estructura sugerida es esta:
 
-- `src/app`: rutas, paginas y layout de Next.js
-- `src/app/api/<feature>/route.ts`: endpoints API del servicio
-- `src/lib`: utilidades, helpers, clientes y configuraciones compartidas
-- `src/services`: logica de aplicacion o integraciones por servicio
-- `src/types`: tipos e interfaces compartidas del servicio
+| Ruta                             | Uso esperado                                                |
+| -------------------------------- | ----------------------------------------------------------- |
+| `src/app`                        | rutas, paginas y layout de Next.js                          |
+| `src/app/api/<feature>/route.ts` | endpoints API del servicio                                  |
+| `src/lib`                        | utilidades, helpers, clientes y configuraciones compartidas |
+| `src/services`                   | logica de aplicacion o integraciones por servicio           |
+| `src/types`                      | tipos e interfaces compartidas del servicio                 |
 
 En `app-auth` se dejan ademas archivos `USO_CARPETA.md` dentro de las carpetas importantes para indicar que va ahi y que no. Antes de crear archivos nuevos en ese servicio, conviene leer primero esas descripciones locales.
 
+### Frontend
+
 Para `app-frontend` la estructura sugerida es esta:
 
-- `src/app`: rutas, paginas y layout de Next.js
-- `src/components`: componentes visuales y secciones reutilizables
-- `src/features`: modulos por dominio de UI
-- `src/hooks`: hooks reutilizables del frontend
-- `src/lib/config`: configuracion del frontend, como URLs de servicios
-- `src/lib/utils`: helpers del frontend
-- `src/services/http`: cliente base para fetch
-- `src/services/<service>`: integraciones por servicio backend
-- `src/types`: tipos de respuestas, UI y contratos del frontend
+| Ruta                     | Uso esperado                                       |
+| ------------------------ | -------------------------------------------------- |
+| `src/app`                | rutas, paginas y layout de Next.js                 |
+| `src/components`         | componentes visuales y secciones reutilizables     |
+| `src/features`           | modulos por dominio de UI                          |
+| `src/hooks`              | hooks reutilizables del frontend                   |
+| `src/lib/config`         | configuracion del frontend, como URLs de servicios |
+| `src/lib/utils`          | helpers del frontend                               |
+| `src/services/http`      | cliente base para fetch                            |
+| `src/services/<service>` | integraciones por servicio backend                 |
+| `src/types`              | tipos de respuestas, UI y contratos del frontend   |
 
 La idea del frontend es conectarse a los servicios usando variables de entorno con las URLs publicas de despliegue, por ejemplo Vercel u otro gateway. Esas URLs no deben quedar hardcodeadas dentro de componentes.
 
 En `app-frontend` se deja tambien un ejemplo minimo de cliente para consumir el service de auth desde `src/services/auth`.
 
-Notas:
+### Notas de estructura
 
-- `route.ts` se deja como ejemplo para mostrar donde deben vivir los endpoints
-- `src/generated/prisma` no se crea manualmente; lo genera Prisma con `npx prisma generate`
-- las carpetas vacias se dejan con `.gitkeep` para que la estructura quede visible desde el inicio
-- en frontend las conexiones a servicios deben salir desde variables `NEXT_PUBLIC_*`, definidas en `.env.example` y luego configuradas en el entorno real de despliegue
+- `route.ts` se deja como ejemplo para mostrar donde deben vivir los endpoints.
+- `src/generated/prisma` no se crea manualmente; lo genera Prisma con `npx prisma generate`.
+- Las carpetas vacias se dejan con `.gitkeep` para que la estructura quede visible desde el inicio.
+- En frontend las conexiones a servicios deben salir desde variables `NEXT_PUBLIC_*`, definidas en `.env.example` y luego configuradas en el entorno real de despliegue.
+
+---
 
 ## Prisma en esta etapa
 
@@ -162,7 +217,7 @@ Por ahora `main` no deja listas las conexiones reales ni las variables de entorn
 - dejar el scaffold de cada app consistente
 - documentar el paso a paso para cuando se implemente cada servicio
 
-## Paquetes Prisma ya incluidos
+### Paquetes Prisma ya incluidos
 
 En cada servicio quedan instalados o declarados estos paquetes:
 
@@ -173,7 +228,7 @@ En cada servicio quedan instalados o declarados estos paquetes:
 - `dotenv`
 - `tsx`
 
-## Pasos sugeridos para implementar Prisma despues
+### Pasos sugeridos para implementar Prisma despues
 
 Cuando un servicio realmente vaya a usar base de datos, el orden recomendado es este.
 
@@ -232,13 +287,12 @@ npx prisma generate
 
 7. Crear o copiar `test-prisma.ts`.
 
-## IMPORTANTE ANTES DEL SIGUIENTE PASO `test-prisma.ts`
-
-Para que ese test funcione, antes deben existir:
-
-- `.env` con `DIRECT_URL`
-- `prisma/schema.prisma`
-- cliente generado en `src/generated/prisma`
+> [!WARNING]
+> Para que ese test funcione, antes deben existir:
+>
+> - `.env` con `DIRECT_URL`
+> - `prisma/schema.prisma`
+> - cliente generado en `src/generated/prisma`
 
 Para ejecutarlo, cuando la conexion ya exista, el flujo esperado seria:
 
@@ -259,7 +313,7 @@ Si todo esta bien, la salida esperada es parecida a esta:
 Conexion OK con Prisma: [ { now: 2026-04-26T01:21:25.283Z } ]
 ```
 
-## Prueba de conexion con Prisma
+### Prueba de conexion con Prisma
 
 La prueba simple recomendada se hace con un archivo `test-prisma.ts` en la carpeta raiz del servicio.
 
@@ -270,7 +324,7 @@ Ese archivo sirve para:
 - instanciar Prisma Client
 - ejecutar una consulta simple como `select now()`
 
-## Variables de entorno para conexion
+### Variables de entorno para conexion
 
 Se deja un ejemplo en `.env.example` dentro de la carpeta raiz del servicio.
 
@@ -280,7 +334,7 @@ Estructura esperada:
 DIRECT_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE"
 ```
 
-## IMPORTANTE ANTES DE EMPEZAR CON PRISMA
+### IMPORTANTE ANTES DE EMPEZAR CON PRISMA
 
 Si la base de datos del servicio ya tiene tablas creadas, no empieces creando migraciones nuevas a ciegas.
 
@@ -303,7 +357,7 @@ Recien cuando el `schema.prisma` local represente correctamente lo que ya existe
 
 Si corres `npx prisma migrate dev` sin haber alineado antes el schema local con una base que ya tiene tablas, Prisma puede detectar drift y pedir reset del schema.
 
-## Comandos a repetir cuando cambie el schema
+### Comandos a repetir cuando cambie el schema
 
 Cada vez que se cree o cambie `prisma/schema.prisma`, correr desde la carpeta raiz del servicio:
 
@@ -323,6 +377,8 @@ Nota: `npx prisma migrate dev` esta bien para desarrollo. Si despues despliegas 
 
 Importante: todos los comandos de Prisma deben correrse dentro de la carpeta raiz del servicio correspondiente. Si se ejecutan desde la raiz del workspace, Prisma no va a encontrar el `prisma/schema.prisma` de ese servicio.
 
+---
+
 ## Convencion para `main`
 
 `main` debe contener solo:
@@ -338,6 +394,8 @@ No deberia contener aun:
 - endpoints finales
 - seeds definitivos
 - modelos cerrados si todavia no fueron acordados
+
+---
 
 ## Flujo recomendado de ramas
 

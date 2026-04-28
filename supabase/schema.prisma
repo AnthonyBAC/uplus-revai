@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client"
+  output   = "./generated/prisma"
 }
 
 datasource db {
@@ -128,6 +128,56 @@ model user_branch_accesses {
   @@index([business_id])
 }
 
+model Survey {
+  id         String           @id @default(uuid())
+  businessId String
+  branchId   String?
+  title      String
+  isActive   Boolean          @default(true)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  questions  SurveyQuestion[]
+  responses  SurveyResponse[]
+
+  @@map("surveys")
+}
+
+model SurveyQuestion {
+  id        String         @id @default(uuid())
+  surveyId  String
+  text      String
+  type      QuestionType
+  order     Int
+  createdAt DateTime       @default(now())
+  answers   SurveyAnswer[]
+  survey    Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@map("survey_questions")
+}
+
+model SurveyResponse {
+  id         String         @id @default(uuid())
+  surveyId   String
+  businessId String
+  branchId   String?
+  createdAt  DateTime       @default(now())
+  answers    SurveyAnswer[]
+  survey     Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@map("survey_responses")
+}
+
+model SurveyAnswer {
+  id         String         @id @default(uuid())
+  responseId String
+  questionId String
+  value      String
+  question   SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  response   SurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+
+  @@map("survey_answers")
+}
+
 enum HttpMethod {
   GET
   POST
@@ -139,64 +189,6 @@ enum HttpMethod {
 enum RoleName {
   ADMIN
   TRABAJADOR
-}
-
-// -------------------SURVEY-------------------
-// Negocio al que pertenece la encuesta (referencia lógica, sin FK cross-service)
-// businessId y branchId son UUIDs que vienen del app-auth service
-
-model Survey {
-  id         String   @id @default(uuid())
-  businessId String
-  branchId   String?
-  title      String
-  isActive   Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  questions SurveyQuestion[]
-  responses SurveyResponse[]
-
-  @@map("surveys")
-}
-
-model SurveyQuestion {
-  id        String       @id @default(uuid())
-  surveyId  String
-  text      String
-  type      QuestionType
-  order     Int
-  createdAt DateTime     @default(now())
-
-  survey  Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-  answers SurveyAnswer[]
-
-  @@map("survey_questions")
-}
-
-model SurveyResponse {
-  id         String   @id @default(uuid())
-  surveyId   String
-  businessId String
-  branchId   String?
-  createdAt  DateTime @default(now())
-
-  survey  Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-  answers SurveyAnswer[]
-
-  @@map("survey_responses")
-}
-
-model SurveyAnswer {
-  id         String  @id @default(uuid())
-  responseId String
-  questionId String
-  value      String  // texto libre, número como string, o valor de opción
-
-  response SurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
-  question SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-
-  @@map("survey_answers")
 }
 
 enum QuestionType {

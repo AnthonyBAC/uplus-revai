@@ -1,0 +1,46 @@
+{
+    "name": "uplus-revai",
+    "version": "0.1.0",
+    "private": true,
+    "workspaces": [
+        "app-auth",
+        "app-analysis-service",
+        "app-frontend",
+        "app-report-service",
+        "app-review-service",
+        "app-surveys-service"
+    ],
+    "scripts": {
+        "dev:auth": "npm run dev --workspace=app-auth",
+        "dev:frontend": "npm run dev --workspace=app-frontend",
+        "dev:analysis": "npm run dev --workspace=app-analysis-service",
+        "dev:report": "npm run dev --workspace=app-report-service",
+        "dev:review": "npm run dev --workspace=app-review-service",
+        "dev:surveys": "npm run dev --workspace=app-surveys-service",
+        "build": "npm run build --workspaces --if-present",
+        "lint": "npm run lint --workspaces --if-present",
+        "db:migrate": "npx prisma migrate dev",
+        "db:migrate:deploy": "npx prisma migrate deploy",
+        "db:migrate:reset": "npx prisma migrate reset",
+        "db:pull": "npx prisma db pull",
+        "db:push": "npx prisma db push",
+        "db:studio": "npx prisma studio",
+        "db:generate": "npx prisma generate",
+        "db:test": "npx tsx test-prisma.ts"
+    },
+    "dependencies": {
+        "@auth/prisma-adapter": "^2.11.2",
+        "@prisma/adapter-pg": "^7.8.0",
+        "@prisma/client": "^7.8.0",
+        "pg": "^8.20.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20",
+        "@types/pg": "^8",
+        "dotenv": "^17.4.2",
+        "prettier": "^3.6.2",
+        "prisma": "^7.8.0",
+        "tsx": "^4.21.0",
+        "typescript": "^5"
+    }
+}

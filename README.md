@@ -30,10 +30,10 @@ Monorepo de U+ Revai con servicios Node/Next.js, un servicio de IA en Python/Fas
 - [Dependencias Base](#dependencias-base)
 - [Servicios](#servicios)
 - [AGENTS Por Servicio](#agents-por-servicio)
+- [Flujo De Ramas](#flujo-de-ramas)
 - [Diagrama](#diagrama)
 - [Instalacion Inicial](#instalacion-inicial)
 - [Prisma Global](#prisma-global)
-- [Flujo De Ramas](#flujo-de-ramas)
 - [Resumen Rapido](#resumen-rapido)
 - [Scripts Globales](#scripts-globales)
 
@@ -152,6 +152,33 @@ Antes de tocar un servicio, revisar primero su `AGENTS.md`:
 
 ---
 
+## Flujo De Ramas
+
+Orden recomendado:
+
+1. trabajar desde `dev`
+2. crear `feature/...`
+3. desarrollar en tu rama
+4. actualizar tu rama con `dev` antes de abrir PR
+5. abrir PR hacia `dev`
+
+> [!IMPORTANT]
+> Actualizar tu rama antes de subir cambios:
+>
+> ```bash
+> git switch dev
+> git pull origin dev
+> git switch feature/<nombre-de-tu-rama>
+> git merge dev
+> ```
+>
+> Regla de `main`:
+>
+> - `main` no es para trabajo diario.
+> - `main` solo recibe cambios ya revisados.
+
+---
+
 ## Diagrama
 
 Diagrama base del proyecto:
@@ -257,6 +284,64 @@ npm run dev:surveys
 > [!IMPORTANT]
 > `app-ai-service` usa Python y tiene flujo separado. Su instalacion local no forma parte del flujo global Node de arriba.
 
+#### Paso extra. Si vas a trabajar en `app-ai-service`
+
+El flujo oficial del equipo para `app-ai-service` es Docker. La opcion con `.venv` queda como alternativa para desarrollo o debugging local.
+
+##### Opcion recomendada: Docker
+
+```bash
+cd app-ai-service
+cp env.example .env
+docker compose up --build
+```
+
+El servicio quedara disponible en:
+
+```text
+http://localhost:8000
+```
+
+Variables minimas a revisar dentro de `app-ai-service/.env`:
+
+- `REVIEW_SERVICE_URL`
+- `SURVEYS_SERVICE_URL`
+- `REPORT_SERVICE_URL`
+- `AI_PROVIDER`
+- `AI_MODEL`
+- `AI_API_KEY`
+- `INTERNAL_SERVICE_TOKEN` si hay autenticacion entre servicios
+
+> [!IMPORTANT]
+> Si los otros servicios corren fuera de Docker en tu maquina, dentro de `app-ai-service/.env` puede convenir usar `host.docker.internal` en lugar de `localhost`.
+
+##### Opcion local: `.venv`
+
+```bash
+cd app-ai-service
+cp env.example .env
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
+uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+##### Validacion rapida
+
+```bash
+curl http://localhost:8000/health
+```
+
+Respuesta esperada:
+
+```json
+{
+  "ok": true,
+  "service": "app-ai-service",
+  "message": "FastAPI AI service is running."
+}
+```
+
 ---
 
 ## Prisma Global
@@ -311,33 +396,6 @@ No se versiona:
 
 > [!IMPORTANT]
 > Todos los comandos Prisma se corren desde la raiz del repo.
-
----
-
-## Flujo De Ramas
-
-Orden recomendado:
-
-1. trabajar desde `dev`
-2. crear `feature/...`
-3. desarrollar en tu rama
-4. actualizar tu rama con `dev` antes de abrir PR
-5. abrir PR hacia `dev`
-
-> [!IMPORTANT]
-> Actualizar tu rama antes de subir cambios:
->
-> ```bash
-> git switch dev
-> git pull origin dev
-> git switch feature/<nombre-de-tu-rama>
-> git merge dev
-> ```
->
-> Regla de `main`:
->
-> - `main` no es para trabajo diario.
-> - `main` solo recibe cambios ya revisados.
 
 ---
 

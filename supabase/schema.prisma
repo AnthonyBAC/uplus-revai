@@ -197,3 +197,90 @@ enum QuestionType {
   SINGLE_CHOICE
   MULTIPLE_CHOICE
 }
+
+// ─── Review domain (owner: app-review-service) ────────────────────────────
+
+enum ReviewSource {
+  GOOGLE
+}
+
+enum ReviewSyncStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+enum PlatformConnectionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+model BusinessPlatformConnection {
+  id                   String                   @id @default(uuid())
+  businessId           String
+  branchId             String?
+  source               ReviewSource
+  externalAccountId    String
+  externalLocationId   String
+  accessToken          String
+  refreshToken         String
+  tokenExpiresAt       DateTime
+  status               PlatformConnectionStatus @default(ACTIVE)
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+  reviews              Review[]
+  syncJobs             ReviewSyncJob[]
+
+  @@unique([businessId, source, externalLocationId])
+  @@index([businessId])
+  @@index([branchId])
+  @@map("business_platform_connections")
+}
+
+model Review {
+  id               String                     @id @default(uuid())
+  businessId       String
+  branchId         String?
+  connectionId     String
+  source           ReviewSource
+  externalId       String
+  authorName       String?
+  authorExternalId String?
+  rating           Int
+  content          String
+  language         String?
+  publishedAt      DateTime
+  fetchedAt        DateTime                   @default(now())
+  rawPayload       Json
+  createdAt        DateTime                   @default(now())
+  updatedAt        DateTime                   @updatedAt
+  connection       BusinessPlatformConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, source, externalId])
+  @@index([businessId, publishedAt])
+  @@index([branchId, publishedAt])
+  @@index([connectionId])
+  @@map("reviews")
+}
+
+model ReviewSyncJob {
+  id             String                     @id @default(uuid())
+  connectionId   String
+  businessId     String
+  branchId       String?
+  status         ReviewSyncStatus           @default(PENDING)
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  reviewsFetched Int                        @default(0)
+  reviewsNew     Int                        @default(0)
+  errorMessage   String?
+  triggeredBy    String?
+  createdAt      DateTime                   @default(now())
+  connection     BusinessPlatformConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, createdAt])
+  @@index([status])
+  @@map("review_sync_jobs")
+}

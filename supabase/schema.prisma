@@ -284,3 +284,59 @@ model ReviewSyncJob {
   @@index([status])
   @@map("review_sync_jobs")
 }
+
+// ─── Report domain (owner: app-report-service) ────────────────────────────
+
+enum Sentiment {
+  POSITIVE
+  NEGATIVE
+  NEUTRAL
+}
+
+enum AnalysisSourceType {
+  REVIEW
+  SURVEY
+}
+
+enum ReportStatus {
+  PENDING
+  READY
+  FAILED
+}
+
+model AnalysisResult {
+  id          String             @id @default(uuid())
+  businessId  String
+  branchId    String?
+  sourceType  AnalysisSourceType
+  sourceId    String
+  sentiment   Sentiment
+  summary     String
+  keywords    String[]
+  periodMonth DateTime?
+  rawPayload  Json?
+  createdAt   DateTime           @default(now())
+
+  @@index([businessId, createdAt])
+  @@index([businessId, sourceType])
+  @@index([branchId])
+  @@map("analysis_results")
+}
+
+model Report {
+  id          String       @id @default(uuid())
+  businessId  String
+  branchId    String?
+  title       String
+  periodStart DateTime
+  periodEnd   DateTime
+  status      ReportStatus @default(PENDING)
+  content     Json?
+  generatedAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([businessId, createdAt])
+  @@index([branchId])
+  @@map("reports")
+}

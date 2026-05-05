@@ -1,0 +1,2 @@
+-- RenameIndex
+ALTER INDEX "business_platform_connections_businessId_source_externalLocatio" RENAME TO "business_platform_connections_businessId_source_externalLoc_key";

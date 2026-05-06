@@ -106,7 +106,6 @@ Piezas globales que el equipo debe tomar como referencia oficial:
 | `tsx` | `^4.21.0` | ejecucion de scripts TS |
 | `typescript` | `^5` | compilacion y tipos |
 | `dotenv` | `^17.4.2` | carga de variables de entorno |
-| `dotenv-cli` | `^8.0.0` | inyecta el `.env` raiz en scripts `dev:*` de workspaces |
 | `@types/node` | `^20` | tipos de Node |
 | `@types/pg` | `^8` | tipos de PostgreSQL |
 
@@ -284,23 +283,6 @@ npm run dev:surveys
 
 > [!IMPORTANT]
 > `app-ai-service` usa Python y tiene flujo separado. Su instalacion local no forma parte del flujo global Node de arriba.
-
-> [!NOTE]
-> **Por que cada script usa `dotenv -e .env --`**
->
-> npm workspaces cambia el directorio de trabajo al interior de cada servicio al correr scripts.
-> Eso hace que Next.js no encuentre el `.env` de la raiz, ya que lo busca en el directorio actual.
->
-> Para resolverlo, todos los scripts `dev:*` usan `dotenv-cli` con la flag `-e .env` apuntando al `.env` de la raiz:
->
-> ```bash
-> dotenv -e .env -- npm run dev --workspace=app-review-service -- -p 3003
-> ```
->
-> Esto inyecta las variables del `.env` raiz al proceso antes de que Next.js arranque.
-> Por eso **no hay `.env` por servicio** en los servicios Node — todos comparten el `.env` global desde la raiz.
->
-> La unica excepcion es `app-ai-service`, que tiene su propio `.env` porque es un proceso Python independiente (no es un workspace Node).
 
 #### Paso extra. Si vas a trabajar en `app-ai-service`
 

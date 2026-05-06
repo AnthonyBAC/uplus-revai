@@ -1,5 +1,3 @@
-from typing import Any
-
 from pydantic import BaseModel, Field
 
 
@@ -9,19 +7,7 @@ class AnalysisRequest(BaseModel):
     start_date: str | None = Field(default=None, alias="startDate")
     end_date: str | None = Field(default=None, alias="endDate")
 
-
-class SourceSnapshot(BaseModel):
-    source: str
-    total_items: int = Field(..., alias="totalItems")
-    preview: list[dict[str, Any]] = Field(default_factory=list)
-
-
-class AnalysisResult(BaseModel):
-    provider: str
-    model: str
-    summary: str
-    recommended_actions: list[str] = Field(default_factory=list, alias="recommendedActions")
-    source_snapshots: list[SourceSnapshot] = Field(default_factory=list, alias="sourceSnapshots")
+    model_config = {"populate_by_name": True}
 
 
 class PublishResult(BaseModel):
@@ -29,10 +15,16 @@ class PublishResult(BaseModel):
     delivered: bool
     detail: str
 
+    model_config = {"populate_by_name": True}
+
 
 class AnalysisResponse(BaseModel):
     ok: bool
     business_id: str = Field(..., alias="businessId")
     branch_id: str | None = Field(default=None, alias="branchId")
-    analysis: AnalysisResult
+    report_id: str | None = Field(default=None, alias="reportId")
+    items_analyzed: int = Field(default=0, alias="itemsAnalyzed")
+    aggregate_status: str = Field(default="PENDING", alias="aggregateStatus")
     publish_result: PublishResult = Field(..., alias="publishResult")
+
+    model_config = {"populate_by_name": True}

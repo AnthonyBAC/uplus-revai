@@ -11,7 +11,7 @@ def build_service(settings: Settings = Depends(get_settings)) -> AnalysisService
     return AnalysisService(settings)
 
 
-@router.post("/generate", response_model=AnalysisResponse)
+@router.post("/generate", response_model=AnalysisResponse, response_model_by_alias=True)
 async def generate_analysis(
     payload: AnalysisRequest,
     service: AnalysisService = Depends(build_service),

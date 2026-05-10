@@ -93,6 +93,11 @@ jobs:
       - name: Build
         run: npm run build --workspace=${{ matrix.service }}
 
+      - name: Deploy to Vercel
+        if: (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') && github.event_name == 'push'
+        run: npx vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+        working-directory: ${{ matrix.service }}
+
   # ──────────────────────────────────────────────────────────
   # 3. Lint Python (app-ai-service)
   # ──────────────────────────────────────────────────────────

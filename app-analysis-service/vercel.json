@@ -1,0 +1,3 @@
+{
+  "buildCommand": "cd .. && npm run db:generate && cd app-analysis-service && npx next build"
+}

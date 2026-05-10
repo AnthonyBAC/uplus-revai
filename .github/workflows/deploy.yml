@@ -1,0 +1,117 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+
+jobs:
+  # ──────────────────────────────────────────────────────────
+  # 1. Detectar qué servicios cambiaron
+  # ──────────────────────────────────────────────────────────
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          list-files: json
+          filters: |
+            app-auth:
+              - app-auth/**
+              - lib/**
+              - supabase/**
+              - package-lock.json
+            app-analysis-service:
+              - app-analysis-service/**
+              - lib/**
+              - package-lock.json
+            app-frontend:
+              - app-frontend/**
+              - lib/**
+              - package-lock.json
+            app-report-service:
+              - app-report-service/**
+              - lib/**
+              - supabase/**
+              - package-lock.json
+            app-review-service:
+              - app-review-service/**
+              - lib/**
+              - supabase/**
+              - package-lock.json
+            app-surveys-service:
+              - app-surveys-service/**
+              - lib/**
+              - supabase/**
+              - package-lock.json
+            app-ai-service:
+              - app-ai-service/**
+
+  # ──────────────────────────────────────────────────────────
+  # 2. Lint + Test + Build cada servicio Node
+  # ──────────────────────────────────────────────────────────
+  build-node:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.services != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - app-auth
+          - app-analysis-service
+          - app-frontend
+          - app-report-service
+          - app-review-service
+          - app-surveys-service
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate Prisma client
+        run: npm run db:generate
+
+      - name: Lint
+        run: npm run lint --workspace=${{ matrix.service }}
+
+      - name: Test
+        run: npm run test -- --project=${{ matrix.service }}
+
+      - name: Build
+        run: npm run build --workspace=${{ matrix.service }}
+
+  # ──────────────────────────────────────────────────────────
+  # 3. Lint Python (app-ai-service)
+  # ──────────────────────────────────────────────────────────
+  lint-python:
+    needs: detect-changes
+    if: contains(needs.detect-changes.outputs.services, 'app-ai-service')
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app-ai-service
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      - name: Lint with ruff
+        run: pip install ruff && ruff check src/

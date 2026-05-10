@@ -50,6 +50,7 @@ const endpoints: EndpointDef[] = [
 
   // ─── reports ─────────────────────────────────────────
   { key: 'analysis.list', method: 'GET', path: '/api/analysis', description: 'Listar análisis' },
+  { key: 'analysis.create', method: 'POST', path: '/api/analysis', description: 'Crear análisis' },
   { key: 'reports.list', method: 'GET', path: '/api/reports', description: 'Listar reportes' },
   { key: 'reports.create', method: 'POST', path: '/api/reports', description: 'Crear reporte' },
   { key: 'reports.get', method: 'GET', path: '/api/reports/:id', description: 'Obtener reporte' },

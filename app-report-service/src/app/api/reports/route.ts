@@ -1,41 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Prisma } from '../../../../../supabase/generated/prisma/client';
 import { prisma } from '@global/prisma';
 import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@global/auth';
-import { CreateAnalysisSchema, ListAnalysisQuerySchema } from '@/lib/validations/report';
+import { ListReportsQuerySchema, CreateReportSchema } from '@/lib/validations/report';
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl;
 
-    const parsed = ListAnalysisQuerySchema.safeParse({
+    const parsed = ListReportsQuerySchema.safeParse({
       businessId: searchParams.get('businessId'),
       branchId: searchParams.get('branchId') ?? undefined,
-      sourceType: searchParams.get('sourceType') ?? undefined,
-      sentiment: searchParams.get('sentiment') ?? undefined,
+      status: searchParams.get('status') ?? undefined,
     });
 
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
     }
 
-    const { businessId, branchId, sourceType, sentiment } = parsed.data;
+    const { businessId, branchId, status } = parsed.data;
 
     const auth = await requireAuth(req);
     const { role } = await requireBusinessAccess(auth.appUserId, businessId);
-    await requireEndpointPermission(role, 'GET', '/api/analysis');
+    await requireEndpointPermission(role, 'GET', '/api/reports');
 
-    const results = await prisma.analysisResult.findMany({
+    const reports = await prisma.report.findMany({
       where: {
         businessId,
         ...(branchId ? { branchId } : {}),
-        ...(sourceType ? { sourceType } : {}),
-        ...(sentiment ? { sentiment } : {}),
+        ...(status ? { status } : {}),
       },
       orderBy: { createdAt: 'desc' },
     });
 
-    return NextResponse.json(results);
+    return NextResponse.json(reports);
   } catch (err: unknown) {
     const status = (err as Error & { status?: number }).status ?? 500;
     return NextResponse.json({ error: (err as Error).message }, { status });
@@ -45,33 +42,29 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const parsed = CreateAnalysisSchema.safeParse(body);
+    const parsed = CreateReportSchema.safeParse(body);
 
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
     }
 
-    const { businessId, branchId, sourceType, sourceId, sentiment, summary, keywords, periodMonth, rawPayload } = parsed.data;
+    const { businessId, branchId, title, periodStart, periodEnd } = parsed.data;
 
     const auth = await requireAuth(req);
     const { role } = await requireBusinessAccess(auth.appUserId, businessId);
-    await requireEndpointPermission(role, 'POST', '/api/analysis');
+    await requireEndpointPermission(role, 'POST', '/api/reports');
 
-    const result = await prisma.analysisResult.create({
+    const report = await prisma.report.create({
       data: {
         businessId,
-        ...(branchId ? { branchId } : {}),
-        sourceType,
-        sourceId,
-        sentiment,
-        summary,
-        keywords,
-        ...(periodMonth ? { periodMonth: new Date(periodMonth) } : {}),
-        ...(rawPayload ? { rawPayload: rawPayload as Prisma.InputJsonValue } : {}),
+        branchId,
+        title,
+        periodStart: new Date(periodStart),
+        periodEnd: new Date(periodEnd),
       },
     });
 
-    return NextResponse.json(result, { status: 201 });
+    return NextResponse.json(report, { status: 201 });
   } catch (err: unknown) {
     const status = (err as Error & { status?: number }).status ?? 500;
     return NextResponse.json({ error: (err as Error).message }, { status });

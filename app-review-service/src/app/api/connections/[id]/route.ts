@@ -1,72 +1,91 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@global/prisma';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@global/auth';
 import { UpdateConnectionSchema } from '@/lib/validations/review';
 
 type Params = { params: Promise<{ id: string }> };
 
-// GET /api/connections/:id
-export async function GET(_req: NextRequest, { params }: Params) {
-  const { id } = await params;
+export async function GET(req: NextRequest, { params }: Params) {
+  try {
+    const { id } = await params;
+    const auth = await requireAuth(req);
 
-  const connection = await prisma.businessPlatformConnection.findUnique({
-    where: { id },
-    include: { syncJobs: { orderBy: { createdAt: 'desc' }, take: 5 } },
-  });
+    const connection = await prisma.businessPlatformConnection.findUnique({
+      where: { id },
+      include: { syncJobs: { orderBy: { createdAt: 'desc' }, take: 5 } },
+    });
 
-  if (!connection) {
-    return NextResponse.json(
-      { error: 'Conexión no encontrada' },
-      { status: 404 }
-    );
+    if (!connection) {
+      return NextResponse.json({ error: 'Conexión no encontrada' }, { status: 404 });
+    }
+
+    const { role } = await requireBusinessAccess(auth.appUserId, connection.businessId);
+    await requireEndpointPermission(role, 'GET', '/api/connections/:id');
+
+    return NextResponse.json(connection);
+  } catch (err: unknown) {
+    const status = (err as Error & { status?: number }).status ?? 500;
+    return NextResponse.json({ error: (err as Error).message }, { status });
   }
-
-  return NextResponse.json(connection);
 }
 
-// PATCH /api/connections/:id
 export async function PATCH(req: NextRequest, { params }: Params) {
-  const { id } = await params;
-  const body = await req.json();
-  const parsed = UpdateConnectionSchema.safeParse(body);
+  try {
+    const { id } = await params;
+    const auth = await requireAuth(req);
 
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.flatten() },
-      { status: 422 }
-    );
+    const connection = await prisma.businessPlatformConnection.findUnique({ where: { id } });
+    if (!connection) {
+      return NextResponse.json({ error: 'Conexión no encontrada' }, { status: 404 });
+    }
+
+    const { role } = await requireBusinessAccess(auth.appUserId, connection.businessId);
+    await requireEndpointPermission(role, 'PATCH', '/api/connections/:id');
+
+    const body = await req.json();
+    const parsed = UpdateConnectionSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
+    }
+
+    const data = {
+      ...parsed.data,
+      ...(parsed.data.tokenExpiresAt
+        ? { tokenExpiresAt: new Date(parsed.data.tokenExpiresAt) }
+        : {}),
+    };
+
+    const updated = await prisma.businessPlatformConnection.update({
+      where: { id },
+      data,
+    });
+
+    return NextResponse.json(updated);
+  } catch (err: unknown) {
+    const status = (err as Error & { status?: number }).status ?? 500;
+    return NextResponse.json({ error: (err as Error).message }, { status });
   }
-
-  const data = {
-    ...parsed.data,
-    ...(parsed.data.tokenExpiresAt
-      ? { tokenExpiresAt: new Date(parsed.data.tokenExpiresAt) }
-      : {}),
-  };
-
-  const connection = await prisma.businessPlatformConnection.update({
-    where: { id },
-    data,
-  });
-
-  return NextResponse.json(connection);
 }
 
-// DELETE /api/connections/:id
-export async function DELETE(_req: NextRequest, { params }: Params) {
-  const { id } = await params;
+export async function DELETE(req: NextRequest, { params }: Params) {
+  try {
+    const { id } = await params;
+    const auth = await requireAuth(req);
 
-  const connection = await prisma.businessPlatformConnection.findUnique({
-    where: { id },
-  });
+    const connection = await prisma.businessPlatformConnection.findUnique({ where: { id } });
+    if (!connection) {
+      return NextResponse.json({ error: 'Conexión no encontrada' }, { status: 404 });
+    }
 
-  if (!connection) {
-    return NextResponse.json(
-      { error: 'Conexión no encontrada' },
-      { status: 404 }
-    );
+    const { role } = await requireBusinessAccess(auth.appUserId, connection.businessId);
+    await requireEndpointPermission(role, 'DELETE', '/api/connections/:id');
+
+    await prisma.businessPlatformConnection.delete({ where: { id } });
+
+    return new NextResponse(null, { status: 204 });
+  } catch (err: unknown) {
+    const status = (err as Error & { status?: number }).status ?? 500;
+    return NextResponse.json({ error: (err as Error).message }, { status });
   }
-
-  await prisma.businessPlatformConnection.delete({ where: { id } });
-
-  return new NextResponse(null, { status: 204 });
 }

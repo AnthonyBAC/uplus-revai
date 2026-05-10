@@ -12,7 +12,7 @@ Servicio de encuestas internas de U+ Revai. Permite crear encuestas con pregunta
 
 - Next.js 16 (API routes)
 - PostgreSQL + Prisma
-- Supabase Auth (validación JWT)
+- Supabase Auth (validación JWT vía `@global/auth`)
 
 ## Autenticación y permisos
 

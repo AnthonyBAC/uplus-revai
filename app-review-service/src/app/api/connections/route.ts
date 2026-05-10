@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@global/prisma';
 import { CreateConnectionSchema } from '@/lib/validations/review';
 
 // GET /api/connections?businessId=xxx

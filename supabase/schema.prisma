@@ -18,6 +18,7 @@ model app_users {
   updated_at           DateTime
   business_memberships business_memberships[]
   user_branch_accesses user_branch_accesses[]
+  survey_responses     SurveyResponse[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -89,13 +90,15 @@ model endpoints {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model role_endpoint_permissions {
-  role_id     String    @db.Uuid
-  endpoint_id String    @db.Uuid
-  description String?
-  allowed     Boolean   @default(true)
-  created_at  DateTime  @default(now())
-  endpoints   endpoints @relation(fields: [endpoint_id], references: [id], onDelete: Cascade)
-  roles       roles     @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  role_id       String    @db.Uuid
+  role_name     RoleName
+  endpoint_id   String    @db.Uuid
+  endpoint_key  String
+  description   String?
+  allowed       Boolean   @default(true)
+  created_at    DateTime  @default(now())
+  endpoints     endpoints @relation(fields: [endpoint_id], references: [id], onDelete: Cascade)
+  roles         roles     @relation(fields: [role_id], references: [id], onDelete: Cascade)
 
   @@id([role_id, endpoint_id])
 }
@@ -156,13 +159,15 @@ model SurveyQuestion {
 }
 
 model SurveyResponse {
-  id         String         @id @default(uuid())
-  surveyId   String
-  businessId String
-  branchId   String?
-  createdAt  DateTime       @default(now())
-  answers    SurveyAnswer[]
-  survey     Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  id                  String         @id @default(uuid())
+  surveyId            String
+  businessId          String
+  branchId            String?
+  capturedByUserId    String?        @db.Uuid
+  createdAt           DateTime       @default(now())
+  answers             SurveyAnswer[]
+  capturedByUser      app_users?     @relation(fields: [capturedByUserId], references: [id])
+  survey              Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
 
   @@map("survey_responses")
 }

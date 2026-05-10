@@ -11,11 +11,8 @@
         "module": "NodeNext",
         "moduleResolution": "NodeNext",
         "resolveJsonModule": true,
-   
+
         "baseUrl": ".",
-        "paths": {
-            "@prisma/adapter-pg": ["./node_modules/@prisma/adapter-pg/dist/index.d.ts"]
-        },
         "types": ["node"]
     },
     "include": ["prisma.config.ts", "test-prisma.ts"]

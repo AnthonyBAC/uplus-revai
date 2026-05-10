@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@global/prisma';
 import { ListReviewsQuerySchema } from '@/lib/validations/review';
 
 // GET /api/reviews?businessId=xxx&branchId=xxx&from=xxx&to=xxx&rating=x&source=GOOGLE

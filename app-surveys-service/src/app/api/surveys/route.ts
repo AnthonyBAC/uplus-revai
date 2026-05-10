@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@global/prisma';
 import { CreateSurveySchema } from '@/lib/validations/survey';
 
 // GET /api/surveys?businessId=xxx

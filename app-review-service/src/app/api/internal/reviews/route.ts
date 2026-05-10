@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@global/prisma';
 import { InternalReviewsQuerySchema } from '@/lib/validations/review';
 
 // Valida el token de servicio interno

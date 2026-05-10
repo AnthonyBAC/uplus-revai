@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '../../../../../supabase/generated/prisma/client';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@global/prisma';
 import { isAuthorized } from '@/lib/auth';
 import { CreateAnalysisSchema, ListAnalysisQuerySchema } from '@/lib/validations/report';
 

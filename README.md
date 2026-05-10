@@ -477,6 +477,29 @@ No se versiona:
 | `npm run lint` | ejecuta lint en todos los workspaces disponibles |
 | `npm run build` | ejecuta build en todos los workspaces disponibles |
 
+### Tests
+
+| Script | Descripcion |
+| --- | --- |
+| `npm run test` | ejecuta todos los tests |
+| `npm run test:auth` | tests de `app-auth` |
+| `npm run test:surveys` | tests de `app-surveys-service` |
+| `npm run test:review` | tests de `app-review-service` |
+| `npm run test:report` | tests de `app-report-service` |
+| `npm run test:analysis` | tests de `app-analysis-service` (BFF) |
+
+| Servicio | Tests |
+| --- | --- |
+| `app-auth` | 10 |
+| `app-surveys-service` | 15 |
+| `app-review-service` | 8 |
+| `app-report-service` | 8 |
+| `app-analysis-service` | 6 |
+| **Total** | **47** |
+
+Los tests usan Vitest con configuracion global en `vitest.config.ts` (workspace projects).
+No se duplica la configuracion por servicio.
+
 ### Base de datos
 
 | Script | Descripcion |

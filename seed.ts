@@ -43,6 +43,10 @@ const endpoints: EndpointDef[] = [
   { key: 'surveys.delete', method: 'DELETE', path: '/api/surveys/:id', description: 'Eliminar encuesta' },
   { key: 'surveys.respond', method: 'POST', path: '/api/surveys/:id/respond', description: 'Responder encuesta' },
   { key: 'surveys.responses', method: 'GET', path: '/api/surveys/:id/responses', description: 'Ver respuestas de encuesta' },
+  { key: 'surveys.questions.list', method: 'GET', path: '/api/surveys/:id/questions', description: 'Listar preguntas' },
+  { key: 'surveys.questions.create', method: 'POST', path: '/api/surveys/:id/questions', description: 'Agregar pregunta' },
+  { key: 'surveys.questions.update', method: 'PATCH', path: '/api/surveys/:id/questions/:questionId', description: 'Editar pregunta' },
+  { key: 'surveys.questions.delete', method: 'DELETE', path: '/api/surveys/:id/questions/:questionId', description: 'Eliminar pregunta' },
 
   // ─── reports ─────────────────────────────────────────
   { key: 'analysis.list', method: 'GET', path: '/api/analysis', description: 'Listar análisis' },
@@ -59,6 +63,7 @@ const trabajadorEndpoints = new Set([
   'surveys.get',
   'surveys.respond',
   'surveys.responses',
+  'surveys.questions.list',
 ]);
 
 async function main() {

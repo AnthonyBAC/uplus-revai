@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { prisma } from '@global/prisma';
+import { prisma } from './prisma';
 
 function getSupabaseClient() {
   const url = process.env.SUPABASE_URL;
@@ -80,6 +80,12 @@ export async function requireEndpointPermission(
   if (!allowed) {
     throw permissionError(`Permiso denegado: ${role} no puede acceder a ${method} ${path}`);
   }
+}
+
+function permissionError(message: string): never {
+  const error = new Error(message);
+  (error as Error & { status: number }).status = 403;
+  throw error;
 }
 
 function authError(message: string): never {

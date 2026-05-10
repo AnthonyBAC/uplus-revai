@@ -54,6 +54,11 @@ const endpoints: EndpointDef[] = [
   { key: 'reports.list', method: 'GET', path: '/api/reports', description: 'Listar reportes' },
   { key: 'reports.create', method: 'POST', path: '/api/reports', description: 'Crear reporte' },
   { key: 'reports.get', method: 'GET', path: '/api/reports/:id', description: 'Obtener reporte' },
+
+  // ─── BFF ────────────────────────────────────────────
+  { key: 'analysis.run', method: 'POST', path: '/api/analysis/run', description: 'Ejecutar análisis (orquesta IA)' },
+  { key: 'analysis.results', method: 'GET', path: '/api/analysis/results', description: 'Consultar resultados de análisis' },
+  { key: 'dashboard.get', method: 'GET', path: '/api/dashboard', description: 'Dashboard agregado' },
 ];
 
 const trabajadorEndpoints = new Set([

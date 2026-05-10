@@ -15,27 +15,25 @@ from src.services.survey_client import SurveyServiceClient
 
 logger = logging.getLogger(__name__)
 
-# Máximo de análisis concurrentes para no saturar los servicios Node
 _CONCURRENCY = 5
 
 
 class AnalysisService:
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, settings: Settings, auth_token: str = "") -> None:
         self.settings = settings
         self.review_client = ReviewServiceClient(
             settings.review_service_url,
-            settings.internal_service_token,
+            auth_token,
         )
-        self.survey_client = SurveyServiceClient(settings.surveys_service_url)
+        self.survey_client = SurveyServiceClient(
+            settings.surveys_service_url,
+            auth_token,
+        )
         self.report_client = ReportServiceClient(
             settings.report_service_url,
-            settings.internal_service_token,
+            auth_token,
         )
         self.llm: LLMProvider = get_llm_provider(settings)
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # Punto de entrada principal
-    # ──────────────────────────────────────────────────────────────────────────
 
     async def generate(self, request: AnalysisRequest) -> AnalysisResponse:
         now = datetime.now(timezone.utc)
@@ -53,7 +51,7 @@ class AnalysisService:
         except httpx.HTTPError as exc:
             logger.warning("No se pudieron obtener reviews: %s", exc)
 
-        # ── Paso 2: Fetch survey responses (dos pasos) ────────────────────────
+        # ── Paso 2: Fetch survey responses ────────────────────────────────────
         survey_responses: list[dict[str, Any]] = []
         try:
             surveys = await self.survey_client.list_surveys(request.business_id)
@@ -66,7 +64,6 @@ class AnalysisService:
 
                 responses = await self.survey_client.fetch_responses(survey_id)
 
-                # Filtrado client-side por branchId si se especificó
                 if request.branch_id:
                     responses = [
                         r for r in responses if r.get("branchId") == request.branch_id
@@ -112,7 +109,7 @@ class AnalysisService:
                 ),
             )
 
-        # ── Pasos 4-5: Análisis per-ítem con concurrencia limitada ───────────
+        # ── Pasos 4-5: Análisis per-ítem ──────────────────────────────────────
         semaphore = asyncio.Semaphore(_CONCURRENCY)
         all_analyses: list[ItemAnalysis] = []
         items_analyzed = 0
@@ -150,7 +147,6 @@ class AnalysisService:
             nonlocal items_analyzed
             async with semaphore:
                 answers = response.get("answers", [])
-                # Concatenar pregunta + respuesta para dar contexto al LLM
                 text = " | ".join(
                     f"{a.get('question', {}).get('text', 'Pregunta')}: {a.get('value', '')}"
                     for a in answers
@@ -187,17 +183,16 @@ class AnalysisService:
 
         logger.info("Total ítems analizados: %d", items_analyzed)
 
-        # ── Paso 6-7: Agregar + PATCH reporte (3 intentos con fallback FAILED) ─
+        # ── Paso 6-7: Agregar + PATCH reporte ─────────────────────────────────
         period_label = f"{period_start[:10]} / {period_end[:10]}"
         aggregate_status = "FAILED"
 
         for attempt in range(1, 4):
             try:
                 aggregated = self.llm.aggregate(all_analyses, period_label)
-                # Zod iso.datetime() acepta máximo 3 decimales (ms), no 6 (µs)
                 generated_at = now.strftime("%Y-%m-%dT%H:%M:%S.") + f"{now.microsecond // 1000:03d}Z"
                 await self.report_client.update_report(
-                    report_id,  # type: ignore[arg-type]
+                    report_id,
                     {
                         "status": "READY",
                         "content": aggregated.model_dump(),
@@ -207,7 +202,7 @@ class AnalysisService:
                 aggregate_status = "READY"
                 logger.info("Reporte %s marcado como READY (intento %d)", report_id, attempt)
                 break
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 logger.warning(
                     "Intento %d de finalizar reporte %s falló: %s",
                     attempt,
@@ -216,9 +211,9 @@ class AnalysisService:
                 )
                 if attempt == 3:
                     try:
-                        await self.report_client.update_report(report_id, {"status": "FAILED"})  # type: ignore[arg-type]
+                        await self.report_client.update_report(report_id, {"status": "FAILED"})
                         logger.error("Reporte %s marcado como FAILED", report_id)
-                    except Exception:  # noqa: BLE001
+                    except Exception:
                         logger.error("No se pudo marcar el reporte como FAILED")
 
         delivered = aggregate_status == "READY"

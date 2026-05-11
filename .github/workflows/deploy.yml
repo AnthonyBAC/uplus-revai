@@ -90,9 +90,6 @@ jobs:
       - name: Install dependencies (clean)
         run: npm ci --no-audit --prefer-offline
 
-      - name: Generate Prisma client
-        run: npm run db:generate
-
       - name: Lint all workspaces
         run: npm run lint
 
@@ -126,9 +123,6 @@ jobs:
 
       - name: Install dependencies (clean)
         run: npm ci --no-audit --prefer-offline
-
-      - name: Generate Prisma client
-        run: npm run db:generate
 
       - name: Build workspace
         run: npm run build --workspace=${{ matrix.service }}

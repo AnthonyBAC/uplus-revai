@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@root/lib/prisma';
-import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@service/lib/auth';
+import { prisma } from '@uplus/db';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@uplus/auth';
 import { CreateConnectionSchema } from '@/lib/validations/review';
 
 export async function GET(req: NextRequest) {
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body: unknown = await req.json();
     const parsed = CreateConnectionSchema.safeParse(body);
 
     if (!parsed.success) {

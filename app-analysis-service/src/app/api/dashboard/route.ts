@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@service/lib/auth';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@uplus/auth';
 
 export async function GET(req: NextRequest) {
   try {

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@root/lib/prisma';
+import { prisma } from '@uplus/db';
 
 export async function GET() {
   try {

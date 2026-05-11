@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@root/lib/prisma';
+import { prisma } from '@uplus/db';
 import { CreateQuestionSchema } from '@/lib/validations/survey';
-import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@service/lib/auth';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@uplus/auth';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     const { role } = await requireBusinessAccess(auth.appUserId, survey.businessId);
     await requireEndpointPermission(role, 'POST', '/api/surveys/:id/questions');
 
-    const body = await req.json();
+    const body: unknown = await req.json();
     const parsed = CreateQuestionSchema.safeParse(body);
 
     if (!parsed.success) {

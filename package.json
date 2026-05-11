@@ -3,6 +3,8 @@
     "version": "0.1.0",
     "private": true,
     "workspaces": [
+        "packages/db",
+        "packages/auth",
         "app-auth",
         "app-analysis-service",
         "app-frontend",
@@ -25,22 +27,15 @@
         "test:review": "vitest run --project=app-review-service",
         "test:report": "vitest run --project=app-report-service",
         "test:analysis": "vitest run --project=app-analysis-service",
-        "db:migrate": "npx prisma migrate dev",
-        "db:migrate:deploy": "npx prisma migrate deploy",
-        "db:migrate:reset": "npx prisma migrate reset",
-        "db:pull": "npx prisma db pull",
-        "db:push": "npx prisma db push",
-        "db:studio": "npx prisma studio",
-        "db:generate": "npx prisma generate",
+        "db:migrate": "npm run migrate --workspace=packages/db",
+        "db:migrate:deploy": "npm run migrate:deploy --workspace=packages/db",
+        "db:generate": "npm run generate --workspace=packages/db",
+        "db:studio": "npm run studio --workspace=packages/db",
         "db:test": "npx tsx test-prisma.ts",
         "db:seed": "npx tsx seed.ts"
     },
     "dependencies": {
-        "@auth/prisma-adapter": "^2.11.2",
-        "@prisma/adapter-pg": "^7.8.0",
-        "@prisma/client": "^7.8.0",
-        "@supabase/supabase-js": "^2.49.0",
-        "pg": "^8.20.0"
+        "@auth/prisma-adapter": "^2.11.2"
     },
     "devDependencies": {
         "@types/node": "^20",
@@ -48,7 +43,6 @@
         "dotenv": "^17.4.2",
         "dotenv-cli": "^8.0.0",
         "prettier": "^3.6.2",
-        "prisma": "^7.8.0",
         "tsx": "^4.21.0",
         "typescript": "^5",
         "vitest": "^3.1.1"

@@ -13,9 +13,9 @@ const mockAuth = vi.hoisted(() => ({
   getBearerToken: vi.fn(() => 'fake-token'),
 }));
 
-vi.mock('@service/lib/auth', () => mockAuth);
+vi.mock('@/lib/auth', () => mockAuth);
 
-vi.mock('@service/lib/permissions', () => ({
+vi.mock('@/lib/permissions', () => ({
   requirePermission: vi.fn(() => Promise.resolve({ role: 'ADMIN', membershipId: 'mem-1' })),
 }));
 
@@ -41,9 +41,9 @@ const mockPrisma = vi.hoisted(() => {
   return { ...tx, $transaction: vi.fn((fn: (t: typeof tx) => unknown) => fn(tx)) };
 });
 
-vi.mock('@root/lib/prisma', () => ({ prisma: mockPrisma }));
+vi.mock('@uplus/db', () => ({ prisma: mockPrisma }));
 
-vi.mock('@service/lib/supabase', () => ({
+vi.mock('@/lib/supabase', () => ({
   getSupabaseAdmin: vi.fn(() => ({
     auth: {
       admin: {

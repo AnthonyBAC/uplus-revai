@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@root/lib/prisma';
-import { CreateSurveySchema } from '@service/lib/validations/survey';
-import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@service/lib/auth';
+import { prisma } from '@uplus/db';
+import { CreateSurveySchema } from '@/lib/validations/survey';
+import type { CreateSurveyInput } from '@/lib/validations/survey';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@uplus/auth';
 
 export async function GET(req: NextRequest) {
   try {
@@ -29,7 +30,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body: unknown = await req.json();
     const parsed = CreateSurveySchema.safeParse(body);
 
     if (!parsed.success) {
@@ -48,10 +49,10 @@ export async function POST(req: NextRequest) {
         branchId,
         title,
         questions: {
-          create: questions.map((q) => ({
-            text: q.text,
-            type: q.type,
-            order: q.order,
+          create: questions.map((question: CreateSurveyInput['questions'][number]) => ({
+            text: question.text,
+            type: question.type,
+            order: question.order,
           })),
         },
       },

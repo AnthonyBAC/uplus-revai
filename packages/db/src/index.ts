@@ -1,6 +1,9 @@
 import 'dotenv/config';
-import { PrismaClient } from '../supabase/generated/prisma/client';
+import { PrismaClient } from '../generated/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+
+export { Prisma } from '../generated/client';
+export type { RoleName } from '../generated/client';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 

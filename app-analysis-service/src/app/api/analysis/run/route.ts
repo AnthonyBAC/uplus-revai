@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@service/lib/auth';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@uplus/auth';
 
 export async function POST(req: NextRequest) {
   try {
     const auth = await requireAuth(req);
-    const body = await req.json();
-    const { businessId, branchId, startDate, endDate } = body;
+    const body: unknown = await req.json();
+    if (!isRecord(body)) {
+      return NextResponse.json({ error: 'Body JSON inválido' }, { status: 400 });
+    }
+
+    const businessId = typeof body.businessId === 'string' ? body.businessId : '';
+    const branchId = typeof body.branchId === 'string' ? body.branchId : undefined;
+    const startDate = typeof body.startDate === 'string' ? body.startDate : undefined;
+    const endDate = typeof body.endDate === 'string' ? body.endDate : undefined;
 
     if (!businessId) {
       return NextResponse.json({ error: 'businessId es requerido' }, { status: 400 });
@@ -45,4 +52,8 @@ export async function POST(req: NextRequest) {
     const status = (err as Error & { status?: number }).status ?? 500;
     return NextResponse.json({ error: (err as Error).message }, { status });
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
 }

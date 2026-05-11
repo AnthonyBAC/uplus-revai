@@ -1,5 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
-import { prisma } from './prisma';
+import { prisma } from '@uplus/db';
+
+type HeaderReader = {
+  headers: {
+    get(name: string): string | null;
+  };
+};
 
 function getSupabaseClient() {
   const url = process.env.SUPABASE_URL;
@@ -12,6 +18,24 @@ export interface AuthUser {
   appUserId: string;
   supabaseUserId: string;
   email: string;
+}
+
+export function getBearerToken(req: HeaderReader): string | null {
+  const header = req.headers.get('authorization');
+  if (!header?.startsWith('Bearer ')) {
+    return null;
+  }
+
+  return header.slice(7);
+}
+
+export async function requireAuth(req: HeaderReader): Promise<AuthUser> {
+  const token = getBearerToken(req);
+  if (!token) {
+    throw httpError(401, 'Token no proporcionado');
+  }
+
+  return getUserFromToken(token);
 }
 
 export async function getUserFromToken(token: string): Promise<AuthUser> {

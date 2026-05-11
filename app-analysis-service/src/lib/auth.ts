@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { getUserFromToken, requireBusinessAccess, requireEndpointPermission } from '@root/lib/auth';
+import { getUserFromToken, requireBusinessAccess, requireEndpointPermission } from '@uplus/auth';
 
 export async function requireAuth(req: NextRequest) {
   const header = req.headers.get('authorization');

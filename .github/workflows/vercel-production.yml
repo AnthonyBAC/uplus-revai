@@ -6,37 +6,95 @@ on:
       - main
 
 jobs:
+  detect-changes:
+    name: Detect changed apps
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          list-files: json
+          filters: |
+            app-auth:
+              - app-auth/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
+              - package-lock.json
+              - vitest.config.ts
+            app-analysis-service:
+              - app-analysis-service/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
+              - package-lock.json
+              - vitest.config.ts
+            app-review-service:
+              - app-review-service/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
+              - package-lock.json
+              - vitest.config.ts
+            app-report-service:
+              - app-report-service/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
+              - package-lock.json
+              - vitest.config.ts
+            app-surveys-service:
+              - app-surveys-service/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
+              - package-lock.json
+              - vitest.config.ts
+            app-frontend:
+              - app-frontend/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
+              - package-lock.json
+              - vitest.config.ts
+
   production:
     name: Deploy to Production
+    needs: detect-changes
     runs-on: ubuntu-latest
-
     strategy:
       fail-fast: false
       matrix:
         include:
           - name: app-auth
             project_id_secret: VERCEL_PROJECT_ID_APP_AUTH
-
           - name: app-analysis-service
             project_id_secret: VERCEL_PROJECT_ID_ANALYSIS
-
           - name: app-review-service
             project_id_secret: VERCEL_PROJECT_ID_REVIEW
-
           - name: app-report-service
             project_id_secret: VERCEL_PROJECT_ID_REPORT
-
           - name: app-surveys-service
             project_id_secret: VERCEL_PROJECT_ID_SURVEYS
-
           - name: app-frontend
             project_id_secret: VERCEL_PROJECT_ID_FRONTEND
-
     steps:
       - name: Checkout repository
+        if: contains(needs.detect-changes.outputs.services, matrix.name)
         uses: actions/checkout@v4
 
       - name: Deploy production with Vercel Action
+        if: contains(needs.detect-changes.outputs.services, matrix.name)
         uses: amondnet/vercel-action@v42
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -45,4 +103,5 @@ jobs:
           vercel-project-id: ${{ secrets[matrix.project_id_secret] }}
           working-directory: ./
           vercel-build: true
+          vercel-version: 53.3.2
           target: production

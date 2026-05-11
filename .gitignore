@@ -47,7 +47,6 @@ coverage/
 **/.ruff_cache/
 
 # Prisma generated client
-supabase/generated/
 
 # System files
 .DS_Store

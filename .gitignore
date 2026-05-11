@@ -47,6 +47,7 @@ coverage/
 **/.ruff_cache/
 
 # Prisma generated client
+packages/db/generated/
 
 # System files
 .DS_Store

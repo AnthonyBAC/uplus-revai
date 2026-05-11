@@ -2,5 +2,5 @@
   "git": {
     "deploymentEnabled": false
   },
-  "buildCommand": "cd .. && npm run db:generate && cd app-analysis-service && npx next build"
+  "buildCommand": "npx prisma generate --schema=../supabase/schema.prisma && npx next build"
 }

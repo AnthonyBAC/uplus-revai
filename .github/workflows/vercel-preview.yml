@@ -1,4 +1,4 @@
-name: Vercel Preview - Dev to Main
+name: Vercel Preview - Dev to Main (monorepo root)
 
 on:
   pull_request:

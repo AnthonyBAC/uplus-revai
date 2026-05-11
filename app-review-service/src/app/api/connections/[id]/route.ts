@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@root/lib/prisma';
-import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@service/lib/auth';
+import { prisma } from '@uplus/db';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@uplus/auth';
 import { UpdateConnectionSchema } from '@/lib/validations/review';
 
 type Params = { params: Promise<{ id: string }> };
@@ -42,7 +42,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     const { role } = await requireBusinessAccess(auth.appUserId, connection.businessId);
     await requireEndpointPermission(role, 'PATCH', '/api/connections/:id');
 
-    const body = await req.json();
+    const body: unknown = await req.json();
     const parsed = UpdateConnectionSchema.safeParse(body);
 
     if (!parsed.success) {

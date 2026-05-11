@@ -1,12 +1,10 @@
-// Prisma config global — ejecutar desde la raíz del proyecto
-// Requiere: npm install (en raíz) y un archivo .env con DIRECT_URL
 import 'dotenv/config';
 import { defineConfig } from 'prisma/config';
 
 export default defineConfig({
-    schema: 'supabase/schema.prisma',
+    schema: 'packages/db/prisma/schema.prisma',
     migrations: {
-        path: 'supabase/migrations',
+        path: 'packages/db/prisma/migrations',
     },
     datasource: {
         url: process.env['DIRECT_URL'],

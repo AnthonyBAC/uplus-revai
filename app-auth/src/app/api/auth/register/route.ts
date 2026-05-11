@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@root/lib/prisma';
-import { requireAuth } from '@service/lib/auth';
-import type { RegisterInput } from '@service/types';
+import { prisma } from '@uplus/db';
+import { requireAuth } from '@/lib/auth';
+import type { RegisterInput } from '@/types';
 
 export async function POST(req: NextRequest) {
   try {

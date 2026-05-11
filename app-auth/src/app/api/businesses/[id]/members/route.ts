@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@service/lib/auth';
-import { requirePermission } from '@service/lib/permissions';
-import { prisma } from '@root/lib/prisma';
-import { getSupabaseAdmin } from '@service/lib/supabase';
-import type { CreateMemberInput } from '@service/types';
+import { requireAuth } from '@/lib/auth';
+import { requirePermission } from '@/lib/permissions';
+import { prisma } from '@uplus/db';
+import { getSupabaseAdmin } from '@/lib/supabase';
+import type { CreateMemberInput } from '@/types';
 
 export async function GET(
   req: NextRequest,
@@ -29,16 +29,25 @@ export async function GET(
     });
 
     return NextResponse.json(
-      members.map((m) => ({
-        membershipId: m.id,
-        userId: m.user_id,
-        email: m.app_users.email,
-        fullName: m.app_users.full_name,
-        role: m.roles.name,
-        isOwner: m.is_owner,
-        hasFullBranchAccess: m.has_full_branch_access,
-        branchIds: m.user_branch_accesses.map((a) => a.branch_id),
-        joinedAt: m.created_at,
+      members.map((member: {
+        id: string;
+        user_id: string;
+        is_owner: boolean;
+        has_full_branch_access: boolean;
+        created_at: Date;
+        app_users: { email: string; full_name: string | null };
+        roles: { name: string };
+        user_branch_accesses: Array<{ branch_id: string }>;
+      }) => ({
+        membershipId: member.id,
+        userId: member.user_id,
+        email: member.app_users.email,
+        fullName: member.app_users.full_name,
+        role: member.roles.name,
+        isOwner: member.is_owner,
+        hasFullBranchAccess: member.has_full_branch_access,
+        branchIds: member.user_branch_accesses.map((access: { branch_id: string }) => access.branch_id),
+        joinedAt: member.created_at,
       }))
     );
   } catch (err: unknown) {
@@ -128,7 +137,7 @@ export async function POST(
       });
 
       if (body.branchIds?.length) {
-        const accesses = body.branchIds.map((branchId) => ({
+        const accesses = body.branchIds.map((branchId: string) => ({
           user_id: user.id,
           business_id: businessId,
           branch_id: branchId,

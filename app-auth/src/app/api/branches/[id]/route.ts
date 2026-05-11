@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@service/lib/auth';
-import { requirePermission } from '@service/lib/permissions';
-import { prisma } from '@root/lib/prisma';
+import { requireAuth } from '@/lib/auth';
+import { requirePermission } from '@/lib/permissions';
+import { prisma } from '@uplus/db';
 
 export async function GET(
   req: NextRequest,
@@ -49,7 +49,10 @@ export async function PATCH(
   try {
     const auth = await requireAuth(req);
     const { id } = await params;
-    const body = await req.json();
+    const body: unknown = await req.json();
+    if (!isRecord(body)) {
+      return NextResponse.json({ error: 'Body JSON inválido' }, { status: 400 });
+    }
 
     const branch = await prisma.branches.findUnique({
       where: { id },
@@ -68,10 +71,14 @@ export async function PATCH(
     });
 
     const data: Record<string, unknown> = {};
-    if (body.name) data.name = body.name;
-    if (body.slug) data.slug = body.slug.toLowerCase().replace(/\s+/g, '-');
+    if (typeof body.name === 'string' && body.name.trim()) data.name = body.name;
+    if (typeof body.slug === 'string' && body.slug.trim()) {
+      data.slug = body.slug.toLowerCase().replace(/\s+/g, '-');
+    }
     if (typeof body.isActive === 'boolean') data.is_active = body.isActive;
-    if (body.description !== undefined) data.description = body.description;
+    if (typeof body.description === 'string' || body.description === null) {
+      data.description = body.description;
+    }
 
     const updated = await prisma.branches.update({
       where: { id },
@@ -123,4 +130,8 @@ export async function DELETE(
     const status = (err as Error & { status?: number }).status ?? 500;
     return NextResponse.json({ error: (err as Error).message }, { status });
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
 }

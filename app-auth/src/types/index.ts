@@ -1,4 +1,4 @@
-import type { RoleName } from '../../../supabase/generated/prisma/client';
+import type { RoleName } from '@uplus/db';
 
 export type { RoleName };
 

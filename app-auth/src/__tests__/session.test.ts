@@ -12,14 +12,14 @@ let mockAuthResult: object | Error = {
   memberships: [],
 };
 
-vi.mock('@service/lib/auth', () => ({
+vi.mock('@/lib/auth', () => ({
   requireAuth: mockAuthModule.requireAuth.mockImplementation(() => {
     if (mockAuthResult instanceof Error) throw mockAuthResult;
     return Promise.resolve(mockAuthResult);
   }),
 }));
 
-vi.mock('@root/lib/prisma', () => ({ prisma: {} }));
+vi.mock('@uplus/db', () => ({ prisma: {} }));
 
 import { GET } from '@/app/api/auth/session/route';
 

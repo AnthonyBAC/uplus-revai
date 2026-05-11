@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@root/lib/prisma';
+import { prisma } from '@uplus/db';
 
 export async function GET() {
   try {
@@ -16,15 +16,22 @@ export async function GET() {
     });
 
     return NextResponse.json(
-      endpoints.map((e) => ({
-        id: e.id,
-        key: e.key,
-        method: e.method,
-        path: e.path,
-        description: e.description,
-        allowedRoles: e.role_endpoint_permissions
-          .filter((p) => p.allowed)
-          .map((p) => p.roles.name),
+      endpoints.map((endpoint: {
+        id: string;
+        key: string;
+        method: string;
+        path: string;
+        description: string | null;
+        role_endpoint_permissions: Array<{ allowed: boolean; roles: { name: string } }>;
+      }) => ({
+        id: endpoint.id,
+        key: endpoint.key,
+        method: endpoint.method,
+        path: endpoint.path,
+        description: endpoint.description,
+        allowedRoles: endpoint.role_endpoint_permissions
+          .filter((permission: { allowed: boolean }) => permission.allowed)
+          .map((permission: { roles: { name: string } }) => permission.roles.name),
       }))
     );
   } catch (err: unknown) {

@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { getSupabaseAnon } from './supabase';
-import { prisma } from '@root/lib/prisma';
-import type { AuthContext, MembershipInfo } from '@service/types';
+import { prisma } from '@uplus/db';
+import type { AuthContext, MembershipInfo } from '@/types';
 
 export async function requireAuth(req: NextRequest): Promise<AuthContext> {
   const header = req.headers.get('authorization');

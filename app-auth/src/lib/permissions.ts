@@ -1,5 +1,5 @@
-import { prisma } from '@root/lib/prisma';
-import type { AuthContext, RoleName } from '@service/types';
+import { prisma } from '@uplus/db';
+import type { AuthContext, RoleName } from '@/types';
 
 export interface PermissionCheck {
   method: string;

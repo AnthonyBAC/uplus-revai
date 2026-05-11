@@ -6,7 +6,7 @@ const mockPrisma = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('@root/lib/prisma', () => ({ prisma: mockPrisma }));
+vi.mock('@uplus/db', () => ({ prisma: mockPrisma }));
 
 import { GET } from '@/app/api/roles/route';
 

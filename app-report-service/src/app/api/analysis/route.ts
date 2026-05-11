@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Prisma } from '../../../../../supabase/generated/prisma/client';
-import { prisma } from '@root/lib/prisma';
-import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@service/lib/auth';
+import { prisma, Prisma } from '@uplus/db';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@uplus/auth';
 import { CreateAnalysisSchema, ListAnalysisQuerySchema } from '@/lib/validations/report';
 
 export async function GET(req: NextRequest) {
@@ -44,7 +43,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body: unknown = await req.json();
     const parsed = CreateAnalysisSchema.safeParse(body);
 
     if (!parsed.success) {

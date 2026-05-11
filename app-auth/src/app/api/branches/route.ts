@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@service/lib/auth';
-import { requirePermission } from '@service/lib/permissions';
-import { prisma } from '@root/lib/prisma';
+import { requireAuth } from '@/lib/auth';
+import { requirePermission } from '@/lib/permissions';
+import { prisma } from '@uplus/db';
 
 export async function GET(req: NextRequest) {
   try {
@@ -44,12 +44,12 @@ export async function GET(req: NextRequest) {
       });
 
       return NextResponse.json(
-        branches.map((b) => ({
-          id: b.id,
-          name: b.name,
-          slug: b.slug,
-          businessName: b.businesses.name,
-          isActive: b.is_active,
+        branches.map((branch: { id: string; name: string; slug: string; is_active: boolean; businesses: { name: string } }) => ({
+          id: branch.id,
+          name: branch.name,
+          slug: branch.slug,
+          businessName: branch.businesses.name,
+          isActive: branch.is_active,
         }))
       );
     }
@@ -61,12 +61,12 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json(
-      branches.map((b) => ({
-        id: b.id,
-        name: b.name,
-        slug: b.slug,
-        businessName: b.businesses.name,
-        isActive: b.is_active,
+      branches.map((branch: { id: string; name: string; slug: string; is_active: boolean; businesses: { name: string } }) => ({
+        id: branch.id,
+        name: branch.name,
+        slug: branch.slug,
+        businessName: branch.businesses.name,
+        isActive: branch.is_active,
       }))
     );
   } catch (err: unknown) {
@@ -78,8 +78,14 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const auth = await requireAuth(req);
-    const body = await req.json();
-    const { businessId, name, slug } = body;
+    const body: unknown = await req.json();
+    if (!isRecord(body)) {
+      return NextResponse.json({ error: 'Body JSON inválido' }, { status: 400 });
+    }
+
+    const businessId = typeof body.businessId === 'string' ? body.businessId : '';
+    const name = typeof body.name === 'string' ? body.name : '';
+    const slug = typeof body.slug === 'string' ? body.slug : '';
 
     if (!businessId || !name || !slug) {
       return NextResponse.json(
@@ -118,4 +124,8 @@ export async function POST(req: NextRequest) {
     const status = (err as Error & { status?: number }).status ?? 500;
     return NextResponse.json({ error: (err as Error).message }, { status });
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
 }

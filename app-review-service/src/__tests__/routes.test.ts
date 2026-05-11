@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
-vi.mock('@service/lib/auth', () => ({
+vi.mock('@uplus/auth', () => ({
   requireAuth: vi.fn(() => Promise.resolve({ appUserId: 'user-1', supabaseUserId: 's1', email: 'a@t.com' })),
   requireBusinessAccess: vi.fn(() => Promise.resolve({ membershipId: 'm1', role: 'ADMIN' })),
   requireEndpointPermission: vi.fn(() => Promise.resolve()),
@@ -13,7 +13,7 @@ const mockPrisma = vi.hoisted(() => ({
   reviewSyncJob: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn() },
 }));
 
-vi.mock('@root/lib/prisma', () => ({ prisma: mockPrisma }));
+vi.mock('@uplus/db', () => ({ prisma: mockPrisma }));
 
 import { GET } from '@/app/api/reviews/route';
 import { GET as getConnections, POST as postConnections } from '@/app/api/connections/route';

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@root/lib/prisma';
+import { prisma } from '@uplus/db';
 import { UpdateSurveySchema } from '@/lib/validations/survey';
-import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@service/lib/auth';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@uplus/auth';
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -42,7 +42,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     const { role } = await requireBusinessAccess(auth.appUserId, survey.businessId);
     await requireEndpointPermission(role, 'PATCH', '/api/surveys/:id');
 
-    const body = await req.json();
+    const body: unknown = await req.json();
     const parsed = UpdateSurveySchema.safeParse(body);
 
     if (!parsed.success) {

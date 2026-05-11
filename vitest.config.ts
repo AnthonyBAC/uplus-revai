@@ -10,8 +10,8 @@ const service = (name: string) => ({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, name, 'src'),
-      '@service': path.resolve(__dirname, name, 'src'),
-      '@root': path.resolve(__dirname),
+      '@uplus/db': path.resolve(__dirname, 'packages/db/src'),
+      '@uplus/auth': path.resolve(__dirname, 'packages/auth/src'),
     },
   },
 });

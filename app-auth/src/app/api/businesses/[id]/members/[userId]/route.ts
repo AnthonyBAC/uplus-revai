@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@service/lib/auth';
-import { requirePermission } from '@service/lib/permissions';
-import { prisma } from '@root/lib/prisma';
+import { requireAuth } from '@/lib/auth';
+import { requirePermission } from '@/lib/permissions';
+import { prisma } from '@uplus/db';
 
 export async function PATCH(
   req: NextRequest,
@@ -10,7 +10,10 @@ export async function PATCH(
   try {
     const auth = await requireAuth(req);
     const { id: businessId, userId } = await params;
-    const body = await req.json();
+    const body: unknown = await req.json();
+    if (!isRecord(body)) {
+      return NextResponse.json({ error: 'Body JSON inválido' }, { status: 400 });
+    }
 
     await requirePermission(auth, {
       method: 'PATCH',
@@ -43,9 +46,9 @@ export async function PATCH(
       data.has_full_branch_access = body.hasFullBranchAccess;
     }
 
-    if (body.role) {
+    if (typeof body.role === 'string') {
       const role = await prisma.roles.findUnique({
-        where: { name: body.role },
+        where: { name: body.role as never },
       });
       if (!role) {
         return NextResponse.json(
@@ -56,7 +59,11 @@ export async function PATCH(
       data.role_id = role.id;
     }
 
-    if (body.branchIds && Array.isArray(body.branchIds)) {
+    if (Array.isArray(body.branchIds)) {
+      const branchIds = body.branchIds.filter(
+        (branchId): branchId is string => typeof branchId === 'string'
+      );
+
       await prisma.user_branch_accesses.deleteMany({
         where: {
           user_id: userId,
@@ -64,9 +71,9 @@ export async function PATCH(
         },
       });
 
-      if (body.branchIds.length > 0) {
+      if (branchIds.length > 0) {
         await prisma.user_branch_accesses.createMany({
-          data: body.branchIds.map((branchId: string) => ({
+          data: branchIds.map((branchId: string) => ({
             user_id: userId,
             business_id: businessId,
             branch_id: branchId,
@@ -91,12 +98,16 @@ export async function PATCH(
       role: updated.roles.name,
       isActive: updated.is_active,
       hasFullBranchAccess: updated.has_full_branch_access,
-      branchIds: updated.user_branch_accesses.map((a) => a.branch_id),
+      branchIds: updated.user_branch_accesses.map((access: { branch_id: string }) => access.branch_id),
     });
   } catch (err: unknown) {
     const status = (err as Error & { status?: number }).status ?? 500;
     return NextResponse.json({ error: (err as Error).message }, { status });
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
 }
 
 export async function DELETE(

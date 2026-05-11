@@ -78,7 +78,7 @@ jobs:
   # ──────────────────────────────────────────────────────────
   build-node:
     needs: detect-changes
-    if: needs.detect-changes.outputs.services != '[]' && contains(needs.detect-changes.outputs.services, matrix.service)
+    if: needs.detect-changes.outputs.services != '[]'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -105,29 +105,34 @@ jobs:
           cache: npm
 
       - name: Install dependencies
+        if: contains(needs.detect-changes.outputs.services, matrix.service)
         run: npm install
 
       - name: Generate Prisma client
+        if: contains(needs.detect-changes.outputs.services, matrix.service)
         run: npm run db:generate
 
       - name: Lint
+        if: contains(needs.detect-changes.outputs.services, matrix.service)
         run: npm run lint --workspace=${{ matrix.service }}
 
       - name: Test
+        if: contains(needs.detect-changes.outputs.services, matrix.service)
         run: npm run test -- --project=${{ matrix.service }}
 
       - name: Build
+        if: contains(needs.detect-changes.outputs.services, matrix.service)
         run: npm run build --workspace=${{ matrix.service }}
 
       - name: Pull Vercel project settings
-        if: (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') && github.event_name == 'push'
+        if: contains(needs.detect-changes.outputs.services, matrix.service) && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') && github.event_name == 'push'
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets[matrix.project_id_secret] }}
         run: npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy to Vercel
-        if: (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') && github.event_name == 'push'
+        if: contains(needs.detect-changes.outputs.services, matrix.service) && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') && github.event_name == 'push'
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets[matrix.project_id_secret] }}

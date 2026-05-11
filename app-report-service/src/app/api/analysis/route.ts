@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '../../../../../supabase/generated/prisma/client';
 import { prisma } from '@root/lib/prisma';
-import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@root/lib/auth';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@service/lib/auth';
 import { CreateAnalysisSchema, ListAnalysisQuerySchema } from '@/lib/validations/report';
 
 export async function GET(req: NextRequest) {

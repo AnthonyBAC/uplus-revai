@@ -70,6 +70,7 @@ jobs:
 
   production:
     name: Deploy to Production
+    if: needs.detect-changes.outputs.services != '[]'
     needs: detect-changes
     runs-on: ubuntu-latest
     strategy:

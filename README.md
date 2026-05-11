@@ -3,7 +3,7 @@
 <p>
   <img alt="Branch main" src="https://img.shields.io/badge/main-estable%20y%20documentada-1f6feb?style=for-the-badge" />
   <img alt="Branch dev" src="https://img.shields.io/badge/dev-integracion%20activa-238636?style=for-the-badge" />
-  <img alt="Workflow" src="https://img.shields.io/badge/workflow-global%20desde%20raiz-f59e0b?style=for-the-badge" />
+  <img alt="Workflow" src="https://img.shields.io/badge/workflow-CI%20por%20rama%20%2B%20deploy%20selectivo-f59e0b?style=for-the-badge" />
 </p>
 
 <p>
@@ -17,7 +17,7 @@
   <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-app--ai--service-009688?logo=fastapi&logoColor=white" />
 </p>
 
-Monorepo de U+ Revai con servicios Node/Next.js, paquetes internos compartidos (`@uplus/db`, `@uplus/auth`), un servicio de IA en Python/FastAPI y deploy automatico en Vercel con previews por PR.
+Monorepo de U+ Revai con servicios Node/Next.js, paquetes internos compartidos (`@uplus/db`, `@uplus/auth`), un servicio de IA en Python/FastAPI y deploys en Vercel controlados por GitHub Actions.
 
 > [!IMPORTANT]
 > El flujo oficial del proyecto parte desde la raiz del repo.
@@ -34,6 +34,7 @@ Monorepo de U+ Revai con servicios Node/Next.js, paquetes internos compartidos (
 - [Servicios](#servicios)
 - [AGENTS Por Servicio](#agents-por-servicio)
 - [Flujo De Ramas](#flujo-de-ramas)
+- [CI/CD Y Deploy](#cicd-y-deploy)
 - [Diagrama](#diagrama)
 - [Instalacion Inicial](#instalacion-inicial)
 - [Prisma Global](#prisma-global)
@@ -183,6 +184,35 @@ Orden recomendado:
 >
 > - `main` no es para trabajo diario.
 > - `main` solo recibe cambios ya revisados.
+
+---
+
+## CI/CD Y Deploy
+
+Flujo actual del repositorio:
+
+1. PR hacia `dev` ejecuta `.github/workflows/ci-pr-dev.yml`.
+2. PR `dev -> main` ejecuta `.github/workflows/vercel-preview.yml`.
+3. `push` a `main` ejecuta `.github/workflows/vercel-production.yml`.
+
+Reglas importantes:
+
+- El deploy a Vercel se hace solo desde GitHub Actions.
+- Cada proyecto de Vercel debe tener su `Root Directory` configurado en su carpeta de app (`app-auth`, `app-frontend`, etc.).
+- Cada app Node tiene su `vercel.json` con `"git": { "deploymentEnabled": false }` para evitar auto-deploy por Git Integration.
+- Preview y production usan `dorny/paths-filter` para desplegar solo apps afectadas por los cambios.
+- Si falta un `VERCEL_PROJECT_ID_*`, el workflow hace skip del deploy de esa app para evitar fallback al proyecto raiz `uplus-revai`.
+
+Secrets esperados en GitHub Actions:
+
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID_APP_AUTH`
+- `VERCEL_PROJECT_ID_ANALYSIS`
+- `VERCEL_PROJECT_ID_REVIEW`
+- `VERCEL_PROJECT_ID_REPORT`
+- `VERCEL_PROJECT_ID_SURVEYS`
+- `VERCEL_PROJECT_ID_FRONTEND`
 
 ---
 
@@ -526,12 +556,17 @@ No se duplica la configuracion por servicio.
 ```
 uplus-revai/
 ├── package.json                   ← npm workspaces + scripts globales
+├── package-lock.json              ← lockfile unico del monorepo
 ├── prisma.config.ts               ← configuracion Prisma CLI
 ├── vitest.config.ts               ← configuracion centralizada de tests
 ├── tsconfig.json                  ← TypeScript base
 ├── seed.ts                        ← seed de endpoints y roles
 ├── test-prisma.ts                 ← prueba de conexion DB
-├── .github/workflows/deploy.yml   ← CI/CD (lint + test + build)
+├── README.md                      ← documentacion principal del monorepo
+├── .github/workflows/
+│   ├── ci-pr-dev.yml              ← lint + test + build en PR hacia dev
+│   ├── vercel-preview.yml         ← preview Vercel en PR dev -> main
+│   └── vercel-production.yml      ← production Vercel en push a main
 │
 ├── packages/                      ← paquetes internos compartidos
 │   ├── db/                        ← @uplus/db
@@ -547,6 +582,7 @@ uplus-revai/
 ├── app-auth/                      ← auth + autorizacion (puerto 3001)
 │   ├── package.json
 │   ├── tsconfig.json
+│   ├── vercel.json                ← Vercel sin auto-deploy por Git
 │   ├── next.config.ts             ← transpilePackages: [@uplus/*]
 │   └── src/
 │       ├── lib/auth.ts            ← requireAuth local (con membresias)
@@ -555,6 +591,7 @@ uplus-revai/
 │       └── app/api/               ← endpoints REST
 │
 ├── app-analysis-service/          ← orquestacion + dashboard (puerto 3002)
+│   ├── vercel.json                ← Vercel sin auto-deploy por Git
 │   └── src/app/api/
 │       ├── dashboard/route.ts
 │       ├── analysis/run/route.ts
@@ -562,6 +599,7 @@ uplus-revai/
 │
 ├── app-review-service/            ← reseñas Google (puerto 3003)
 │   ├── package.json
+│   ├── vercel.json                ← Vercel sin auto-deploy por Git
 │   ├── next.config.ts
 │   └── src/app/api/
 │       ├── reviews/
@@ -570,11 +608,13 @@ uplus-revai/
 │       └── internal/
 │
 ├── app-report-service/            ← reportes ejecutivos (puerto 3004)
+│   ├── vercel.json                ← Vercel sin auto-deploy por Git
 │   └── src/app/api/
 │       ├── reports/
 │       └── analysis/
 │
 ├── app-surveys-service/           ← encuestas internas (puerto 3005)
+│   ├── vercel.json                ← Vercel sin auto-deploy por Git
 │   └── src/app/api/surveys/
 │       ├── [id]/
 │       │   ├── route.ts
@@ -584,6 +624,7 @@ uplus-revai/
 │       └── route.ts
 │
 ├── app-frontend/                  ← dashboard frontend (puerto 3000)
+│   ├── vercel.json                ← Vercel sin auto-deploy por Git
 │   └── src/
 │
 └── app-ai-service/                ← IA con FastAPI + Python (puerto 8000)

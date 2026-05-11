@@ -507,7 +507,7 @@ No se duplica la configuracion por servicio.
 
 | Script | Descripcion |
 | --- | --- |
-| `npm run db:generate` | genera el cliente Prisma desde `supabase/schema.prisma` |
+| `npm run db:generate` | regenera el cliente Prisma manualmente si es necesario |
 | `npm run db:migrate` | crea y aplica una nueva migracion en desarrollo |
 | `npm run db:migrate:deploy` | aplica migraciones existentes |
 | `npm run db:migrate:reset` | resetea la base en desarrollo |
@@ -515,3 +515,76 @@ No se duplica la configuracion por servicio.
 | `npm run db:push` | empuja el schema sin crear migracion |
 | `npm run db:studio` | abre Prisma Studio |
 | `npm run db:test` | valida la conexion a PostgreSQL usando `DIRECT_URL` |
+
+---
+
+## Estructura del monorepo
+
+```
+uplus-revai/
+├── package.json                   ← npm workspaces + scripts globales
+├── prisma.config.ts               ← configuracion Prisma CLI
+├── vitest.config.ts               ← configuracion centralizada de tests
+├── tsconfig.json                  ← TypeScript base
+├── seed.ts                        ← seed de endpoints y roles
+├── test-prisma.ts                 ← prueba de conexion DB
+├── .github/workflows/deploy.yml   ← CI/CD (lint + test + build)
+│
+├── packages/                      ← paquetes internos compartidos
+│   ├── db/                        ← @uplus/db
+│   │   ├── package.json
+│   │   ├── src/index.ts           ← exporta prisma + Prisma + RoleName
+│   │   └── prisma/
+│   │       ├── schema.prisma      ← schema central de la BD
+│   │       └── migrations/        ← historial de migraciones
+│   └── auth/                      ← @uplus/auth
+│       ├── package.json
+│       └── src/index.ts           ← getUserFromToken, requireAuth, etc.
+│
+├── app-auth/                      ← auth + autorizacion (puerto 3001)
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── next.config.ts             ← transpilePackages: [@uplus/*]
+│   └── src/
+│       ├── lib/auth.ts            ← requireAuth local (con membresias)
+│       ├── lib/permissions.ts     ← requirePermission
+│       ├── types/index.ts
+│       └── app/api/               ← endpoints REST
+│
+├── app-analysis-service/          ← orquestacion + dashboard (puerto 3002)
+│   └── src/app/api/
+│       ├── dashboard/route.ts
+│       ├── analysis/run/route.ts
+│       └── analysis/results/route.ts
+│
+├── app-review-service/            ← reseñas Google (puerto 3003)
+│   ├── package.json
+│   ├── next.config.ts
+│   └── src/app/api/
+│       ├── reviews/
+│       ├── connections/
+│       ├── sync/
+│       └── internal/
+│
+├── app-report-service/            ← reportes ejecutivos (puerto 3004)
+│   └── src/app/api/
+│       ├── reports/
+│       └── analysis/
+│
+├── app-surveys-service/           ← encuestas internas (puerto 3005)
+│   └── src/app/api/surveys/
+│       ├── [id]/
+│       │   ├── route.ts
+│       │   ├── questions/
+│       │   ├── respond/
+│       │   └── responses/
+│       └── route.ts
+│
+├── app-frontend/                  ← dashboard frontend (puerto 3000)
+│   └── src/
+│
+└── app-ai-service/                ← IA con FastAPI + Python (puerto 8000)
+    ├── pyproject.toml
+    ├── Dockerfile
+    └── src/main.py
+```

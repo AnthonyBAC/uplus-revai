@@ -99,8 +99,23 @@ jobs:
       - name: Run tests
         run: npm run test
 
-      - name: Build all workspaces
-        run: npm run build
+      - name: Build app-auth
+        run: npm run build --workspace=app-auth
+
+      - name: Build app-analysis-service
+        run: npm run build --workspace=app-analysis-service
+
+      - name: Build app-frontend
+        run: npm run build --workspace=app-frontend
+
+      - name: Build app-report-service
+        run: npm run build --workspace=app-report-service
+
+      - name: Build app-review-service
+        run: npm run build --workspace=app-review-service
+
+      - name: Build app-surveys-service
+        run: npm run build --workspace=app-surveys-service
 
   # ──────────────────────────────────────────────────────────
   # 3. Deploy Node apps a Vercel (solo en push dev/main)

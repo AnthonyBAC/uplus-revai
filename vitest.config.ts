@@ -18,12 +18,14 @@ const service = (name: string) => ({
 
 export default defineConfig({
   test: {
+    passWithNoTests: true,
     projects: [
       service('app-auth'),
       service('app-surveys-service'),
       service('app-review-service'),
       service('app-report-service'),
       service('app-analysis-service'),
+      service('app-frontend'),
     ],
   },
 });

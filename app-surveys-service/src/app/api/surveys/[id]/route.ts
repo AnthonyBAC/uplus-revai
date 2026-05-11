@@ -1,54 +1,84 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@uplus/db';
 import { UpdateSurveySchema } from '@/lib/validations/survey';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@uplus/auth';
 
 type Params = { params: Promise<{ id: string }> };
 
-// GET /api/surveys/:id
-export async function GET(_req: NextRequest, { params }: Params) {
-  const { id } = await params;
+export async function GET(req: NextRequest, { params }: Params) {
+  try {
+    const { id } = await params;
+    const auth = await requireAuth(req);
 
-  const survey = await prisma.survey.findUnique({
-    where: { id },
-    include: { questions: { orderBy: { order: 'asc' } } },
-  });
+    const survey = await prisma.survey.findUnique({
+      where: { id },
+      include: { questions: { orderBy: { order: 'asc' } } },
+    });
 
-  if (!survey) {
-    return NextResponse.json(
-      { error: 'Encuesta no encontrada' },
-      { status: 404 }
-    );
+    if (!survey) {
+      return NextResponse.json({ error: 'Encuesta no encontrada' }, { status: 404 });
+    }
+
+    const { role } = await requireBusinessAccess(auth.appUserId, survey.businessId);
+    await requireEndpointPermission(role, 'GET', '/api/surveys/:id');
+
+    return NextResponse.json(survey);
+  } catch (err: unknown) {
+    const status = (err as Error & { status?: number }).status ?? 500;
+    return NextResponse.json({ error: (err as Error).message }, { status });
   }
-
-  return NextResponse.json(survey);
 }
 
-// PATCH /api/surveys/:id
 export async function PATCH(req: NextRequest, { params }: Params) {
-  const { id } = await params;
-  const body = await req.json();
-  const parsed = UpdateSurveySchema.safeParse(body);
+  try {
+    const { id } = await params;
+    const auth = await requireAuth(req);
 
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.flatten() },
-      { status: 422 }
-    );
+    const survey = await prisma.survey.findUnique({ where: { id } });
+    if (!survey) {
+      return NextResponse.json({ error: 'Encuesta no encontrada' }, { status: 404 });
+    }
+
+    const { role } = await requireBusinessAccess(auth.appUserId, survey.businessId);
+    await requireEndpointPermission(role, 'PATCH', '/api/surveys/:id');
+
+    const body: unknown = await req.json();
+    const parsed = UpdateSurveySchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
+    }
+
+    const updated = await prisma.survey.update({
+      where: { id },
+      data: parsed.data,
+    });
+
+    return NextResponse.json(updated);
+  } catch (err: unknown) {
+    const status = (err as Error & { status?: number }).status ?? 500;
+    return NextResponse.json({ error: (err as Error).message }, { status });
   }
-
-  const survey = await prisma.survey.update({
-    where: { id },
-    data: parsed.data,
-  });
-
-  return NextResponse.json(survey);
 }
 
-// DELETE /api/surveys/:id
-export async function DELETE(_req: NextRequest, { params }: Params) {
-  const { id } = await params;
+export async function DELETE(req: NextRequest, { params }: Params) {
+  try {
+    const { id } = await params;
+    const auth = await requireAuth(req);
 
-  await prisma.survey.delete({ where: { id } });
+    const survey = await prisma.survey.findUnique({ where: { id } });
+    if (!survey) {
+      return NextResponse.json({ error: 'Encuesta no encontrada' }, { status: 404 });
+    }
 
-  return new NextResponse(null, { status: 204 });
+    const { role } = await requireBusinessAccess(auth.appUserId, survey.businessId);
+    await requireEndpointPermission(role, 'DELETE', '/api/surveys/:id');
+
+    await prisma.survey.delete({ where: { id } });
+
+    return new NextResponse(null, { status: 204 });
+  } catch (err: unknown) {
+    const status = (err as Error & { status?: number }).status ?? 500;
+    return NextResponse.json({ error: (err as Error).message }, { status });
+  }
 }

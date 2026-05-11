@@ -51,3 +51,20 @@ export const CreateSurveyResponseSchema = z.object({
 export type CreateSurveyInput = z.infer<typeof CreateSurveySchema>;
 export type UpdateSurveyInput = z.infer<typeof UpdateSurveySchema>;
 export type CreateSurveyResponseInput = z.infer<typeof CreateSurveyResponseSchema>;
+
+// ---------- Questions ----------
+
+export const CreateQuestionSchema = z.object({
+  text: z.string().min(1, 'El texto de la pregunta es requerido'),
+  type: QuestionTypeSchema,
+  order: z.number().int().min(1),
+});
+
+export const UpdateQuestionSchema = z.object({
+  text: z.string().min(1).optional(),
+  type: QuestionTypeSchema.optional(),
+  order: z.number().int().min(1).optional(),
+});
+
+export type CreateQuestionInput = z.infer<typeof CreateQuestionSchema>;
+export type UpdateQuestionInput = z.infer<typeof UpdateQuestionSchema>;

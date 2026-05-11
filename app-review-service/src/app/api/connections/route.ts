@@ -1,44 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@uplus/db';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@uplus/auth';
 import { CreateConnectionSchema } from '@/lib/validations/review';
 
-// GET /api/connections?businessId=xxx
 export async function GET(req: NextRequest) {
-  const businessId = req.nextUrl.searchParams.get('businessId');
+  try {
+    const businessId = req.nextUrl.searchParams.get('businessId');
+    if (!businessId) {
+      return NextResponse.json({ error: 'businessId es requerido' }, { status: 400 });
+    }
 
-  if (!businessId) {
-    return NextResponse.json(
-      { error: 'businessId es requerido' },
-      { status: 400 }
-    );
+    const auth = await requireAuth(req);
+    const { role } = await requireBusinessAccess(auth.appUserId, businessId);
+    await requireEndpointPermission(role, 'GET', '/api/connections');
+
+    const connections = await prisma.businessPlatformConnection.findMany({
+      where: { businessId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return NextResponse.json(connections);
+  } catch (err: unknown) {
+    const status = (err as Error & { status?: number }).status ?? 500;
+    return NextResponse.json({ error: (err as Error).message }, { status });
   }
-
-  const connections = await prisma.businessPlatformConnection.findMany({
-    where: { businessId },
-    orderBy: { createdAt: 'desc' },
-  });
-
-  return NextResponse.json(connections);
 }
 
-// POST /api/connections
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const parsed = CreateConnectionSchema.safeParse(body);
+  try {
+    const body: unknown = await req.json();
+    const parsed = CreateConnectionSchema.safeParse(body);
 
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.flatten() },
-      { status: 422 }
-    );
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
+    }
+
+    const { businessId } = parsed.data;
+
+    const auth = await requireAuth(req);
+    const { role } = await requireBusinessAccess(auth.appUserId, businessId);
+    await requireEndpointPermission(role, 'POST', '/api/connections');
+
+    const connection = await prisma.businessPlatformConnection.create({
+      data: {
+        ...parsed.data,
+        tokenExpiresAt: new Date(parsed.data.tokenExpiresAt),
+      },
+    });
+
+    return NextResponse.json(connection, { status: 201 });
+  } catch (err: unknown) {
+    const status = (err as Error & { status?: number }).status ?? 500;
+    return NextResponse.json({ error: (err as Error).message }, { status });
   }
-
-  const connection = await prisma.businessPlatformConnection.create({
-    data: {
-      ...parsed.data,
-      tokenExpiresAt: new Date(parsed.data.tokenExpiresAt),
-    },
-  });
-
-  return NextResponse.json(connection, { status: 201 });
 }

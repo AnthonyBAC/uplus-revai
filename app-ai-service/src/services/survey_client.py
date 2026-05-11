@@ -8,35 +8,37 @@ class SurveyServiceClient:
         self.base_url = base_url.rstrip("/")
         self.headers = {"Authorization": f"Bearer {token}"} if token else {}
 
-    async def fetch_surveys(
-        self,
-        *,
-        business_id: str,
-        branch_id: str | None,
-        start_date: str | None,
-        end_date: str | None,
-    ) -> list[dict[str, Any]]:
-        params = {
-            "businessId": business_id,
-            "branchId": branch_id,
-            "startDate": start_date,
-            "endDate": end_date,
-        }
-        clean_params = {key: value for key, value in params.items() if value is not None}
-
+    async def list_surveys(self, business_id: str) -> list[dict[str, Any]]:
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(
-                f"{self.base_url}/api/internal/surveys",
-                params=clean_params,
+                f"{self.base_url}/api/surveys",
+                params={"businessId": business_id},
                 headers=self.headers,
             )
             response.raise_for_status()
             payload = response.json()
 
+        if isinstance(payload, list):
+            return payload
+
         if isinstance(payload, dict) and isinstance(payload.get("items"), list):
             return payload["items"]
 
+        return []
+
+    async def fetch_responses(self, survey_id: str) -> list[dict[str, Any]]:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(
+                f"{self.base_url}/api/surveys/{survey_id}/responses",
+                headers=self.headers,
+            )
+            response.raise_for_status()
+            payload = response.json()
+
         if isinstance(payload, list):
             return payload
+
+        if isinstance(payload, dict) and isinstance(payload.get("items"), list):
+            return payload["items"]
 
         return []

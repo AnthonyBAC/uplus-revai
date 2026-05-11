@@ -1,5 +1,5 @@
-import { prisma } from '@global/prisma';
-import type { AuthContext, RoleName } from '@/types';
+import { prisma } from '@root/lib/prisma';
+import type { AuthContext, RoleName } from '@service/types';
 
 export interface PermissionCheck {
   method: string;

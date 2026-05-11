@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@global/prisma';
-import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@global/auth';
+import { prisma } from '@root/lib/prisma';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@root/lib/auth';
 import { CreateSyncJobSchema } from '@/lib/validations/review';
 
 export async function GET(req: NextRequest) {

@@ -11,7 +11,7 @@ const mockAuth = vi.hoisted(() => ({
   requireEndpointPermission: vi.fn(() => Promise.resolve()),
 }));
 
-vi.mock('@global/auth', () => mockAuth);
+vi.mock('@root/lib/auth', () => mockAuth);
 
 const mockPrisma = vi.hoisted(() => ({
   survey: {
@@ -22,7 +22,7 @@ const mockPrisma = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('@global/prisma', () => ({ prisma: mockPrisma }));
+vi.mock('@root/lib/prisma', () => ({ prisma: mockPrisma }));
 
 import { POST } from '@/app/api/surveys/[id]/respond/route';
 

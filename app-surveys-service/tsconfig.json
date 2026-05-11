@@ -19,9 +19,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@global/*": ["../../lib/*"]
-    }
+        "@/*": ["./src/*"],
+        "@service/*": ["./src/*"],
+        "@root/*": ["../*"]
+    } 
   },
   "include": [
     "next-env.d.ts",
@@ -31,5 +32,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "../test-prisma.ts", "../seed.ts", "../lib/**/*"]
 }

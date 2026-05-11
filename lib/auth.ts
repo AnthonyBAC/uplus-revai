@@ -93,9 +93,3 @@ function authError(message: string): never {
   (error as Error & { status: number }).status = 401;
   throw error;
 }
-
-function permissionError(message: string): never {
-  const error = new Error(message);
-  (error as Error & { status: number }).status = 403;
-  throw error;
-}

@@ -6,7 +6,7 @@ const mockPrisma = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('@global/prisma', () => ({ prisma: mockPrisma }));
+vi.mock('@root/lib/prisma', () => ({ prisma: mockPrisma }));
 
 import { GET } from '@/app/api/endpoints/route';
 

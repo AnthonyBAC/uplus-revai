@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@global/prisma';
-import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@global/auth';
+import { prisma } from '@root/lib/prisma';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@root/lib/auth';
 
 type Params = { params: Promise<{ id: string }> };
 

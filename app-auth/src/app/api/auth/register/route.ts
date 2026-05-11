@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@global/prisma';
-import { requireAuth } from '@/lib/auth';
-import type { RegisterInput } from '@/types';
+import { prisma } from '@root/lib/prisma';
+import { requireAuth } from '@service/lib/auth';
+import type { RegisterInput } from '@service/types';
 
 export async function POST(req: NextRequest) {
   try {
@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
     const result = await prisma.$transaction(async (tx) => {
       const user = await tx.app_users.create({
         data: {
+          id: crypto.randomUUID(),
           email: auth.email,
           full_name: body.fullName,
           updated_at: new Date(),
@@ -59,6 +60,7 @@ export async function POST(req: NextRequest) {
 
       const business = await tx.businesses.create({
         data: {
+          id: crypto.randomUUID(),
           name: body.businessName,
           slug,
           updated_at: new Date(),
@@ -67,6 +69,7 @@ export async function POST(req: NextRequest) {
 
       const branch = await tx.branches.create({
         data: {
+          id: crypto.randomUUID(),
           business_id: business.id,
           name: 'Principal',
           slug: 'principal',
@@ -76,6 +79,7 @@ export async function POST(req: NextRequest) {
 
       const membership = await tx.business_memberships.create({
         data: {
+          id: crypto.randomUUID(),
           user_id: user.id,
           business_id: business.id,
           role_id: role.id,

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@/lib/auth';
-import { requirePermission } from '@/lib/permissions';
-import { prisma } from '@global/prisma';
+import { requireAuth } from '@service/lib/auth';
+import { requirePermission } from '@service/lib/permissions';
+import { prisma } from '@root/lib/prisma';
 
 export async function GET(req: NextRequest) {
   try {
@@ -96,9 +96,11 @@ export async function POST(req: NextRequest) {
 
     const branch = await prisma.branches.create({
       data: {
+        id: crypto.randomUUID(),
         business_id: businessId,
         name,
         slug: slug.toLowerCase().replace(/\s+/g, '-'),
+        updated_at: new Date(),
       },
       include: { businesses: { select: { name: true } } },
     });

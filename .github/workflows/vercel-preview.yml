@@ -1,0 +1,73 @@
+name: Vercel Preview - Dev to Main
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  preview:
+    name: Create Vercel Preview
+    if: github.head_ref == 'dev'
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: app-auth
+            working_directory: app-auth
+            project_id_secret: VERCEL_PROJECT_ID_APP_AUTH
+          - name: app-analysis-service
+            working_directory: app-analysis-service
+            project_id_secret: VERCEL_PROJECT_ID_ANALYSIS
+          - name: app-review-service
+            working_directory: app-review-service
+            project_id_secret: VERCEL_PROJECT_ID_REVIEW
+          - name: app-report-service
+            working_directory: app-report-service
+            project_id_secret: VERCEL_PROJECT_ID_REPORT
+          - name: app-surveys-service
+            working_directory: app-surveys-service
+            project_id_secret: VERCEL_PROJECT_ID_SURVEYS
+          - name: app-frontend
+            working_directory: app-frontend
+            project_id_secret: VERCEL_PROJECT_ID_FRONTEND
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.working_directory }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel preview environment
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets[matrix.project_id_secret] }}
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build preview
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets[matrix.project_id_secret] }}
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy preview
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets[matrix.project_id_secret] }}
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}

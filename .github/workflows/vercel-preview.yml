@@ -75,7 +75,7 @@ jobs:
 
   preview:
     name: Create Vercel Preview
-    if: github.head_ref == 'dev'
+    if: github.head_ref == 'dev' && needs.detect-changes.outputs.services != '[]'
     needs: detect-changes
     runs-on: ubuntu-latest
     permissions:

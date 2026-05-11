@@ -25,6 +25,9 @@ Monorepo de U+ Revai con servicios Node/Next.js, paquetes internos compartidos (
 
 ## Navegacion Rapida
 
+> [!NOTE]
+> Monorepo configurado con npm workspaces. Paquetes internos: `@uplus/db`, `@uplus/auth`.
+
 - [Stack Base](#stack-base)
 - [Herramientas Globales](#herramientas-globales)
 - [Dependencias Base](#dependencias-base)

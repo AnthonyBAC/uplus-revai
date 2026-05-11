@@ -11,7 +11,7 @@ const mockAuth = vi.hoisted(() => ({
   requireEndpointPermission: vi.fn(() => Promise.resolve()),
 }));
 
-vi.mock('@root/lib/auth', () => mockAuth);
+vi.mock('@service/lib/auth', () => mockAuth);
 
 const mockPrisma = vi.hoisted(() => ({
   survey: {

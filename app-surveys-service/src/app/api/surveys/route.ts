@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@root/lib/prisma';
 import { CreateSurveySchema } from '@service/lib/validations/survey';
-import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@root/lib/auth';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@service/lib/auth';
 
 export async function GET(req: NextRequest) {
   try {

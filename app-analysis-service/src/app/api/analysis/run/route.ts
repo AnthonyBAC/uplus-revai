@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@root/lib/auth';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@service/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {

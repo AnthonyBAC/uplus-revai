@@ -24,32 +24,52 @@ jobs:
           filters: |
             app-auth:
               - app-auth/**
-              - lib/**
-              - supabase/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
               - package-lock.json
+              - vitest.config.ts
             app-analysis-service:
               - app-analysis-service/**
-              - lib/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
               - package-lock.json
+              - vitest.config.ts
             app-frontend:
               - app-frontend/**
-              - lib/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
               - package-lock.json
+              - vitest.config.ts
             app-report-service:
               - app-report-service/**
-              - lib/**
-              - supabase/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
               - package-lock.json
+              - vitest.config.ts
             app-review-service:
               - app-review-service/**
-              - lib/**
-              - supabase/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
               - package-lock.json
+              - vitest.config.ts
             app-surveys-service:
               - app-surveys-service/**
-              - lib/**
-              - supabase/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
               - package-lock.json
+              - vitest.config.ts
             app-ai-service:
               - app-ai-service/**
 
@@ -58,18 +78,24 @@ jobs:
   # ──────────────────────────────────────────────────────────
   build-node:
     needs: detect-changes
-    if: needs.detect-changes.outputs.services != '[]'
+    if: needs.detect-changes.outputs.services != '[]' && contains(needs.detect-changes.outputs.services, matrix.service)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        service:
-          - app-auth
-          - app-analysis-service
-          - app-frontend
-          - app-report-service
-          - app-review-service
-          - app-surveys-service
+        include:
+          - service: app-auth
+            project_id_secret: VERCEL_PROJECT_ID_AUTH
+          - service: app-analysis-service
+            project_id_secret: VERCEL_PROJECT_ID_ANALYSIS
+          - service: app-frontend
+            project_id_secret: VERCEL_PROJECT_ID_FRONTEND
+          - service: app-report-service
+            project_id_secret: VERCEL_PROJECT_ID_REPORT
+          - service: app-review-service
+            project_id_secret: VERCEL_PROJECT_ID_REVIEW
+          - service: app-surveys-service
+            project_id_secret: VERCEL_PROJECT_ID_SURVEYS
     steps:
       - uses: actions/checkout@v4
 
@@ -93,10 +119,19 @@ jobs:
       - name: Build
         run: npm run build --workspace=${{ matrix.service }}
 
+      - name: Pull Vercel project settings
+        if: (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') && github.event_name == 'push'
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets[matrix.project_id_secret] }}
+        run: npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
       - name: Deploy to Vercel
         if: (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') && github.event_name == 'push'
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets[matrix.project_id_secret] }}
         run: npx vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
-        working-directory: ${{ matrix.service }}
 
   # ──────────────────────────────────────────────────────────
   # 3. Lint Python (app-ai-service)

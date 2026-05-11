@@ -74,7 +74,7 @@ jobs:
               - app-ai-service/**
 
   # ──────────────────────────────────────────────────────────
-  # 2. Lint + Test + Build monorepo Node (una sola vez)
+  # 2. Proceso principal Node (lint + test)
   # ──────────────────────────────────────────────────────────
   build-node:
     runs-on: ubuntu-latest
@@ -99,29 +99,45 @@ jobs:
       - name: Run tests
         run: npm run test
 
-      - name: Build app-auth
-        run: npm run build --workspace=app-auth
+  # ──────────────────────────────────────────────────────────
+  # 3. Build por workspace (jobs separados, después de build-node)
+  # ──────────────────────────────────────────────────────────
+  build-workspaces:
+    needs: build-node
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - app-auth
+          - app-analysis-service
+          - app-frontend
+          - app-report-service
+          - app-review-service
+          - app-surveys-service
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Build app-analysis-service
-        run: npm run build --workspace=app-analysis-service
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
 
-      - name: Build app-frontend
-        run: npm run build --workspace=app-frontend
+      - name: Install dependencies (clean)
+        run: npm ci --no-audit --prefer-offline
 
-      - name: Build app-report-service
-        run: npm run build --workspace=app-report-service
+      - name: Generate Prisma client
+        run: npm run db:generate
 
-      - name: Build app-review-service
-        run: npm run build --workspace=app-review-service
-
-      - name: Build app-surveys-service
-        run: npm run build --workspace=app-surveys-service
+      - name: Build workspace
+        run: npm run build --workspace=${{ matrix.service }}
 
   # ──────────────────────────────────────────────────────────
-  # 3. Deploy Node apps a Vercel (solo en push dev/main)
+  # 4. Deploy Node apps a Vercel (solo en push dev/main)
   # ──────────────────────────────────────────────────────────
   deploy-node:
-    needs: build-node
+    needs: build-workspaces
     if: (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') && github.event_name == 'push'
     runs-on: ubuntu-latest
     strategy:
@@ -160,7 +176,7 @@ jobs:
         run: npx vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
 
   # ──────────────────────────────────────────────────────────
-  # 4. Lint Python (app-ai-service)
+  # 5. Lint Python (app-ai-service)
   # ──────────────────────────────────────────────────────────
   lint-python:
     needs: detect-changes

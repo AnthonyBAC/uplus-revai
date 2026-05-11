@@ -1,0 +1,54 @@
+name: Vercel Production - Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: app-auth
+            working_directory: app-auth
+            project_id_secret: VERCEL_PROJECT_ID_APP_AUTH
+          - name: app-analysis-service
+            working_directory: app-analysis-service
+            project_id_secret: VERCEL_PROJECT_ID_ANALYSIS
+          - name: app-review-service
+            working_directory: app-review-service
+            project_id_secret: VERCEL_PROJECT_ID_REVIEW
+          - name: app-report-service
+            working_directory: app-report-service
+            project_id_secret: VERCEL_PROJECT_ID_REPORT
+          - name: app-surveys-service
+            working_directory: app-surveys-service
+            project_id_secret: VERCEL_PROJECT_ID_SURVEYS
+          - name: app-frontend
+            working_directory: app-frontend
+            project_id_secret: VERCEL_PROJECT_ID_FRONTEND
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Deploy production with Vercel Action
+        uses: amondnet/vercel-action@v42
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets[matrix.project_id_secret] }}
+          working-directory: ${{ matrix.working_directory }}
+          vercel-build: true
+          target: production

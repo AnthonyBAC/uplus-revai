@@ -3,6 +3,8 @@ name: CI/CD
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
 
 jobs:
   # ──────────────────────────────────────────────────────────
@@ -147,3 +149,51 @@ jobs:
 
       - name: Lint with ruff
         run: pip install ruff && ruff check src/
+
+  # ──────────────────────────────────────────────────────────
+  # 5. Deploy a Vercel (solo en push a main)
+  # ──────────────────────────────────────────────────────────
+  deploy-node:
+    needs: build-node
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: app-auth
+            project_id_secret: VERCEL_PROJECT_ID_AUTH
+          - service: app-analysis-service
+            project_id_secret: VERCEL_PROJECT_ID_ANALYSIS
+          - service: app-frontend
+            project_id_secret: VERCEL_PROJECT_ID_FRONTEND
+          - service: app-report-service
+            project_id_secret: VERCEL_PROJECT_ID_REPORT
+          - service: app-review-service
+            project_id_secret: VERCEL_PROJECT_ID_REVIEW
+          - service: app-surveys-service
+            project_id_secret: VERCEL_PROJECT_ID_SURVEYS
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Pull Vercel project settings
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets[matrix.project_id_secret] }}
+        run: npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --cwd ${{ matrix.service }}
+
+      - name: Build prebuilt artifact
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets[matrix.project_id_secret] }}
+        run: npx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} --cwd ${{ matrix.service }}
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets[matrix.project_id_secret] }}
+        run: npx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --yes --cwd ${{ matrix.service }}

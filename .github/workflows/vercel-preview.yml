@@ -110,6 +110,6 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets[matrix.project_id_secret] }}
-          working-directory: ./
+          working-directory: ${{ matrix.name }}
           vercel-build: true
           vercel-version: 53.3.2

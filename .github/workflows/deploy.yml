@@ -74,11 +74,40 @@ jobs:
               - app-ai-service/**
 
   # ──────────────────────────────────────────────────────────
-  # 2. Lint + Test + Build cada servicio Node
+  # 2. Lint + Test + Build monorepo Node (una sola vez)
   # ──────────────────────────────────────────────────────────
   build-node:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.services != '[]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies (clean)
+        run: npm ci --no-audit --prefer-offline
+
+      - name: Generate Prisma client
+        run: npm run db:generate
+
+      - name: Lint all workspaces
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build all workspaces
+        run: npm run build
+
+  # ──────────────────────────────────────────────────────────
+  # 3. Deploy Node apps a Vercel (solo en push dev/main)
+  # ──────────────────────────────────────────────────────────
+  deploy-node:
+    needs: build-node
+    if: (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') && github.event_name == 'push'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -102,44 +131,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-
-      - name: Install dependencies
-        if: contains(needs.detect-changes.outputs.services, matrix.service)
-        run: npm install
-
-      - name: Generate Prisma client
-        if: contains(needs.detect-changes.outputs.services, matrix.service)
-        run: npm run db:generate
-
-      - name: Lint
-        if: contains(needs.detect-changes.outputs.services, matrix.service)
-        run: npm run lint --workspace=${{ matrix.service }}
-
-      - name: Test
-        if: contains(needs.detect-changes.outputs.services, matrix.service)
-        run: npm run test -- --project=${{ matrix.service }}
-
-      - name: Build
-        if: contains(needs.detect-changes.outputs.services, matrix.service)
-        run: npm run build --workspace=${{ matrix.service }}
 
       - name: Pull Vercel project settings
-        if: contains(needs.detect-changes.outputs.services, matrix.service) && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') && github.event_name == 'push'
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets[matrix.project_id_secret] }}
         run: npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy to Vercel
-        if: contains(needs.detect-changes.outputs.services, matrix.service) && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') && github.event_name == 'push'
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets[matrix.project_id_secret] }}
         run: npx vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
 
   # ──────────────────────────────────────────────────────────
-  # 3. Lint Python (app-ai-service)
+  # 4. Lint Python (app-ai-service)
   # ──────────────────────────────────────────────────────────
   lint-python:
     needs: detect-changes

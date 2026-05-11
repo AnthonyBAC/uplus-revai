@@ -17,7 +17,7 @@
   <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-app--ai--service-009688?logo=fastapi&logoColor=white" />
 </p>
 
-Monorepo de U+ Revai con servicios Node/Next.js, paquetes internos compartidos (`@uplus/db`, `@uplus/auth`), un servicio de IA en Python/FastAPI y deploy automatico en Vercel.
+Monorepo de U+ Revai con servicios Node/Next.js, paquetes internos compartidos (`@uplus/db`, `@uplus/auth`), un servicio de IA en Python/FastAPI y deploy automatico en Vercel con previews por PR.
 
 > [!IMPORTANT]
 > El flujo oficial del proyecto parte desde la raiz del repo.

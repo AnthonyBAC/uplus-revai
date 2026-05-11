@@ -17,7 +17,7 @@
   <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-app--ai--service-009688?logo=fastapi&logoColor=white" />
 </p>
 
-Monorepo de U+ Revai con servicios Node/Next.js, un servicio de IA en Python/FastAPI y una configuracion global de Prisma en la raiz.
+Monorepo de U+ Revai con servicios Node/Next.js, paquetes internos compartidos (`@uplus/db`, `@uplus/auth`), un servicio de IA en Python/FastAPI y deploy automatico en Vercel.
 
 > [!IMPORTANT]
 > El flujo oficial del proyecto parte desde la raiz del repo.
@@ -71,19 +71,22 @@ Piezas globales que el equipo debe tomar como referencia oficial:
 | Archivo o carpeta | Rol |
 | --- | --- |
 | `package.json` | scripts globales y workspaces Node |
+| `packages/db/` | paquete `@uplus/db` (Prisma client + export) |
+| `packages/auth/` | paquete `@uplus/auth` (autenticacion compartida) |
+| `packages/db/prisma/schema.prisma` | schema global de la base de datos |
+| `packages/db/prisma/migrations/` | migraciones SQL globales |
+| `packages/db/generated/` | cliente Prisma generado (no se versiona) |
 | `prisma.config.ts` | configuracion oficial de Prisma CLI |
-| `supabase/schema.prisma` | schema global de la base de datos |
-| `supabase/migrations/` | migraciones SQL globales |
-| `supabase/generated/` | cliente Prisma generado |
 | `.env.example` | plantilla oficial de variables globales |
 | `.env` | variables locales reales |
 | `.gitignore` | reglas globales de archivos ignorados |
 | `.prettierrc.json` | formato global del repo |
+| `vitest.config.ts` | configuracion centralizada de tests |
 | `test-prisma.ts` | prueba simple de conexion a PostgreSQL |
 
 > [!IMPORTANT]
-> Si alguien necesita cambiar la estructura de la base de datos, el archivo correcto es `supabase/schema.prisma`.
-> No se modifica el cliente generado dentro de `supabase/generated/`.
+> Si alguien necesita cambiar la estructura de la base de datos, el archivo correcto es `packages/db/prisma/schema.prisma`.
+> No se modifica el cliente generado dentro de `packages/db/generated/`.
 
 ---
 
@@ -251,13 +254,10 @@ npm install
 > [!IMPORTANT]
 > Este comando instala las dependencias de todos los servicios Node desde la raiz.
 
-#### Paso 6. Generar el cliente Prisma
+#### Paso 6. Probar la conexion a la base de datos
 
-```bash
-npm run db:generate
-```
-
-#### Paso 7. Probar la conexion a la base de datos
+> [!NOTE]
+> El cliente Prisma ya se genero automaticamente al correr `npm install`. No necesitas correr `db:generate` manualmente.
 
 ```bash
 npm run db:test
@@ -364,43 +364,47 @@ Respuesta esperada:
 
 ## Prisma Global
 
-Toda la configuracion Prisma vive en la raiz y en `supabase/`.
+Toda la configuracion Prisma vive en `packages/db/`.
 
 ### Schema
 
 Si vas a cambiar la estructura de la base de datos, el archivo correcto es:
 
 ```text
-supabase/schema.prisma
+packages/db/prisma/schema.prisma
 ```
 
 ### Migraciones
 
 ```text
-supabase/migrations/
+packages/db/prisma/migrations/
 ```
 
 ### Cliente generado
 
 ```text
-supabase/generated/prisma/
+packages/db/generated/
 ```
+
+> [!NOTE]
+> El cliente Prisma se **genera automaticamente** al correr `npm install` gracias a un script `postinstall` en `packages/db`.
+> No es necesario correr `npm run db:generate` manualmente despues de instalar.
 
 ### Versionado
 
 Se versiona:
 
-- `supabase/schema.prisma`
-- `supabase/migrations/`
+- `packages/db/prisma/schema.prisma`
+- `packages/db/prisma/migrations/`
 - `prisma.config.ts`
 
 No se versiona:
 
-- `supabase/generated/`
+- `packages/db/generated/`
 
 ### Si cambias el schema
 
-1. modificar `supabase/schema.prisma`
+1. modificar `packages/db/prisma/schema.prisma`
 2. correr `npm run db:generate`
 3. correr `npm run db:migrate`
 
@@ -408,8 +412,8 @@ No se versiona:
 
 1. actualizar tu rama con cambios remotos
 2. correr `npm run db:pull`
-3. revisar `supabase/schema.prisma`
-4. correr `npm run db:generate`
+3. revisar `packages/db/prisma/schema.prisma`
+4. correr `npm install` (regenera el cliente Prisma automaticamente)
 5. si te toca seguir evolucionando el schema, crear una nueva migracion con `npm run db:migrate`
 
 > [!IMPORTANT]
@@ -430,7 +434,6 @@ No se versiona:
 > git switch -c feature/<tu-rama>
 > cp .env.example .env
 > npm install
-> npm run db:generate
 > npm run db:test
 > ```
 >
@@ -443,7 +446,7 @@ No se versiona:
 > Despues de eso ya puedes empezar a modificar el schema en:
 >
 > ```text
-> supabase/schema.prisma
+> packages/db/prisma/schema.prisma
 > ```
 >
 > Y si luego quieres dejar listos tus cambios de base de datos, el flujo es este:

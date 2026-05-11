@@ -93,8 +93,13 @@ jobs:
         if: contains(needs.detect-changes.outputs.services, matrix.name)
         uses: actions/checkout@v4
 
+      - name: Skip if project ID secret is missing
+        if: contains(needs.detect-changes.outputs.services, matrix.name) && secrets[matrix.project_id_secret] == ''
+        run: |
+          echo "::warning::Missing secret '${{ matrix.project_id_secret }}' for '${{ matrix.name }}'. Skipping deploy to avoid linking root project."
+
       - name: Deploy production with Vercel Action
-        if: contains(needs.detect-changes.outputs.services, matrix.name)
+        if: contains(needs.detect-changes.outputs.services, matrix.name) && secrets[matrix.project_id_secret] != ''
         uses: amondnet/vercel-action@v42
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

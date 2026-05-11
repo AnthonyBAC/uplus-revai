@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseAnon } from '@/lib/supabase';
-import { getBearerToken } from '@/lib/auth';
+import { getSupabaseAnon } from '@service/lib/supabase';
+import { getBearerToken } from '@service/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {

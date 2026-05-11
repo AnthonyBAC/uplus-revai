@@ -13,7 +13,10 @@
         "resolveJsonModule": true,
 
         "baseUrl": ".",
-        "types": ["node"]
+        "types": ["node"],
+        "paths": {
+            "@root/*": ["./*"],
+        }
     },
     "include": ["prisma.config.ts", "test-prisma.ts"]
 }

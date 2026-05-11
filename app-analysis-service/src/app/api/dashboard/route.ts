@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@global/auth';
+import { requireAuth, requireBusinessAccess, requireEndpointPermission } from '@root/lib/auth';
 
 export async function GET(req: NextRequest) {
   try {

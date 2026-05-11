@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@/lib/auth';
-import { requirePermission } from '@/lib/permissions';
-import { prisma } from '@global/prisma';
-import { getSupabaseAdmin } from '@/lib/supabase';
-import type { CreateMemberInput } from '@/types';
+import { requireAuth } from '@service/lib/auth';
+import { requirePermission } from '@service/lib/permissions';
+import { prisma } from '@root/lib/prisma';
+import { getSupabaseAdmin } from '@service/lib/supabase';
+import type { CreateMemberInput } from '@service/types';
 
 export async function GET(
   req: NextRequest,
@@ -108,6 +108,7 @@ export async function POST(
     const result = await prisma.$transaction(async (tx) => {
       const user = await tx.app_users.create({
         data: {
+          id: crypto.randomUUID(),
           email: body.email,
           full_name: body.fullName,
           updated_at: new Date(),
@@ -116,6 +117,7 @@ export async function POST(
 
       const membership = await tx.business_memberships.create({
         data: {
+          id: crypto.randomUUID(),
           user_id: user.id,
           business_id: businessId,
           role_id: role.id,

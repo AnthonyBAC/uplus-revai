@@ -121,4 +121,4 @@ jobs:
           working-directory: ./
           vercel-build: true
           vercel-version: 53.3.2
-          target: production
+          production: true

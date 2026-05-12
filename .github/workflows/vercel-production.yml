@@ -110,15 +110,36 @@ jobs:
             echo "has_project_id=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Deploy production with Vercel Action
+      - name: Setup Node.js
         if: contains(needs.detect-changes.outputs.services, matrix.name) && steps.project-id.outputs.has_project_id == 'true'
-        uses: amondnet/vercel-action@v42
+        uses: actions/setup-node@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets[matrix.project_id_secret] }}
-          working-directory: ./
-          vercel-build: true
-          vercel-version: 53.3.2
-          vercel-args: --prod
+          node-version: 22
+
+      - name: Install Vercel CLI
+        if: contains(needs.detect-changes.outputs.services, matrix.name) && steps.project-id.outputs.has_project_id == 'true'
+        run: npm i -g vercel@53.3.2
+
+      - name: Pull Vercel production environment
+        if: contains(needs.detect-changes.outputs.services, matrix.name) && steps.project-id.outputs.has_project_id == 'true'
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets[matrix.project_id_secret] }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=production
+
+      - name: Build production
+        if: contains(needs.detect-changes.outputs.services, matrix.name) && steps.project-id.outputs.has_project_id == 'true'
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets[matrix.project_id_secret] }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod
+
+      - name: Deploy production
+        if: contains(needs.detect-changes.outputs.services, matrix.name) && steps.project-id.outputs.has_project_id == 'true'
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets[matrix.project_id_secret] }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy --prebuilt --prod

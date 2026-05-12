@@ -8,7 +8,7 @@ on:
     inputs:
       deploy_all:
         description: "Forzar deploy de todos los servicios sin detectar cambios"
-        type: boolean
+        type: "boolean"
         required: false
         default: false
 

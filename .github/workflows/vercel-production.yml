@@ -4,19 +4,34 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      deploy_all:
+        description: "Forzar deploy de todos los servicios sin detectar cambios"
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   detect-changes:
     name: Detect changed apps
     runs-on: ubuntu-latest
     outputs:
-      services: ${{ steps.filter.outputs.changes }}
+      services: ${{ steps.resolve.outputs.services }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Force deploy all on manual trigger
+        id: force-all
+        if: github.event_name == 'workflow_dispatch' && inputs.deploy_all
+        run: |
+          ALL='["app-auth","app-analysis-service","app-review-service","app-report-service","app-surveys-service","app-frontend"]'
+          echo "services=${ALL}" >> "$GITHUB_OUTPUT"
+
       - uses: dorny/paths-filter@v3
+        if: steps.force-all.outcome != 'success'
         id: filter
         with:
           list-files: json
@@ -70,6 +85,17 @@ jobs:
               - package.json
               - package-lock.json
               - vitest.config.ts
+
+      - name: Resolve deploy list
+        id: resolve
+        run: |
+          FORCE="${{ steps.force-all.outputs.services }}"
+          FILTER="${{ steps.filter.outputs.changes }}"
+          if [ -n "$FORCE" ]; then
+            echo "services=${FORCE}" >> "$GITHUB_OUTPUT"
+          else
+            echo "services=${FILTER:-[]}" >> "$GITHUB_OUTPUT"
+          fi
 
   production:
     name: Deploy to Production

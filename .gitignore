@@ -55,3 +55,6 @@ packages/db/generated/
 
 # IDE
 .idea/
+
+# Local generated docs
+docs/configuracion-servicios-vercel-supabase.md

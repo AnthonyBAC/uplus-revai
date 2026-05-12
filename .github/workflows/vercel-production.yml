@@ -13,11 +13,14 @@ jobs:
       services: ${{ steps.filter.outputs.changes }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: dorny/paths-filter@v3
         id: filter
         with:
           list-files: json
+          base: ${{ github.event.before }}
           filters: |
             app-auth:
               - app-auth/**

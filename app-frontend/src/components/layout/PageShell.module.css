@@ -1,5 +1,4 @@
 .page {
-  min-height: 100dvh;
   display: grid;
   grid-template-rows: auto 1fr auto;
   overflow: hidden;
@@ -17,7 +16,23 @@
   padding: 24px 28px;
 }
 
+@media (min-width: 901px) {
+  .page {
+    height: 100dvh;
+  }
+}
+
 @media (max-width: 900px) {
+  .page {
+    min-height: 100dvh;
+    overflow: auto;
+  }
+
+  .main {
+    flex: 1 1 auto;
+    min-height: auto;
+  }
+
   .mainCompact {
     padding: 16px;
   }

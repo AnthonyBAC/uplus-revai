@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuth } from '@/lib/auth';
+import { getBearerToken, resolveSessionResponseFromToken } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
   try {
-    const auth = await requireAuth(req);
+    const token = getBearerToken(req);
+    if (!token) {
+      return NextResponse.json({ error: 'Token no proporcionado' }, { status: 401 });
+    }
 
-    return NextResponse.json({
-      userId: auth.userId,
-      email: auth.email,
-      fullName: auth.fullName,
-      memberships: auth.memberships,
-    });
+    const session = await resolveSessionResponseFromToken(token);
+
+    return NextResponse.json(session);
   } catch (err: unknown) {
     const status = (err as Error & { status?: number }).status ?? 500;
     return NextResponse.json(

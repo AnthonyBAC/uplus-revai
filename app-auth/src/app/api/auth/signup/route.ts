@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@uplus/db';
 import { getSupabaseAnon } from '@/lib/supabase';
-import { getBearerToken, resolveSessionResponseFromToken } from '@/lib/auth';
+import { resolveSessionResponseFromToken } from '@/lib/auth';
 import type { AuthResponsePayload, SignupInput } from '@/types';
 
 export async function POST(req: NextRequest) {
@@ -33,14 +34,38 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status });
     }
 
+    let appUserId: string | null = null;
+
+    if (data.user?.email) {
+      const existing = await prisma.app_users.findUnique({
+        where: { email: data.user.email },
+        select: { id: true },
+      });
+
+      if (!existing) {
+        const created = await prisma.app_users.create({
+          data: {
+            id: crypto.randomUUID(),
+            email: data.user.email,
+            full_name: body.fullName ?? null,
+            updated_at: new Date(),
+          },
+          select: { id: true },
+        });
+        appUserId = created.id;
+      } else {
+        appUserId = existing.id;
+      }
+    }
+
     const sessionResponse = data.session?.access_token
       ? await resolveSessionResponseFromToken(data.session.access_token)
-      : data.user
+        : data.user
         ? {
             authenticated: false,
             isOnboarded: false,
             supabaseUserId: data.user.id,
-            appUserId: null,
+            appUserId,
             email: data.user.email ?? body.email,
             fullName:
               typeof data.user.user_metadata?.full_name === 'string'
@@ -55,7 +80,7 @@ export async function POST(req: NextRequest) {
         authenticated: false,
         isOnboarded: false,
         supabaseUserId: '',
-        appUserId: null,
+        appUserId,
         email: body.email,
         fullName: body.fullName ?? null,
         memberships: [],

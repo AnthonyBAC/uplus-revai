@@ -1,0 +1,24 @@
+.page {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
+  background: var(--color-bg-cream);
+}
+
+.main {
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mainCompact {
+  padding: 24px 28px;
+}
+
+@media (max-width: 900px) {
+  .mainCompact {
+    padding: 16px;
+  }
+}

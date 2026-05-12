@@ -26,6 +26,45 @@ export interface RegisterInput {
   businessSlug: string;
 }
 
+export interface SignupInput {
+  email: string;
+  password: string;
+  fullName?: string;
+}
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+
+export interface RefreshInput {
+  refreshToken: string;
+}
+
+export interface AuthSessionData {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: number | null;
+  expiresIn: number | null;
+  tokenType: string;
+}
+
+export interface SessionResponse {
+  authenticated: boolean;
+  isOnboarded: boolean;
+  supabaseUserId: string;
+  appUserId: string | null;
+  email: string;
+  fullName: string | null;
+  memberships: MembershipInfo[];
+}
+
+export interface AuthResponsePayload {
+  user: SessionResponse;
+  session: AuthSessionData | null;
+  requiresEmailConfirmation: boolean;
+}
+
 export interface CreateMemberInput {
   email: string;
   fullName: string;

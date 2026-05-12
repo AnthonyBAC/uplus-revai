@@ -1,6 +1,7 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 let adminClient: SupabaseClient | null = null;
+let anonClient: SupabaseClient | null = null;
 
 export function getSupabaseAdmin(): SupabaseClient {
   if (adminClient) return adminClient;
@@ -23,6 +24,8 @@ export function getSupabaseAdmin(): SupabaseClient {
 }
 
 export function getSupabaseAnon(): SupabaseClient {
+  if (anonClient) return anonClient;
+
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_ANON_KEY;
 
@@ -30,5 +33,12 @@ export function getSupabaseAnon(): SupabaseClient {
     throw new Error('SUPABASE_URL y SUPABASE_ANON_KEY son requeridas');
   }
 
-  return createClient(url, key);
+  anonClient = createClient(url, key, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+
+  return anonClient;
 }

@@ -1,0 +1,128 @@
+name: Vercel Preview - Dev to Main
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  detect-changes:
+    name: Detect changed apps
+    if: github.head_ref == 'dev'
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          list-files: json
+          filters: |
+            app-auth:
+              - app-auth/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
+              - package-lock.json
+              - vitest.config.ts
+            app-analysis-service:
+              - app-analysis-service/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
+              - package-lock.json
+              - vitest.config.ts
+            app-review-service:
+              - app-review-service/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
+              - package-lock.json
+              - vitest.config.ts
+            app-report-service:
+              - app-report-service/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
+              - package-lock.json
+              - vitest.config.ts
+            app-surveys-service:
+              - app-surveys-service/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
+              - package-lock.json
+              - vitest.config.ts
+            app-frontend:
+              - app-frontend/**
+              - packages/auth/**
+              - packages/db/**
+              - prisma.config.ts
+              - package.json
+              - package-lock.json
+              - vitest.config.ts
+
+  preview:
+    name: Create Vercel Preview
+    if: github.head_ref == 'dev' && needs.detect-changes.outputs.services != '[]'
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: app-auth
+            project_id_secret: VERCEL_PROJECT_ID_APP_AUTH
+          - name: app-analysis-service
+            project_id_secret: VERCEL_PROJECT_ID_ANALYSIS
+          - name: app-review-service
+            project_id_secret: VERCEL_PROJECT_ID_REVIEW
+          - name: app-report-service
+            project_id_secret: VERCEL_PROJECT_ID_REPORT
+          - name: app-surveys-service
+            project_id_secret: VERCEL_PROJECT_ID_SURVEYS
+          - name: app-frontend
+            project_id_secret: VERCEL_PROJECT_ID_FRONTEND
+    steps:
+      - name: Checkout repository
+        if: contains(needs.detect-changes.outputs.services, matrix.name)
+        uses: actions/checkout@v4
+
+      - name: Check project ID secret availability
+        id: project-id
+        if: contains(needs.detect-changes.outputs.services, matrix.name)
+        env:
+          PROJECT_ID: ${{ secrets[matrix.project_id_secret] }}
+        run: |
+          if [ -n "$PROJECT_ID" ]; then
+            echo "has_project_id=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::Missing secret '${{ matrix.project_id_secret }}' for '${{ matrix.name }}'. Skipping deploy to avoid linking root project."
+            echo "has_project_id=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy preview with Vercel Action
+        if: contains(needs.detect-changes.outputs.services, matrix.name) && steps.project-id.outputs.has_project_id == 'true'
+        uses: amondnet/vercel-action@v42
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets[matrix.project_id_secret] }}
+          working-directory: ./
+          vercel-build: true
+          vercel-version: 53.3.2

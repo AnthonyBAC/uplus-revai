@@ -4,13 +4,16 @@
     "private": true,
     "scripts": {
         "dev": "next dev",
-        "build": "next build",
+        "build": "next build --webpack",
         "start": "next start",
         "lint": "eslint"
     },
     "dependencies": {
         "@prisma/adapter-pg": "^7.8.0",
         "@prisma/client": "^7.8.0",
+        "antd": "^6.3.7",
+        "lucide-react": "^1.14.0",
+        "motion": "^12.38.0",
         "next": "16.2.4",
         "pg": "^8.20.0",
         "react": "19.2.4",

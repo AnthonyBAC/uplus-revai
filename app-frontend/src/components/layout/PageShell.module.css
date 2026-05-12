@@ -1,0 +1,39 @@
+.page {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
+  background: var(--color-bg-cream);
+}
+
+.main {
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mainCompact {
+  padding: 24px 28px;
+}
+
+@media (min-width: 901px) {
+  .page {
+    height: 100dvh;
+  }
+}
+
+@media (max-width: 900px) {
+  .page {
+    min-height: 100dvh;
+    overflow: auto;
+  }
+
+  .main {
+    flex: 1 1 auto;
+    min-height: auto;
+  }
+
+  .mainCompact {
+    padding: 16px;
+  }
+}

@@ -3,7 +3,7 @@
 <p>
   <img alt="Branch main" src="https://img.shields.io/badge/main-estable%20y%20documentada-1f6feb?style=for-the-badge" />
   <img alt="Branch dev" src="https://img.shields.io/badge/dev-integracion%20activa-238636?style=for-the-badge" />
-  <img alt="Workflow" src="https://img.shields.io/badge/workflow-global%20desde%20raiz-f59e0b?style=for-the-badge" />
+  <img alt="Workflow" src="https://img.shields.io/badge/workflow-CI%20por%20rama%20%2B%20deploy%20selectivo-f59e0b?style=for-the-badge" />
 </p>
 
 <p>
@@ -17,7 +17,7 @@
   <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-app--ai--service-009688?logo=fastapi&logoColor=white" />
 </p>
 
-Monorepo de U+ Revai con servicios Node/Next.js, un servicio de IA en Python/FastAPI y una configuracion global de Prisma en la raiz.
+Monorepo de U+ Revai con servicios Node/Next.js, paquetes internos compartidos (`@uplus/db`, `@uplus/auth`), un servicio de IA en Python/FastAPI y deploys en Vercel controlados por GitHub Actions.
 
 > [!IMPORTANT]
 > El flujo oficial del proyecto parte desde la raiz del repo.
@@ -25,12 +25,16 @@ Monorepo de U+ Revai con servicios Node/Next.js, un servicio de IA en Python/Fas
 
 ## Navegacion Rapida
 
+> [!NOTE]
+> Monorepo configurado con npm workspaces. Paquetes internos: `@uplus/db`, `@uplus/auth`.
+
 - [Stack Base](#stack-base)
 - [Herramientas Globales](#herramientas-globales)
 - [Dependencias Base](#dependencias-base)
 - [Servicios](#servicios)
 - [AGENTS Por Servicio](#agents-por-servicio)
 - [Flujo De Ramas](#flujo-de-ramas)
+- [CI/CD Y Deploy](#cicd-y-deploy)
 - [Diagrama](#diagrama)
 - [Instalacion Inicial](#instalacion-inicial)
 - [Prisma Global](#prisma-global)
@@ -71,19 +75,22 @@ Piezas globales que el equipo debe tomar como referencia oficial:
 | Archivo o carpeta | Rol |
 | --- | --- |
 | `package.json` | scripts globales y workspaces Node |
+| `packages/db/` | paquete `@uplus/db` (Prisma client + export) |
+| `packages/auth/` | paquete `@uplus/auth` (autenticacion compartida) |
+| `packages/db/prisma/schema.prisma` | schema global de la base de datos |
+| `packages/db/prisma/migrations/` | migraciones SQL globales |
+| `packages/db/generated/` | cliente Prisma generado (no se versiona) |
 | `prisma.config.ts` | configuracion oficial de Prisma CLI |
-| `supabase/schema.prisma` | schema global de la base de datos |
-| `supabase/migrations/` | migraciones SQL globales |
-| `supabase/generated/` | cliente Prisma generado |
 | `.env.example` | plantilla oficial de variables globales |
 | `.env` | variables locales reales |
 | `.gitignore` | reglas globales de archivos ignorados |
 | `.prettierrc.json` | formato global del repo |
+| `vitest.config.ts` | configuracion centralizada de tests |
 | `test-prisma.ts` | prueba simple de conexion a PostgreSQL |
 
 > [!IMPORTANT]
-> Si alguien necesita cambiar la estructura de la base de datos, el archivo correcto es `supabase/schema.prisma`.
-> No se modifica el cliente generado dentro de `supabase/generated/`.
+> Si alguien necesita cambiar la estructura de la base de datos, el archivo correcto es `packages/db/prisma/schema.prisma`.
+> No se modifica el cliente generado dentro de `packages/db/generated/`.
 
 ---
 
@@ -180,6 +187,35 @@ Orden recomendado:
 
 ---
 
+## CI/CD Y Deploy
+
+Flujo actual del repositorio:
+
+1. PR hacia `dev` ejecuta `.github/workflows/ci-pr-dev.yml`.
+2. PR `dev -> main` ejecuta `.github/workflows/vercel-preview.yml`.
+3. `push` a `main` ejecuta `.github/workflows/vercel-production.yml`.
+
+Reglas importantes:
+
+- El deploy a Vercel se hace solo desde GitHub Actions.
+- Cada proyecto de Vercel debe tener su `Root Directory` configurado en su carpeta de app (`app-auth`, `app-frontend`, etc.).
+- Cada app Node tiene su `vercel.json` con `"git": { "deploymentEnabled": false }` para evitar auto-deploy por Git Integration.
+- Preview y production usan `dorny/paths-filter` para desplegar solo apps afectadas por los cambios.
+- Si falta un `VERCEL_PROJECT_ID_*`, el workflow hace skip del deploy de esa app para evitar fallback al proyecto raiz `uplus-revai`.
+
+Secrets esperados en GitHub Actions:
+
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID_APP_AUTH`
+- `VERCEL_PROJECT_ID_ANALYSIS`
+- `VERCEL_PROJECT_ID_REVIEW`
+- `VERCEL_PROJECT_ID_REPORT`
+- `VERCEL_PROJECT_ID_SURVEYS`
+- `VERCEL_PROJECT_ID_FRONTEND`
+
+---
+
 ## Diagrama
 
 Diagrama base del proyecto:
@@ -251,13 +287,10 @@ npm install
 > [!IMPORTANT]
 > Este comando instala las dependencias de todos los servicios Node desde la raiz.
 
-#### Paso 6. Generar el cliente Prisma
+#### Paso 6. Probar la conexion a la base de datos
 
-```bash
-npm run db:generate
-```
-
-#### Paso 7. Probar la conexion a la base de datos
+> [!NOTE]
+> El cliente Prisma ya se genero automaticamente al correr `npm install`. No necesitas correr `db:generate` manualmente.
 
 ```bash
 npm run db:test
@@ -364,43 +397,47 @@ Respuesta esperada:
 
 ## Prisma Global
 
-Toda la configuracion Prisma vive en la raiz y en `supabase/`.
+Toda la configuracion Prisma vive en `packages/db/`.
 
 ### Schema
 
 Si vas a cambiar la estructura de la base de datos, el archivo correcto es:
 
 ```text
-supabase/schema.prisma
+packages/db/prisma/schema.prisma
 ```
 
 ### Migraciones
 
 ```text
-supabase/migrations/
+packages/db/prisma/migrations/
 ```
 
 ### Cliente generado
 
 ```text
-supabase/generated/prisma/
+packages/db/generated/
 ```
+
+> [!NOTE]
+> El cliente Prisma se **genera automaticamente** al correr `npm install` gracias a un script `postinstall` en `packages/db`.
+> No es necesario correr `npm run db:generate` manualmente despues de instalar.
 
 ### Versionado
 
 Se versiona:
 
-- `supabase/schema.prisma`
-- `supabase/migrations/`
+- `packages/db/prisma/schema.prisma`
+- `packages/db/prisma/migrations/`
 - `prisma.config.ts`
 
 No se versiona:
 
-- `supabase/generated/`
+- `packages/db/generated/`
 
 ### Si cambias el schema
 
-1. modificar `supabase/schema.prisma`
+1. modificar `packages/db/prisma/schema.prisma`
 2. correr `npm run db:generate`
 3. correr `npm run db:migrate`
 
@@ -408,8 +445,8 @@ No se versiona:
 
 1. actualizar tu rama con cambios remotos
 2. correr `npm run db:pull`
-3. revisar `supabase/schema.prisma`
-4. correr `npm run db:generate`
+3. revisar `packages/db/prisma/schema.prisma`
+4. correr `npm install` (regenera el cliente Prisma automaticamente)
 5. si te toca seguir evolucionando el schema, crear una nueva migracion con `npm run db:migrate`
 
 > [!IMPORTANT]
@@ -430,7 +467,6 @@ No se versiona:
 > git switch -c feature/<tu-rama>
 > cp .env.example .env
 > npm install
-> npm run db:generate
 > npm run db:test
 > ```
 >
@@ -443,7 +479,7 @@ No se versiona:
 > Despues de eso ya puedes empezar a modificar el schema en:
 >
 > ```text
-> supabase/schema.prisma
+> packages/db/prisma/schema.prisma
 > ```
 >
 > Y si luego quieres dejar listos tus cambios de base de datos, el flujo es este:
@@ -477,11 +513,34 @@ No se versiona:
 | `npm run lint` | ejecuta lint en todos los workspaces disponibles |
 | `npm run build` | ejecuta build en todos los workspaces disponibles |
 
+### Tests
+
+| Script | Descripcion |
+| --- | --- |
+| `npm run test` | ejecuta todos los tests |
+| `npm run test:auth` | tests de `app-auth` |
+| `npm run test:surveys` | tests de `app-surveys-service` |
+| `npm run test:review` | tests de `app-review-service` |
+| `npm run test:report` | tests de `app-report-service` |
+| `npm run test:analysis` | tests de `app-analysis-service` (BFF) |
+
+| Servicio | Tests |
+| --- | --- |
+| `app-auth` | 10 |
+| `app-surveys-service` | 15 |
+| `app-review-service` | 8 |
+| `app-report-service` | 8 |
+| `app-analysis-service` | 6 |
+| **Total** | **47** |
+
+Los tests usan Vitest con configuracion global en `vitest.config.ts` (workspace projects).
+No se duplica la configuracion por servicio.
+
 ### Base de datos
 
 | Script | Descripcion |
 | --- | --- |
-| `npm run db:generate` | genera el cliente Prisma desde `supabase/schema.prisma` |
+| `npm run db:generate` | regenera el cliente Prisma manualmente si es necesario |
 | `npm run db:migrate` | crea y aplica una nueva migracion en desarrollo |
 | `npm run db:migrate:deploy` | aplica migraciones existentes |
 | `npm run db:migrate:reset` | resetea la base en desarrollo |
@@ -489,3 +548,87 @@ No se versiona:
 | `npm run db:push` | empuja el schema sin crear migracion |
 | `npm run db:studio` | abre Prisma Studio |
 | `npm run db:test` | valida la conexion a PostgreSQL usando `DIRECT_URL` |
+
+---
+
+## Estructura del monorepo
+
+```
+uplus-revai/
+├── package.json                   ← npm workspaces + scripts globales
+├── package-lock.json              ← lockfile unico del monorepo
+├── prisma.config.ts               ← configuracion Prisma CLI
+├── vitest.config.ts               ← configuracion centralizada de tests
+├── tsconfig.json                  ← TypeScript base
+├── seed.ts                        ← seed de endpoints y roles
+├── test-prisma.ts                 ← prueba de conexion DB
+├── README.md                      ← documentacion principal del monorepo
+├── .github/workflows/
+│   ├── ci-pr-dev.yml              ← lint + test + build en PR hacia dev
+│   ├── vercel-preview.yml         ← preview Vercel en PR dev -> main
+│   └── vercel-production.yml      ← production Vercel en push a main
+│
+├── packages/                      ← paquetes internos compartidos
+│   ├── db/                        ← @uplus/db
+│   │   ├── package.json
+│   │   ├── src/index.ts           ← exporta prisma + Prisma + RoleName
+│   │   └── prisma/
+│   │       ├── schema.prisma      ← schema central de la BD
+│   │       └── migrations/        ← historial de migraciones
+│   └── auth/                      ← @uplus/auth
+│       ├── package.json
+│       └── src/index.ts           ← getUserFromToken, requireAuth, etc.
+│
+├── app-auth/                      ← auth + autorizacion (puerto 3001)
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── vercel.json                ← Vercel sin auto-deploy por Git
+│   ├── next.config.ts             ← transpilePackages: [@uplus/*]
+│   └── src/
+│       ├── lib/auth.ts            ← requireAuth local (con membresias)
+│       ├── lib/permissions.ts     ← requirePermission
+│       ├── types/index.ts
+│       └── app/api/               ← endpoints REST
+│
+├── app-analysis-service/          ← orquestacion + dashboard (puerto 3002)
+│   ├── vercel.json                ← Vercel sin auto-deploy por Git
+│   └── src/app/api/
+│       ├── dashboard/route.ts
+│       ├── analysis/run/route.ts
+│       └── analysis/results/route.ts
+│
+├── app-review-service/            ← reseñas Google (puerto 3003)
+│   ├── package.json
+│   ├── vercel.json                ← Vercel sin auto-deploy por Git
+│   ├── next.config.ts
+│   └── src/app/api/
+│       ├── reviews/
+│       ├── connections/
+│       ├── sync/
+│       └── internal/
+│
+├── app-report-service/            ← reportes ejecutivos (puerto 3004)
+│   ├── vercel.json                ← Vercel sin auto-deploy por Git
+│   └── src/app/api/
+│       ├── reports/
+│       └── analysis/
+│
+├── app-surveys-service/           ← encuestas internas (puerto 3005)
+│   ├── vercel.json                ← Vercel sin auto-deploy por Git
+│   └── src/app/api/surveys/
+│       ├── [id]/
+│       │   ├── route.ts
+│       │   ├── questions/
+│       │   ├── respond/
+│       │   └── responses/
+│       └── route.ts
+│
+├── app-frontend/                  ← dashboard frontend (puerto 3000)
+│   ├── vercel.json                ← Vercel sin auto-deploy por Git
+│   └── src/
+│
+└── app-ai-service/                ← IA con FastAPI + Python (puerto 8000)
+    ├── pyproject.toml
+    ├── Dockerfile
+    └── src/main.py
+```

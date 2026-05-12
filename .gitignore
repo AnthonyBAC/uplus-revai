@@ -47,7 +47,7 @@ coverage/
 **/.ruff_cache/
 
 # Prisma generated client
-supabase/generated/
+packages/db/generated/
 
 # System files
 .DS_Store
@@ -55,3 +55,6 @@ supabase/generated/
 
 # IDE
 .idea/
+
+# Local generated docs
+docs/configuracion-servicios-vercel-supabase.md

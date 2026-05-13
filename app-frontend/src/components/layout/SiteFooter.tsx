@@ -8,12 +8,12 @@ export default function SiteFooter() {
         <div className={styles.brand}>
           <BrandLogo variant="pastel" />
         </div>
+        <span className={styles.copy}>© 2026 U+ Revai</span>
         <div className={styles.links}>
           <a href="#">Privacidad</a>
           <a href="#">Términos</a>
           <a href="#">Contacto</a>
         </div>
-        <span className={styles.copy}>© 2025 Revai</span>
       </div>
     </footer>
   );

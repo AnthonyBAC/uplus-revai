@@ -1,12 +1,16 @@
 .page {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  overflow: hidden;
   background: var(--color-bg-cream);
 }
 
+.clipHost {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  overflow: clip;
+}
+
 .main {
-  min-height: 0;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,23 +20,7 @@
   padding: 24px 28px;
 }
 
-@media (min-width: 901px) {
-  .page {
-    height: 100dvh;
-  }
-}
-
 @media (max-width: 900px) {
-  .page {
-    min-height: 100dvh;
-    overflow: auto;
-  }
-
-  .main {
-    flex: 1 1 auto;
-    min-height: auto;
-  }
-
   .mainCompact {
     padding: 16px;
   }

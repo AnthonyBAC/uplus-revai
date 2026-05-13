@@ -18,8 +18,14 @@
   text-decoration: none;
 }
 
-.links {
+.copy {
   justify-self: center;
+  font-size: 0.78rem;
+  color: var(--color-gray-400);
+}
+
+.links {
+  justify-self: end;
   display: inline-flex;
   align-items: center;
   gap: 18px;
@@ -32,12 +38,6 @@
 
 .links a:hover {
   color: var(--color-text-dark);
-}
-
-.copy {
-  justify-self: end;
-  font-size: 0.78rem;
-  color: var(--color-gray-400);
 }
 
 @media (max-width: 900px) {

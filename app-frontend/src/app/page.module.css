@@ -1,12 +1,11 @@
 .main {
-  align-items: stretch;
   justify-content: center;
-  padding-top: 0;
-  padding-bottom: 0;
+  align-items: center;
+  padding: 2rem 0;
 }
 
 .content {
-  width: min(100%, 1440px);
+  width: min(100%, 1540px);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -16,19 +15,15 @@
 .heroArea {
   display: flex;
   align-items: center;
-}
-
-@media (min-width: 901px) {
-  .content {
-    min-height: 100%;
-  }
-
-  .heroArea {
-    min-height: 100%;
-  }
+  width: 100%;
 }
 
 @media (max-width: 900px) {
+  .main {
+    padding: 0;
+    align-items: stretch;
+  }
+
   .content {
     width: 100%;
     gap: 24px;

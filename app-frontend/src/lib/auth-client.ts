@@ -1,5 +1,3 @@
-const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL;
-
 // ---------- Tipos ----------
 
 export interface AuthSession {
@@ -22,15 +20,15 @@ export async function login(
   email: string,
   password: string
 ): Promise<AuthSession> {
-  const res = await fetch(`${AUTH_URL}/api/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const res = await fetch("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
 
   const data = await res.json();
 
-  if (!res.ok) throw new Error(data.error ?? 'Error al iniciar sesión');
+  if (!res.ok) throw new Error(data.error ?? "Error al iniciar sesión");
 
   return data;
 }
@@ -42,22 +40,22 @@ export async function signup(
   password: string,
   fullName: string
 ): Promise<void> {
-  const res = await fetch(`${AUTH_URL}/api/auth/signup`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const res = await fetch("/api/auth/signup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password, fullName }),
   });
 
   const data = await res.json();
 
-  if (!res.ok) throw new Error(data.error ?? 'Error al crear la cuenta');
+  if (!res.ok) throw new Error(data.error ?? "Error al crear la cuenta");
 }
 
 // ---------- Logout ----------
 
 export async function logout(accessToken: string): Promise<void> {
-  await fetch(`${AUTH_URL}/api/auth/logout`, {
-    method: 'POST',
+  await fetch("/api/auth/logout", {
+    method: "POST",
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 }
@@ -67,13 +65,13 @@ export async function logout(accessToken: string): Promise<void> {
 export async function getSession(
   accessToken: string
 ): Promise<AuthSession> {
-  const res = await fetch(`${AUTH_URL}/api/auth/session`, {
+  const res = await fetch("/api/auth/session", {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 
   const data = await res.json();
 
-  if (!res.ok) throw new Error(data.error ?? 'Sesión inválida');
+  if (!res.ok) throw new Error(data.error ?? "Sesión inválida");
 
   return data;
 }
@@ -83,15 +81,15 @@ export async function getSession(
 export async function refresh(
   refreshToken: string
 ): Promise<AuthSession> {
-  const res = await fetch(`${AUTH_URL}/api/auth/refresh`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const res = await fetch("/api/auth/refresh", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ refreshToken }),
   });
 
   const data = await res.json();
 
-  if (!res.ok) throw new Error(data.error ?? 'No se pudo renovar la sesión');
+  if (!res.ok) throw new Error(data.error ?? "No se pudo renovar la sesión");
 
   return data;
 }

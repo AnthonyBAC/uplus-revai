@@ -1,17 +1,5 @@
-import PageShell from "@/components/layout/PageShell";
-import SiteFooter from "@/components/layout/SiteFooter";
-import SiteHeader from "@/components/layout/SiteHeader";
 import LoginForm from "./LoginForm";
-import styles from "./login.module.css";
 
 export default function LoginPage() {
-  return (
-    <PageShell
-      header={<SiteHeader mode="simple" backHref="/" backLabel="Volver al inicio" />}
-      footer={<SiteFooter />}
-      mainClassName={styles.main}
-    >
-      <LoginForm />
-    </PageShell>
-  );
+  return <LoginForm />;
 }

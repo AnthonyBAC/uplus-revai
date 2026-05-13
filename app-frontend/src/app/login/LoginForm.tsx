@@ -5,7 +5,42 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { login } from "@/lib/auth-client";
 import { saveSession } from "@/lib/session";
+import AuthLayout from "@/components/auth/AuthLayout";
+import s from "@/components/auth/AuthLayout.module.css";
 import styles from "./login.module.css";
+
+function RightPanel() {
+  return (
+    <>
+      <span className={s.rightTag}>● LO QUE TE ESPERA HOY</span>
+
+      <blockquote className={styles.quote}>
+        &ldquo;Antes leía las reseñas los domingos. Ahora U+ Revai me dice qué hacer
+        el <span className={s.accent}>lunes en la mañana</span>.&rdquo;
+      </blockquote>
+
+      <div className={styles.author}>
+        <div className={styles.avatar}>M</div>
+        <div>
+          <p className={styles.authorName}>María Contreras</p>
+          <p className={styles.authorSub}>Café del Barrio · Providencia</p>
+        </div>
+      </div>
+
+      <div className={styles.actionCard}>
+        <span className={s.rightTag}>✦ TU ACCIÓN DE ESTA SEMANA</span>
+        <p className={styles.actionTitle}>
+          Mejorar tiempos de espera en el almuerzo
+        </p>
+        <div className={styles.tags}>
+          <span className={styles.tagOrange}>Impacto alto</span>
+          <span className={styles.tagGray}>3 pasos</span>
+          <span className={styles.tagGray}>~2 semanas</span>
+        </div>
+      </div>
+    </>
+  );
+}
 
 export default function LoginForm() {
   const router = useRouter();
@@ -19,7 +54,6 @@ export default function LoginForm() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       const session = await login(email, password);
       saveSession(session.accessToken, session.refreshToken);
@@ -32,100 +66,72 @@ export default function LoginForm() {
   }
 
   return (
-    <div className={styles.split}>
-      {/* Lado izquierdo — formulario */}
-      <div className={styles.formSide}>
-        <span className={styles.badge}>✦ Bienvenido de vuelta</span>
+    <AuthLayout
+      topLinkText="¿Aún no tienes cuenta?"
+      topLinkCta="Crear cuenta →"
+      topLinkHref="/register"
+      rightPanel={<RightPanel />}
+    >
+      <span className={s.badge}>
+        <span className={s.badgeIcon}>✦</span>
+        Bienvenido de vuelta
+      </span>
 
-        <h1 className={styles.title}>
-          Entra a ver tus{" "}
-          <span className={styles.accent}>mejoras</span>{" "}
-          de la semana.
-        </h1>
+      <h1 className={styles.title}>
+        Entra a ver tus <span className={s.accent}>mejoras</span> de la semana.
+      </h1>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.field}>
-            <label htmlFor="email">Correo</label>
+      <form onSubmit={handleSubmit} className={s.form}>
+        <div className={s.field}>
+          <label htmlFor="email">Correo</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="maria@cafedelbarrio.cl"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={loading}
+          />
+        </div>
+
+        <div className={s.field}>
+          <div className={styles.passwordLabel}>
+            <label htmlFor="password">Contraseña</label>
+            <Link href="/forgot-password" className={styles.forgotLink}>
+              ¿La olvidaste?
+            </Link>
+          </div>
+          <div className={s.passwordWrapper}>
             <input
-              id="email"
-              type="email"
-              placeholder="maria@cafedelbarrio.cl"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
               disabled={loading}
             />
-          </div>
-
-          <div className={styles.field}>
-            <div className={styles.passwordLabel}>
-              <label htmlFor="password">Contraseña</label>
-              <Link href="/forgot-password" className={styles.forgotLink}>
-                ¿La olvidaste?
-              </Link>
-            </div>
-            <div className={styles.passwordWrapper}>
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={loading}
-              />
-              <button
-                type="button"
-                className={styles.showBtn}
-                onClick={() => setShowPassword((v) => !v)}
-              >
-                {showPassword ? "OCULTAR" : "VER"}
-              </button>
-            </div>
-          </div>
-
-          {error && <p className={styles.error}>{error}</p>}
-
-          <button type="submit" className={styles.submitBtn} disabled={loading}>
-            {loading ? "Entrando..." : "Entrar al panel →"}
-          </button>
-        </form>
-
-        <p className={styles.switchLink}>
-          ¿Aún no tienes cuenta?{" "}
-          <Link href="/register">Crear cuenta →</Link>
-        </p>
-      </div>
-
-      {/* Lado derecho — copy */}
-      <div className={styles.rightSide}>
-        <span className={styles.rightTag}>● LO QUE TE ESPERA HOY</span>
-
-        <blockquote className={styles.quote}>
-          "Antes leía las reseñas los domingos. Ahora U+ Revai me dice qué
-          hacer el{" "}
-          <span className={styles.accent}>lunes en la mañana</span>."
-        </blockquote>
-
-        <div className={styles.author}>
-          <div className={styles.avatar}>M</div>
-          <div>
-            <p className={styles.authorName}>María Contreras</p>
-            <p className={styles.authorSub}>Café del Barrio · Providencia</p>
+            <button
+              type="button"
+              className={s.showBtn}
+              onClick={() => setShowPassword((v) => !v)}
+            >
+              {showPassword ? "OCULTAR" : "VER"}
+            </button>
           </div>
         </div>
 
-        <div className={styles.actionCard}>
-          <span className={styles.rightTag}>✦ TU ACCIÓN DE ESTA SEMANA</span>
-          <p className={styles.actionTitle}>
-            Mejorar tiempos de espera en el almuerzo
-          </p>
-          <div className={styles.tags}>
-            <span className={styles.tagOrange}>Impacto alto</span>
-            <span className={styles.tagGray}>3 pasos</span>
-            <span className={styles.tagGray}>~2 semanas</span>
-          </div>
-        </div>
-      </div>
-    </div>
+        {error && <p className={s.error}>{error}</p>}
+
+        <button type="submit" className={s.submitBtn} disabled={loading}>
+          {loading ? "Entrando..." : "Entrar al panel →"}
+        </button>
+      </form>
+
+      <p className={s.switchLinkMobile}>
+        ¿Aún no tienes cuenta?{" "}
+        <Link href="/register">Crear cuenta →</Link>
+      </p>
+    </AuthLayout>
   );
 }

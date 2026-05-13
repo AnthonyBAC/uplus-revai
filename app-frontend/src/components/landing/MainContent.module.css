@@ -19,7 +19,7 @@
 .bottomRow {
   display: flex;
   justify-content: stretch;
-  margin-top: 50px;
+  margin-top: 20px;
   padding: 8px 12px 0;
 }
 
@@ -39,6 +39,7 @@
   .topRow {
     flex-direction: column;
     gap: 28px;
+    align-items: center;
   }
 
   .bottomRow {

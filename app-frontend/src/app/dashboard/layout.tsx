@@ -1,39 +1,62 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/hooks/useSession';
 import { BusinessProvider } from '@/components/dashboard/BusinessContext';
 import DashboardShell from '@/components/dashboard/shell/DashboardShell';
 
+const MIN_LOADING_MS = 2000;
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { status, session } = useSession();
   const router = useRouter();
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.replace('/login');
+      return;
     }
-  }, [status, router]);
+    if (status === 'authenticated' && session && !session.isOnboarded) {
+      router.replace('/onboarding');
+    }
+  }, [status, session, router]);
 
-  if (status === 'loading') {
+  useEffect(() => {
+    if (status !== 'authenticated' || !session?.isOnboarded) return;
+    const elapsed = Date.now();
+    const remaining = Math.max(0, MIN_LOADING_MS - (elapsed % MIN_LOADING_MS));
+    const timer = setTimeout(() => setReady(true), remaining);
+    return () => clearTimeout(timer);
+  }, [status, session]);
+
+  if (status === 'loading' || !session || !session.isOnboarded || !ready) {
     return (
       <div style={{
-        height: '100vh',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--bg)',
-        fontFamily: 'var(--font-ui)',
-        color: 'var(--ink-mute)',
-        fontSize: 14,
+        height: '100dvh',
+        background: 'var(--color-bg-cream, #f5f0eb)',
+        gap: 16,
       }}>
-        Cargando…
+        <div style={{
+          width: 32,
+          height: 32,
+          border: '3px solid var(--color-border-default, #e0dcd7)',
+          borderTopColor: 'var(--color-accent-primary, #e85d3a)',
+          borderRadius: '50%',
+          animation: 'spin 0.7s linear infinite',
+        }} />
+        <span style={{ fontSize: 16, fontWeight: 500, color: 'var(--color-text-secondary, #888)' }}>
+          Cargando…
+        </span>
+        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </div>
     );
   }
-
-  if (!session) return null;
 
   return (
     <BusinessProvider memberships={session.memberships}>

@@ -7,6 +7,7 @@ export interface AuthSession {
     id: string;
     email: string;
     fullName: string | null;
+    isOnboarded: boolean;
   };
 }
 
@@ -33,7 +34,12 @@ export async function login(
   return {
     accessToken: data.session.accessToken,
     refreshToken: data.session.refreshToken,
-    user: data.user,
+    user: {
+      id: data.user.supabaseUserId,
+      email: data.user.email,
+      fullName: data.user.fullName,
+      isOnboarded: data.user.isOnboarded,
+    },
   };
 }
 
@@ -80,6 +86,41 @@ export async function getSession(
   return data;
 }
 
+// ---------- Register Business ----------
+
+export interface RegisterBusinessInput {
+  fullName: string;
+  businessName: string;
+  businessSlug: string;
+}
+
+export interface RegisterBusinessResult {
+  userId: string;
+  businessId: string;
+  businessSlug: string;
+  branchId: string;
+}
+
+export async function registerBusiness(
+  input: RegisterBusinessInput,
+  accessToken: string
+): Promise<RegisterBusinessResult> {
+  const res = await fetch("/api/auth/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(input),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data.error ?? "Error al crear el negocio");
+
+  return data;
+}
+
 // ---------- Refresh ----------
 
 export async function refresh(
@@ -98,6 +139,11 @@ export async function refresh(
   return {
     accessToken: data.session.accessToken,
     refreshToken: data.session.refreshToken,
-    user: data.user,
+    user: {
+      id: data.user.supabaseUserId,
+      email: data.user.email,
+      fullName: data.user.fullName,
+      isOnboarded: data.user.isOnboarded,
+    },
   };
 }

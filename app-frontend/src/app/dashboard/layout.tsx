@@ -1,14 +1,17 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/hooks/useSession';
 import { BusinessProvider } from '@/components/dashboard/BusinessContext';
 import DashboardShell from '@/components/dashboard/shell/DashboardShell';
 
+const MIN_LOADING_MS = 2000;
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { status, session } = useSession();
   const router = useRouter();
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -20,7 +23,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [status, session, router]);
 
-  if (status === 'loading' || !session || !session.isOnboarded) {
+  useEffect(() => {
+    if (status !== 'authenticated' || !session?.isOnboarded) return;
+    const elapsed = Date.now();
+    const remaining = Math.max(0, MIN_LOADING_MS - (elapsed % MIN_LOADING_MS));
+    const timer = setTimeout(() => setReady(true), remaining);
+    return () => clearTimeout(timer);
+  }, [status, session]);
+
+  if (status === 'loading' || !session || !session.isOnboarded || !ready) {
     return (
       <div style={{
         display: 'flex',

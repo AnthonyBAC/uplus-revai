@@ -2,15 +2,8 @@
 
 import { getAccessToken, getRefreshToken, saveSession, clearSession } from '@/lib/session';
 import { refresh } from '@/lib/auth-client';
-import { mockApiFetch } from '@/lib/fixtures/mock-data';
-
-const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
 
 async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-  if (MOCK_MODE) {
-    await new Promise((r) => setTimeout(r, 200));
-    return mockApiFetch(path) as T;
-  }
   const token = getAccessToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

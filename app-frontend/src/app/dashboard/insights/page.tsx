@@ -6,7 +6,7 @@ import { useBusiness } from '@/components/dashboard/BusinessContext';
 
 export default function InsightsPage() {
   const { activeBusinessId } = useBusiness();
-  const insights = useInsights(activeBusinessId ?? '');
+  const { data, loading } = useInsights(activeBusinessId ?? '');
 
-  return <InsightsScreen insights={insights} />;
+  return <InsightsScreen data={data} loading={loading} />;
 }

@@ -5,9 +5,6 @@ import { getSession } from '@/lib/auth-client';
 import { getAccessToken, getRefreshToken, saveSession, clearSession } from '@/lib/session';
 import { refresh } from '@/lib/auth-client';
 import type { SessionResponse } from '@/types/api/session';
-import { MOCK_SESSION } from '@/lib/fixtures/mock-data';
-
-const MOCK_MODE = process.env.NEXT_PUBLIC_MOCK_MODE === 'true';
 
 export type SessionStatus = 'loading' | 'authenticated' | 'unauthenticated';
 
@@ -17,11 +14,10 @@ export interface UseSessionResult {
 }
 
 export function useSession(): UseSessionResult {
-  const [status, setStatus] = useState<SessionStatus>(MOCK_MODE ? 'authenticated' : 'loading');
-  const [session, setSession] = useState<SessionResponse | null>(MOCK_MODE ? MOCK_SESSION : null);
+  const [status, setStatus] = useState<SessionStatus>('loading');
+  const [session, setSession] = useState<SessionResponse | null>(null);
 
   useEffect(() => {
-    if (MOCK_MODE) return;
     let cancelled = false;
 
     async function load() {

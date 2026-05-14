@@ -8,7 +8,6 @@ import Badge from '../ui/Badge';
 import Btn from '../ui/Btn';
 import Sparkline from '../primitives/Sparkline';
 import ReviewCard, { type ReviewItem } from '../ReviewCard';
-import { ratingTrend } from '@/lib/fixtures/insights';
 import type { DashboardResponse } from '@/types/api/dashboard';
 import s from './ResumenScreen.module.css';
 
@@ -74,7 +73,7 @@ export default function ResumenScreen({ data, loading, reviews, onReply, userNam
             </div>
             <Badge tone="soft">14d</Badge>
           </div>
-          <Sparkline data={ratingTrend} color="var(--accent)" height={90} />
+          <Sparkline data={Array(14).fill(0)} color="var(--accent)" height={90} />
           <div className={s.chartFooter}>
             <span>Hace 14 días</span>
             <span>Hoy</span>

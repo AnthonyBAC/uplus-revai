@@ -5,9 +5,9 @@ import { useBusiness } from '@/components/dashboard/BusinessContext';
 import { useReviews } from '@/hooks/useReviews';
 import ResenasScreen from '@/components/dashboard/screens/ResenasScreen';
 import type { ReviewItem } from '@/components/dashboard/ReviewCard';
-import type { Review } from '@/types/api/reviews';
+import type { DashboardReview } from '@/types/api/dashboard';
 
-function toItem(r: Review): ReviewItem {
+function toItem(r: DashboardReview): ReviewItem {
   const name = r.authorName ?? 'Anónimo';
   return {
     id: r.id,
@@ -18,7 +18,7 @@ function toItem(r: Review): ReviewItem {
     source: r.source,
     text: r.content,
     tags: [],
-    reply: r.reply ?? null,
+    reply: null,
   };
 }
 

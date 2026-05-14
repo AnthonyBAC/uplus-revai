@@ -1,14 +1,28 @@
 'use client';
 
-import { ratingTrend, volumeTrend, themes, type Theme } from '@/lib/fixtures/insights';
+export interface Theme {
+  name: string;
+  sentiment: 'positivo' | 'negativo' | 'neutro';
+  mentions: number;
+  trend: number;
+}
 
 export interface InsightsData {
   ratingTrend: number[];
   volumeTrend: number[];
   themes: Theme[];
-  isFixture: true;
 }
 
-export function useInsights(_businessId: string | null): InsightsData {
-  return { ratingTrend, volumeTrend, themes, isFixture: true };
+export interface UseInsightsResult {
+  data: InsightsData | null;
+  loading: boolean;
+  error: string | null;
+}
+
+export function useInsights(_businessId: string | null): UseInsightsResult {
+  return {
+    data: null,
+    loading: false,
+    error: null,
+  };
 }

@@ -30,7 +30,11 @@ export async function login(
 
   if (!res.ok) throw new Error(data.error ?? "Error al iniciar sesión");
 
-  return data;
+  return {
+    accessToken: data.session.accessToken,
+    refreshToken: data.session.refreshToken,
+    user: data.user,
+  };
 }
 
 // ---------- Signup ----------
@@ -91,5 +95,9 @@ export async function refresh(
 
   if (!res.ok) throw new Error(data.error ?? "No se pudo renovar la sesión");
 
-  return data;
+  return {
+    accessToken: data.session.accessToken,
+    refreshToken: data.session.refreshToken,
+    user: data.user,
+  };
 }

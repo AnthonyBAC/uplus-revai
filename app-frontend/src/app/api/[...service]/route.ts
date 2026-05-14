@@ -24,6 +24,8 @@ async function proxy(request: NextRequest) {
 
   const url = `${baseUrl}/api/${service}${rest}${query}`;
 
+  console.log(`[proxy] ${request.method} ${path} → ${url}`);
+
   const headers: Record<string, string> = {};
   request.headers.forEach((value, key) => {
     if (!SKIP_HEADERS.has(key.toLowerCase())) {
@@ -37,20 +39,32 @@ async function proxy(request: NextRequest) {
       : undefined
     : undefined;
 
-  const upstream = await fetch(url, {
-    method: request.method,
-    headers,
-    body,
-  });
+  try {
+    const upstream = await fetch(url, {
+      method: request.method,
+      headers,
+      body,
+    });
 
-  const responseBody = await upstream.text();
-  const contentType = upstream.headers.get("content-type") ?? "application/json";
+    const responseBody = await upstream.text();
+    const contentType = upstream.headers.get("content-type") ?? "application/json";
 
-  return new NextResponse(responseBody, {
-    status: upstream.status,
-    statusText: upstream.statusText,
-    headers: { "content-type": contentType },
-  });
+    return new NextResponse(responseBody, {
+      status: upstream.status,
+      statusText: upstream.statusText,
+      headers: { "content-type": contentType },
+    });
+  } catch (err) {
+    console.error(`[proxy] fetch failed for ${url}:`, err);
+    return NextResponse.json(
+      {
+        error: "Error al conectar con el servicio backend",
+        service,
+        url,
+      },
+      { status: 502 }
+    );
+  }
 }
 
 export async function GET(req: NextRequest) {

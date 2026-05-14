@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const SERVICE_MAP: Record<string, string | undefined> = {
-  auth: process.env.NEXT_PUBLIC_AUTH_SERVICE_URL,
-  analysis: process.env.NEXT_PUBLIC_ANALYSIS_SERVICE_URL,
+  auth: process.env.AUTH_SERVICE_URL ?? process.env.NEXT_PUBLIC_AUTH_SERVICE_URL,
+  analysis: process.env.ANALYSIS_SERVICE_URL ?? process.env.NEXT_PUBLIC_ANALYSIS_SERVICE_URL,
 };
 
 console.log('[proxy] SERVICE_MAP loaded:', {

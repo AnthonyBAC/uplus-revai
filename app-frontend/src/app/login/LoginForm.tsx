@@ -98,7 +98,7 @@ export default function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                disabled={loading}
+                disabled={loading || navigating}
               />
             </div>
 
@@ -116,7 +116,7 @@ export default function LoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  disabled={loading}
+                  disabled={loading || navigating}
                 />
                 <button
                   type="button"
@@ -130,7 +130,7 @@ export default function LoginForm() {
 
             {error && <p className={s.error}>{error}</p>}
 
-            <button type="submit" className={s.submitBtn} disabled={loading}>
+            <button type="submit" className={s.submitBtn} disabled={loading || navigating}>
               Entrar al panel →
             </button>
           </form>

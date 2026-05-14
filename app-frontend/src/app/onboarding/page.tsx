@@ -75,21 +75,6 @@ export default function OnboardingPage() {
     }
   }, [status, session, router]);
 
-  if (status === 'loading' || (status === 'authenticated' && session?.isOnboarded)) {
-    return (
-      <AuthLayout
-        topLinkText=""
-        topLinkCta=""
-        topLinkHref=""
-        rightPanel={<RightPanel />}
-      >
-        <div className={styles.loadingWrap}>
-          <p className={styles.loadingText}>Cargando...</p>
-        </div>
-      </AuthLayout>
-    );
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');

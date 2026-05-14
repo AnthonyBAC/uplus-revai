@@ -105,6 +105,22 @@
   font-size: 0.78rem;
 }
 
+/* ── Loading ── */
+.loadingWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 200px;
+}
+
+.loadingText {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
 @media (max-width: 600px) {
   .title {
     font-size: 1.7rem;

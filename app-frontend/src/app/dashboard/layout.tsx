@@ -20,24 +20,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [status, session, router]);
 
-  if (status === 'loading') {
-    return (
-      <div style={{
-        height: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'var(--bg)',
-        fontFamily: 'var(--font-ui)',
-        color: 'var(--ink-mute)',
-        fontSize: 14,
-      }}>
-        Cargando…
-      </div>
-    );
-  }
-
-  if (!session) return null;
+  if (status === 'loading' || !session || !session.isOnboarded) return null;
 
   return (
     <BusinessProvider memberships={session.memberships}>

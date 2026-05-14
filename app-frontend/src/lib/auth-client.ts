@@ -7,6 +7,7 @@ export interface AuthSession {
     id: string;
     email: string;
     fullName: string | null;
+    isOnboarded: boolean;
   };
 }
 
@@ -33,7 +34,12 @@ export async function login(
   return {
     accessToken: data.session.accessToken,
     refreshToken: data.session.refreshToken,
-    user: data.user,
+    user: {
+      id: data.user.supabaseUserId,
+      email: data.user.email,
+      fullName: data.user.fullName,
+      isOnboarded: data.user.isOnboarded,
+    },
   };
 }
 
@@ -133,6 +139,11 @@ export async function refresh(
   return {
     accessToken: data.session.accessToken,
     refreshToken: data.session.refreshToken,
-    user: data.user,
+    user: {
+      id: data.user.supabaseUserId,
+      email: data.user.email,
+      fullName: data.user.fullName,
+      isOnboarded: data.user.isOnboarded,
+    },
   };
 }

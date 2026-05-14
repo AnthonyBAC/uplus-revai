@@ -64,6 +64,7 @@ export default function OnboardingPage() {
   const [businessName, setBusinessName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [navigating, setNavigating] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -75,7 +76,18 @@ export default function OnboardingPage() {
   }, [status, session, router]);
 
   if (status === 'loading' || (status === 'authenticated' && session?.isOnboarded)) {
-    return null;
+    return (
+      <AuthLayout
+        topLinkText=""
+        topLinkCta=""
+        topLinkHref=""
+        rightPanel={<RightPanel />}
+      >
+        <div className={styles.loadingWrap}>
+          <p className={styles.loadingText}>Cargando...</p>
+        </div>
+      </AuthLayout>
+    );
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -108,14 +120,13 @@ export default function OnboardingPage() {
           const renewed = await refresh(refreshToken);
           saveSession(renewed.accessToken, renewed.refreshToken);
         } catch {
-          // token refresh is best-effort; session still works
         }
       }
 
+      setNavigating(true);
       router.replace('/dashboard');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al crear el negocio');
-    } finally {
       setLoading(false);
     }
   }
@@ -127,45 +138,53 @@ export default function OnboardingPage() {
       topLinkHref="/login"
       rightPanel={<RightPanel />}
     >
-      <span className={s.badge}>
-        <span className={s.badgeIcon}>✦</span>
-        Configura tu negocio
-      </span>
-
-      <h1 className={styles.title}>
-        ¿Cómo se llama tu <span className={s.accent}>negocio</span>?
-      </h1>
-
-      <p className={styles.subtitle}>
-        Crea tu primer negocio para empezar a analizar reseñas.
-      </p>
-
-      <form onSubmit={handleSubmit} className={s.form}>
-        <div className={s.field}>
-          <label htmlFor="businessName">Nombre del negocio</label>
-          <input
-            id="businessName"
-            type="text"
-            placeholder="Café del Barrio"
-            value={businessName}
-            onChange={(e) => setBusinessName(e.target.value)}
-            required
-            disabled={loading}
-          />
+      {loading || navigating ? (
+        <div className={styles.loadingWrap}>
+          <p className={styles.loadingText}>Cargando...</p>
         </div>
+      ) : (
+        <>
+          <span className={s.badge}>
+            <span className={s.badgeIcon}>✦</span>
+            Configura tu negocio
+          </span>
 
-        {businessName.trim() && (
-          <p className={styles.slugPreview}>
-            Tu URL: <strong>uplus.revai/{slugify(businessName)}</strong>
+          <h1 className={styles.title}>
+            ¿Cómo se llama tu <span className={s.accent}>negocio</span>?
+          </h1>
+
+          <p className={styles.subtitle}>
+            Crea tu primer negocio para empezar a analizar reseñas.
           </p>
-        )}
 
-        {error && <p className={s.error}>{error}</p>}
+          <form onSubmit={handleSubmit} className={s.form}>
+            <div className={s.field}>
+              <label htmlFor="businessName">Nombre del negocio</label>
+              <input
+                id="businessName"
+                type="text"
+                placeholder="Café del Barrio"
+                value={businessName}
+                onChange={(e) => setBusinessName(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
 
-        <button type="submit" className={s.submitBtn} disabled={loading}>
-          {loading ? 'Creando negocio...' : 'Crear negocio →'}
-        </button>
-      </form>
+            {businessName.trim() && (
+              <p className={styles.slugPreview}>
+                Tu URL: <strong>uplus.revai/{slugify(businessName)}</strong>
+              </p>
+            )}
+
+            {error && <p className={s.error}>{error}</p>}
+
+            <button type="submit" className={s.submitBtn} disabled={loading}>
+              Crear negocio →
+            </button>
+          </form>
+        </>
+      )}
     </AuthLayout>
   );
 }

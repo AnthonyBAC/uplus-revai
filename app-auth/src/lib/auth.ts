@@ -93,7 +93,7 @@ export async function resolveSessionResponseFromToken(token: string): Promise<Se
 
   return {
     authenticated: true,
-    isOnboarded: Boolean(appUser),
+    isOnboarded: memberships.length > 0,
     supabaseUserId: supabaseUser.id,
     appUserId: appUser?.id ?? null,
     email: supabaseUser.email ?? '',

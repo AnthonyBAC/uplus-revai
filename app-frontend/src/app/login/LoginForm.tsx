@@ -73,74 +73,66 @@ export default function LoginForm() {
       topLinkHref="/register"
       rightPanel={<RightPanel />}
     >
-      {loading || navigating ? (
-        <div className={styles.loadingWrap}>
-          <p className={styles.loadingText}>Cargando...</p>
+      <span className={s.badge}>
+        <span className={s.badgeIcon}>✦</span>
+        Bienvenido de vuelta
+      </span>
+
+      <h1 className={styles.title}>
+        Entra a ver tus <span className={s.accent}>mejoras</span> de la semana.
+      </h1>
+
+      <form onSubmit={handleSubmit} className={s.form}>
+        <div className={s.field}>
+          <label htmlFor="email">Correo</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="maria@cafedelbarrio.cl"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={loading || navigating}
+          />
         </div>
-      ) : (
-        <>
-          <span className={s.badge}>
-            <span className={s.badgeIcon}>✦</span>
-            Bienvenido de vuelta
-          </span>
 
-          <h1 className={styles.title}>
-            Entra a ver tus <span className={s.accent}>mejoras</span> de la semana.
-          </h1>
-
-          <form onSubmit={handleSubmit} className={s.form}>
-            <div className={s.field}>
-              <label htmlFor="email">Correo</label>
-              <input
-                id="email"
-                type="email"
-                placeholder="maria@cafedelbarrio.cl"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={loading || navigating}
-              />
-            </div>
-
-            <div className={s.field}>
-              <div className={styles.passwordLabel}>
-                <label htmlFor="password">Contraseña</label>
-                <span className={styles.forgotLink}>
-                  ¿La olvidaste?
-                </span>
-              </div>
-              <div className={s.passwordWrapper}>
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={loading || navigating}
-                />
-                <button
-                  type="button"
-                  className={s.showBtn}
-                  onClick={() => setShowPassword((v) => !v)}
-                >
-                  {showPassword ? "OCULTAR" : "VER"}
-                </button>
-              </div>
-            </div>
-
-            {error && <p className={s.error}>{error}</p>}
-
-            <button type="submit" className={s.submitBtn} disabled={loading || navigating}>
-              Entrar al panel →
+        <div className={s.field}>
+          <div className={styles.passwordLabel}>
+            <label htmlFor="password">Contraseña</label>
+            <span className={styles.forgotLink}>
+              ¿La olvidaste?
+            </span>
+          </div>
+          <div className={s.passwordWrapper}>
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={loading || navigating}
+            />
+            <button
+              type="button"
+              className={s.showBtn}
+              onClick={() => setShowPassword((v) => !v)}
+            >
+              {showPassword ? "OCULTAR" : "VER"}
             </button>
-          </form>
+          </div>
+        </div>
 
-          <p className={s.switchLinkMobile}>
-            ¿Aún no tienes cuenta?{" "}
-            <Link href="/register">Crear cuenta →</Link>
-          </p>
-        </>
-      )}
+        {error && <p className={s.error}>{error}</p>}
+
+        <button type="submit" className={s.submitBtn} disabled={loading || navigating}>
+          {loading || navigating ? "Entrando..." : "Entrar al panel →"}
+        </button>
+      </form>
+
+      <p className={s.switchLinkMobile}>
+        ¿Aún no tienes cuenta?{" "}
+        <Link href="/register">Crear cuenta →</Link>
+      </p>
     </AuthLayout>
   );
 }

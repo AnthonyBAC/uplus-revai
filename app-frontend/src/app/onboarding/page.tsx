@@ -123,53 +123,45 @@ export default function OnboardingPage() {
       topLinkHref="/login"
       rightPanel={<RightPanel />}
     >
-      {loading || navigating ? (
-        <div className={styles.loadingWrap}>
-          <p className={styles.loadingText}>Cargando...</p>
+      <span className={s.badge}>
+        <span className={s.badgeIcon}>✦</span>
+        Configura tu negocio
+      </span>
+
+      <h1 className={styles.title}>
+        ¿Cómo se llama tu <span className={s.accent}>negocio</span>?
+      </h1>
+
+      <p className={styles.subtitle}>
+        Crea tu primer negocio para empezar a analizar reseñas.
+      </p>
+
+      <form onSubmit={handleSubmit} className={s.form}>
+        <div className={s.field}>
+          <label htmlFor="businessName">Nombre del negocio</label>
+          <input
+            id="businessName"
+            type="text"
+            placeholder="Café del Barrio"
+            value={businessName}
+            onChange={(e) => setBusinessName(e.target.value)}
+            required
+            disabled={loading || navigating}
+          />
         </div>
-      ) : (
-        <>
-          <span className={s.badge}>
-            <span className={s.badgeIcon}>✦</span>
-            Configura tu negocio
-          </span>
 
-          <h1 className={styles.title}>
-            ¿Cómo se llama tu <span className={s.accent}>negocio</span>?
-          </h1>
-
-          <p className={styles.subtitle}>
-            Crea tu primer negocio para empezar a analizar reseñas.
+        {businessName.trim() && (
+          <p className={styles.slugPreview}>
+            Tu URL: <strong>uplus.revai/{slugify(businessName)}</strong>
           </p>
+        )}
 
-          <form onSubmit={handleSubmit} className={s.form}>
-            <div className={s.field}>
-              <label htmlFor="businessName">Nombre del negocio</label>
-              <input
-                id="businessName"
-                type="text"
-                placeholder="Café del Barrio"
-                value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
+        {error && <p className={s.error}>{error}</p>}
 
-            {businessName.trim() && (
-              <p className={styles.slugPreview}>
-                Tu URL: <strong>uplus.revai/{slugify(businessName)}</strong>
-              </p>
-            )}
-
-            {error && <p className={s.error}>{error}</p>}
-
-            <button type="submit" className={s.submitBtn} disabled={loading}>
-              Crear negocio →
-            </button>
-          </form>
-        </>
-      )}
+        <button type="submit" className={s.submitBtn} disabled={loading || navigating}>
+          {loading || navigating ? "Creando negocio..." : "Crear negocio →"}
+        </button>
+      </form>
     </AuthLayout>
   );
 }

@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
-  transpilePackages: ["@uplus/db", "@uplus/auth"],
+  transpilePackages: ["@uplus/db", "@uplus/auth", "lucide-react"],
   turbopack: {},
   webpack: (config) => {
     config.resolve.extensionAlias = {

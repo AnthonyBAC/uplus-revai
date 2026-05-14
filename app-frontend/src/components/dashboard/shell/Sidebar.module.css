@@ -1,0 +1,189 @@
+.sidebar {
+  width: 220px;
+  background: var(--sidebar);
+  color: var(--sidebar-ink);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100%;
+}
+
+.brand {
+  padding: 22px 22px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: -0.3px;
+  flex-shrink: 0;
+}
+
+.logoText {
+  font-weight: 700;
+  font-size: 17px;
+  color: #fff;
+  letter-spacing: -0.3px;
+}
+
+.nav {
+  padding: 6px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navBtn {
+  background: transparent;
+  color: var(--sidebar-ink);
+  border: none;
+  padding: 11px 12px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+  width: 100%;
+  transition: background 0.1s;
+  text-decoration: none;
+}
+
+.navBtn:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.active {
+  background: rgba(217, 104, 77, 0.18);
+  color: #fff;
+}
+
+.activeBar {
+  position: absolute;
+  left: -12px;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.count {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 10.5px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: 600;
+  min-width: 18px;
+  text-align: center;
+}
+
+.countActive {
+  background: var(--accent);
+}
+
+.promo {
+  margin-top: auto;
+  padding: 16px;
+}
+
+.promoBox {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.promoTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  margin-top: 6px;
+}
+
+.promoSub {
+  font-size: 11.5px;
+  color: var(--sidebar-mute);
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+.promoBtn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.user {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  background: #3A2A20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.userInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  font-size: 12.5px;
+  color: #fff;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userBiz {
+  font-size: 10.5px;
+  color: var(--sidebar-mute);
+}
+
+.settingsBtn {
+  background: transparent;
+  border: none;
+  color: var(--sidebar-mute);
+  cursor: pointer;
+  display: flex;
+  padding: 0;
+}

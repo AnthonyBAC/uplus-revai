@@ -1,0 +1,33 @@
+.label {
+  display: block;
+}
+
+.labelText {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ink-mute);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--ink);
+  background: #FCF8F3;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--accent-soft);
+}
+
+.full {
+  grid-column: span 2;
+}

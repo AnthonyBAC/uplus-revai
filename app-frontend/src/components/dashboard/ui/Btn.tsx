@@ -12,17 +12,20 @@ interface BtnProps {
   onClick?: () => void;
   disabled?: boolean;
   style?: React.CSSProperties;
+  className?: string;
   type?: 'button' | 'submit' | 'reset';
+  title?: string;
 }
 
-export default function Btn({ children, kind = 'ghost', size = 'md', icon, onClick, disabled, style, type = 'button' }: BtnProps) {
+export default function Btn({ children, kind = 'ghost', size = 'md', icon, onClick, disabled, style, className, type = 'button', title }: BtnProps) {
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
       style={style}
-      className={[s.btn, s[kind], s[size]].join(' ')}
+      title={title}
+      className={[s.btn, s[kind], s[size], className].filter(Boolean).join(' ')}
     >
       {icon && <Icon name={icon} size={size === 'sm' ? 13 : 15} stroke={2} />}
       {children}

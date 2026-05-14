@@ -19,7 +19,7 @@ export interface UseInsightsResult {
   error: string | null;
 }
 
-export function useInsights(_: string | null): UseInsightsResult {
+export function useInsights(): UseInsightsResult {
   return {
     data: null,
     loading: false,

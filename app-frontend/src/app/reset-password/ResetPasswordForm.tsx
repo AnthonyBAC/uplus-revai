@@ -1,82 +1,72 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { resetPassword } from "@/lib/auth-client";
 import styles from "./reset-password.module.css";
 import AuthLayout from "@/components/auth/AuthLayout";
 
+function parseRecoveryHash() {
+  if (typeof window === "undefined") return { accessToken: "", refreshToken: "", valid: false };
+  const params = new URLSearchParams(window.location.hash.replace("#", ""));
+  const accessToken = params.get("access_token") ?? "";
+  const refreshToken = params.get("refresh_token") ?? "";
+  const type = params.get("type");
+  return { accessToken, refreshToken, valid: type === "recovery" && !!accessToken };
+}
+
 function RightPanel() {
   return (
     <div className={styles.rightSide}>
-        <span className={styles.rightTag}>● CREA UNA CONTRASEÑA SEGURA</span>
-
-        <h2 className={styles.rightTitle}>
-          Una buena contraseña es tu{" "}
-          <span className={styles.accent}>primera línea</span> de defensa.
-        </h2>
-
-        <ul className={styles.tipList}>
-          <li className={styles.tip}>
-            <span className={styles.tipIcon}>🔤</span>
-            <div>
-              <p className={styles.tipTitle}>Mínimo 8 caracteres</p>
-              <p className={styles.tipDesc}>
-                Mientras más larga, más difícil de adivinar.
-              </p>
-            </div>
-          </li>
-          <li className={styles.tip}>
-            <span className={styles.tipIcon}>🔢</span>
-            <div>
-              <p className={styles.tipTitle}>Mezcla letras y números</p>
-              <p className={styles.tipDesc}>
-                Combina mayúsculas, minúsculas, números y símbolos.
-              </p>
-            </div>
-          </li>
-          <li className={styles.tip}>
-            <span className={styles.tipIcon}>🚫</span>
-            <div>
-              <p className={styles.tipTitle}>No reutilices contraseñas</p>
-              <p className={styles.tipDesc}>
-                Usa una contraseña única para cada servicio que uses.
-              </p>
-            </div>
-          </li>
-        </ul>
-      </div>
-  )
+      <span className={styles.rightTag}>● CREA UNA CONTRASEÑA SEGURA</span>
+      <h2 className={styles.rightTitle}>
+        Una buena contraseña es tu{" "}
+        <span className={styles.accent}>primera línea</span> de defensa.
+      </h2>
+      <ul className={styles.tipList}>
+        <li className={styles.tip}>
+          <span className={styles.tipIcon}>🔤</span>
+          <div>
+            <p className={styles.tipTitle}>Mínimo 8 caracteres</p>
+            <p className={styles.tipDesc}>Mientras más larga, más difícil de adivinar.</p>
+          </div>
+        </li>
+        <li className={styles.tip}>
+          <span className={styles.tipIcon}>🔢</span>
+          <div>
+            <p className={styles.tipTitle}>Mezcla letras y números</p>
+            <p className={styles.tipDesc}>Combina mayúsculas, minúsculas, números y símbolos.</p>
+          </div>
+        </li>
+        <li className={styles.tip}>
+          <span className={styles.tipIcon}>🚫</span>
+          <div>
+            <p className={styles.tipTitle}>No reutilices contraseñas</p>
+            <p className={styles.tipDesc}>Usa una contraseña única para cada servicio que uses.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  );
 }
 
 export default function ResetPasswordForm() {
   const router = useRouter();
-  const [accessToken, setAccessToken] = useState("");
-  const [refreshToken, setRefreshToken] = useState("");
+  const { accessToken, refreshToken, valid } = useMemo(() => parseRecoveryHash(), []);
+
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(() => valid ? "" : "El enlace de recuperación es inválido o ya fue usado.");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [tokenReady, setTokenReady] = useState(false);
 
-  // Supabase envía los tokens en el hash de la URL
   useEffect(() => {
-    const hash = window.location.hash;
-    const params = new URLSearchParams(hash.replace('#', ''));
-    const token = params.get('access_token');
-    const refresh = params.get('refresh_token');
-    const type = params.get('type');
-
-    if (token && type === 'recovery') {
-      setAccessToken(token);
-      setRefreshToken(refresh ?? '');
-      setTokenReady(true);
-    } else {
-      setError('El enlace de recuperación es inválido o ya fue usado.');
+    if (success) {
+      const timer = setTimeout(() => router.push("/login"), 3000);
+      return () => clearTimeout(timer);
     }
-  }, []);
+  }, [success, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -86,9 +76,8 @@ export default function ResetPasswordForm() {
     try {
       await resetPassword(accessToken, refreshToken, newPassword);
       setSuccess(true);
-      setTimeout(() => router.push('/login'), 3000);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error al restablecer la contraseña');
+      setError(err instanceof Error ? err.message : "Error al restablecer la contraseña");
     } finally {
       setLoading(false);
     }
@@ -96,10 +85,10 @@ export default function ResetPasswordForm() {
 
   return (
     <AuthLayout
-            topLinkText="¿Recordaste tu contraseña?"
-            topLinkCta="Inicia sesión →"
-            topLinkHref="/login"
-            rightPanel={<RightPanel />}
+      topLinkText="¿Recordaste tu contraseña?"
+      topLinkCta="Inicia sesión →"
+      topLinkHref="/login"
+      rightPanel={<RightPanel />}
     >
       <div className={styles.split}>
         <div className={styles.formSide}>
@@ -137,7 +126,7 @@ export default function ResetPasswordForm() {
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
                     minLength={8}
-                    disabled={loading || !tokenReady}
+                    disabled={loading || !valid}
                   />
                   <button
                     type="button"
@@ -154,7 +143,7 @@ export default function ResetPasswordForm() {
               <button
                 type="submit"
                 className={styles.submitBtn}
-                disabled={loading || !tokenReady}
+                disabled={loading || !valid}
               >
                 {loading ? "Guardando..." : "Guardar nueva contraseña →"}
               </button>

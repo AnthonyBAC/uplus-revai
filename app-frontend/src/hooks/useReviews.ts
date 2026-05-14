@@ -9,7 +9,7 @@ export interface UseReviewsResult {
   refetch: () => void;
 }
 
-export function useReviews(_: string | null): UseReviewsResult {
+export function useReviews(): UseReviewsResult {
   return {
     data: null,
     loading: false,

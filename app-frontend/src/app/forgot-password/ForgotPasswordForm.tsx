@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { forgotPassword } from "@/lib/auth-client";
 import styles from "./forgot-password.module.css";
 import AuthLayout from "@/components/auth/AuthLayout";

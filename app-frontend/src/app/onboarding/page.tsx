@@ -152,7 +152,7 @@ export default function OnboardingPage() {
 
 {businessName.trim() && (
               <p className={styles.slugPreview}>
-                Identificador: <strong>{slugify(businessName)}</strong>
+                Tu espacio: <strong>{slugify(businessName)}</strong>
               </p>
             )}
 

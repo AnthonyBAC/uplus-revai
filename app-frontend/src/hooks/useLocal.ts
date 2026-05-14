@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { MembershipInfo } from '@/types/api/session';
 
 export interface Integration {
@@ -44,12 +44,6 @@ export function useLocal(membership: MembershipInfo | null) {
       ? [{ name: membership.businessName, email: '', role: membership.role }]
       : [],
   });
-
-  useEffect(() => {
-    if (membership) {
-      setData((prev) => ({ ...prev, name: membership.businessName }));
-    }
-  }, [membership?.businessId]);
 
   const toggleIntegration = (id: string) => {
     setData((prev) => ({

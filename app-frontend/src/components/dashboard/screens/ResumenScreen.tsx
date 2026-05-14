@@ -27,7 +27,6 @@ export default function ResumenScreen({ data, loading, reviews, onReply, userNam
 
   const totalReviews = data?.reviews ?? 0;
   const totalSurveys = data?.surveys ?? 0;
-  const totalReports = data?.reports ?? 0;
   const noReply = reviews.filter((r) => !r.reply).length;
 
   const today = new Date().toLocaleDateString('es-CL', { day: 'numeric', month: 'long' });

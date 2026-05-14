@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useBusiness } from '@/components/dashboard/BusinessContext';
 import { useSession } from '@/hooks/useSession';
 import { useDashboard } from '@/hooks/useDashboard';
@@ -27,20 +27,22 @@ export default function DashboardPage() {
   const { activeBusinessId, activeMembership } = useBusiness();
   const { session } = useSession();
   const { data, loading } = useDashboard(activeBusinessId);
-  const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [replyMap, setReplyMap] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    if (data?.data.reviews) {
-      setReviews(data.data.reviews.map(toItem));
-    }
-  }, [data]);
+  const reviews = useMemo(
+    () => (data?.data.reviews ?? []).map((r) => {
+      const item = toItem(r);
+      return replyMap[item.id] ? { ...item, reply: replyMap[item.id] } : item;
+    }),
+    [data, replyMap],
+  );
 
   return (
     <ResumenScreen
       data={data}
       loading={loading}
       reviews={reviews}
-      onReply={(id, text) => setReviews((prev) => prev.map((r) => r.id === id ? { ...r, reply: text } : r))}
+      onReply={(id, text) => setReplyMap((prev) => ({ ...prev, [id]: text }))}
       userName={session?.fullName}
       businessName={activeMembership?.businessName}
     />

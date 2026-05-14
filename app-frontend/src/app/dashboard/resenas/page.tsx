@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useBusiness } from '@/components/dashboard/BusinessContext';
 import { useReviews } from '@/hooks/useReviews';
 import ResenasScreen from '@/components/dashboard/screens/ResenasScreen';
@@ -25,22 +25,22 @@ function toItem(r: DashboardReview): ReviewItem {
 export default function ResenasPage() {
   const { activeBusinessId } = useBusiness();
   const { data, loading, error } = useReviews(activeBusinessId ?? '');
-  const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [replyMap, setReplyMap] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    if (data) {
-      setReviews(data.map(toItem));
-    }
-  }, [data]);
+  const reviews = useMemo(
+    () => (data ?? []).map((r) => {
+      const item = toItem(r);
+      return replyMap[item.id] ? { ...item, reply: replyMap[item.id] } : item;
+    }),
+    [data, replyMap],
+  );
 
   return (
     <ResenasScreen
       reviews={reviews}
       loading={loading}
       error={error}
-      onReply={(id, text) =>
-        setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, reply: text } : r)))
-      }
+      onReply={(id, text) => setReplyMap((prev) => ({ ...prev, [id]: text }))}
     />
   );
 }

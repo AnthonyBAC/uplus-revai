@@ -35,6 +35,26 @@
   --shadow-soft: 0 20px 60px rgba(34, 28, 22, 0.08);
 
   --max-width: 1320px;
+
+  /* ── Dashboard design tokens ─────────────────────────────── */
+  --bg: #F7F1EA;
+  --surface: #FFFFFF;
+  --ink: #1A1410;
+  --ink-soft: #5C5048;
+  --ink-mute: #8E827A;
+  --line: #ECE3D9;
+  --line-soft: #F2EAE1;
+  --sidebar: #1B130E;
+  --sidebar-ink: #E9D9C9;
+  --sidebar-mute: #8B7868;
+  --accent: #D9684D;
+  --accent-soft: #F3D7CC;
+  --accent-bg: #FBEDE5;
+  --accent-deep: #B14A33;
+  --good: #4F7A4A;
+  --warn: #C28427;
+  --bad: #B14A33;
+  --font-ui: var(--font-inter), 'Inter', system-ui, sans-serif;
 }
 
 * {

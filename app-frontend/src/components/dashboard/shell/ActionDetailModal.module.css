@@ -1,0 +1,83 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 20, 16, 0.35);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.panel {
+  background: var(--surface);
+  border-radius: 16px;
+  width: min(520px, 92%);
+  padding: 26px;
+  border: 1px solid var(--line);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.18);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: var(--ink-mute);
+  cursor: pointer;
+  display: flex;
+  padding: 0;
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  letter-spacing: -0.3px;
+}
+
+.body {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.badges {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0 18px;
+  flex-wrap: wrap;
+}
+
+.stepsLabel {
+  font-size: 11.5px;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.stepsList {
+  padding-left: 18px;
+  margin: 0;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.stepsList li {
+  margin-bottom: 6px;
+}
+
+.footer {
+  display: flex;
+  gap: 8px;
+  margin-top: 22px;
+  justify-content: flex-end;
+}

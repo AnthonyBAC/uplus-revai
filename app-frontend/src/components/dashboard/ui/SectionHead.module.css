@@ -1,0 +1,20 @@
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 0 14px;
+}
+
+.title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  font-family: var(--font-ui);
+}
+
+.sub {
+  font-size: 13px;
+  color: var(--ink-mute);
+  margin-top: 3px;
+}

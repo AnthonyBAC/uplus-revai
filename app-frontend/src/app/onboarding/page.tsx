@@ -150,11 +150,11 @@ export default function OnboardingPage() {
           />
         </div>
 
-        {businessName.trim() && (
-          <p className={styles.slugPreview}>
-            Tu URL: <strong>uplus.revai/{slugify(businessName)}</strong>
-          </p>
-        )}
+{businessName.trim() && (
+              <p className={styles.slugPreview}>
+                Identificador: <strong>{slugify(businessName)}</strong>
+              </p>
+            )}
 
         {error && <p className={s.error}>{error}</p>}
 

@@ -142,7 +142,7 @@ export default function OnboardingPage() {
           <input
             id="businessName"
             type="text"
-            placeholder="Café del Barrio"
+            placeholder="Mi Negocio"
             value={businessName}
             onChange={(e) => setBusinessName(e.target.value)}
             required

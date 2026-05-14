@@ -13,8 +13,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.replace('/login');
+      return;
     }
-  }, [status, router]);
+    if (status === 'authenticated' && session && !session.isOnboarded) {
+      router.replace('/onboarding');
+    }
+  }, [status, session, router]);
 
   if (status === 'loading') {
     return (

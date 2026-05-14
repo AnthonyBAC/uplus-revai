@@ -30,12 +30,6 @@ export async function POST(req: NextRequest) {
     const existingUser = await prisma.app_users.findUnique({
       where: { email: auth.email },
     });
-    if (existingUser) {
-      return NextResponse.json(
-        { error: 'El usuario ya está registrado' },
-        { status: 409 }
-      );
-    }
 
     const role = await prisma.roles.findUnique({
       where: { name: 'ADMIN' },
@@ -49,14 +43,19 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await prisma.$transaction(async (tx) => {
-      const user = await tx.app_users.create({
-        data: {
-          id: crypto.randomUUID(),
-          email: auth.email,
-          full_name: body.fullName,
-          updated_at: new Date(),
-        },
-      });
+      const user = existingUser
+        ? await tx.app_users.update({
+            where: { id: existingUser.id },
+            data: { full_name: body.fullName, updated_at: new Date() },
+          })
+        : await tx.app_users.create({
+            data: {
+              id: crypto.randomUUID(),
+              email: auth.email,
+              full_name: body.fullName,
+              updated_at: new Date(),
+            },
+          });
 
       const business = await tx.businesses.create({
         data: {

@@ -80,6 +80,41 @@ export async function getSession(
   return data;
 }
 
+// ---------- Register Business ----------
+
+export interface RegisterBusinessInput {
+  fullName: string;
+  businessName: string;
+  businessSlug: string;
+}
+
+export interface RegisterBusinessResult {
+  userId: string;
+  businessId: string;
+  businessSlug: string;
+  branchId: string;
+}
+
+export async function registerBusiness(
+  input: RegisterBusinessInput,
+  accessToken: string
+): Promise<RegisterBusinessResult> {
+  const res = await fetch("/api/auth/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(input),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data.error ?? "Error al crear el negocio");
+
+  return data;
+}
+
 // ---------- Refresh ----------
 
 export async function refresh(

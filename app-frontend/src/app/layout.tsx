@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Montserrat, Roboto } from "next/font/google";
+import { Montserrat, Roboto, Inter } from "next/font/google";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -14,6 +14,12 @@ const roboto = Roboto({
   weight: ["400", "500", "700"],
 });
 
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  weight: ["400", "500", "600", "700"],
+});
+
 export const metadata: Metadata = {
   title: "U+ Revai - Reseñas convertidas en mejoras reales",
   description:
@@ -26,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${montserrat.variable} ${roboto.variable}`} suppressHydrationWarning>
+    <html lang="es" className={`${montserrat.variable} ${roboto.variable} ${inter.variable}`} suppressHydrationWarning>
       <body>{children}</body>
     </html>
   );

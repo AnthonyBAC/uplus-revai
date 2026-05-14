@@ -49,6 +49,7 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [navigating, setNavigating] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -57,10 +58,10 @@ export default function LoginForm() {
     try {
       const session = await login(email, password);
       saveSession(session.accessToken, session.refreshToken);
-      router.push("/dashboard");
+      setNavigating(true);
+      router.replace(session.user.isOnboarded ? "/dashboard" : "/onboarding");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Error al iniciar sesión");
-    } finally {
       setLoading(false);
     }
   }
@@ -87,20 +88,20 @@ export default function LoginForm() {
           <input
             id="email"
             type="email"
-            placeholder="maria@cafedelbarrio.cl"
+            placeholder="tu@correo.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            disabled={loading}
+            disabled={loading || navigating}
           />
         </div>
 
         <div className={s.field}>
           <div className={styles.passwordLabel}>
             <label htmlFor="password">Contraseña</label>
-            <Link href="/forgot-password" className={styles.forgotLink}>
+            <span className={styles.forgotLink}>
               ¿La olvidaste?
-            </Link>
+            </span>
           </div>
           <div className={s.passwordWrapper}>
             <input
@@ -109,7 +110,7 @@ export default function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              disabled={loading}
+              disabled={loading || navigating}
             />
             <button
               type="button"
@@ -123,8 +124,8 @@ export default function LoginForm() {
 
         {error && <p className={s.error}>{error}</p>}
 
-        <button type="submit" className={s.submitBtn} disabled={loading}>
-          {loading ? "Entrando..." : "Entrar al panel →"}
+        <button type="submit" className={s.submitBtn} disabled={loading || navigating}>
+          {loading || navigating ? "Entrando..." : "Entrar al panel →"}
         </button>
       </form>
 

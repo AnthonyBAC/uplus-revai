@@ -13,7 +13,7 @@ vi.stubGlobal('fetch', mockFetch);
 
 import { POST } from '@/app/api/analysis/run/route';
 import { GET as getResults } from '@/app/api/analysis/results/route';
-import { GET as getDashboard } from '@/app/api/dashboard/route';
+import { GET as getDashboard } from '@/app/api/analysis/dashboard/route';
 
 describe('POST /api/analysis/run', () => {
   beforeEach(() => vi.clearAllMocks());
@@ -85,7 +85,7 @@ describe('GET /api/analysis/results', () => {
   });
 });
 
-describe('GET /api/dashboard', () => {
+describe('GET /api/analysis/dashboard', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('debe agregar datos de reviews, surveys y reports', async () => {
@@ -94,7 +94,7 @@ describe('GET /api/dashboard', () => {
       .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([{ id: 's1' }]) })
       .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([{ id: 'rep1' }]) });
 
-    const req = new NextRequest('http://localhost/api/dashboard?businessId=550e8400-e29b-41d4-a716-446655440000');
+    const req = new NextRequest('http://localhost/api/analysis/dashboard?businessId=550e8400-e29b-41d4-a716-446655440000');
     const res = await getDashboard(req);
     expect(res.status).toBe(200);
 
@@ -106,7 +106,7 @@ describe('GET /api/dashboard', () => {
   });
 
   it('debe retornar 400 si falta businessId', async () => {
-    const res = await getDashboard(new NextRequest('http://localhost/api/dashboard'));
+    const res = await getDashboard(new NextRequest('http://localhost/api/analysis/dashboard'));
     expect(res.status).toBe(400);
   });
 });

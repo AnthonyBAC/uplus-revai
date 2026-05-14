@@ -5,11 +5,6 @@ const SERVICE_MAP: Record<string, string | undefined> = {
   analysis: process.env.ANALYSIS_SERVICE_URL ?? process.env.NEXT_PUBLIC_ANALYSIS_SERVICE_URL,
 };
 
-console.log('[proxy] SERVICE_MAP loaded:', {
-  auth: SERVICE_MAP.auth ? `${SERVICE_MAP.auth.slice(0, 30)}...` : 'undefined',
-  analysis: SERVICE_MAP.analysis ? `${SERVICE_MAP.analysis.slice(0, 30)}...` : 'undefined',
-});
-
 const SKIP_HEADERS = new Set(["host", "connection", "content-length", "transfer-encoding"]);
 
 async function proxy(request: NextRequest) {

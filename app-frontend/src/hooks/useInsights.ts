@@ -19,7 +19,8 @@ export interface UseInsightsResult {
   error: string | null;
 }
 
-export function useInsights(_: string | null): UseInsightsResult {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function useInsights(_businessId: string | null): UseInsightsResult {
   return {
     data: null,
     loading: false,

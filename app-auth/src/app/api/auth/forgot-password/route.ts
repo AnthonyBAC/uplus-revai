@@ -1,0 +1,38 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getSupabaseAnon } from '@/lib/supabase';
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json() as { email?: string };
+
+    if (!body.email) {
+      return NextResponse.json(
+        { error: 'email es requerido' },
+        { status: 400 }
+      );
+    }
+
+    const supabase = getSupabaseAnon();
+    const { error } = await supabase.auth.resetPasswordForEmail(body.email, {
+      redirectTo: `${process.env.NEXT_FRONTEND_URL}/reset-password`,
+    });
+
+    if (error) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { message: 'Si el correo existe, recibirás un enlace de recuperación.' },
+      { status: 200 }
+    );
+  } catch (err: unknown) {
+    const status = (err as Error & { status?: number }).status ?? 500;
+    return NextResponse.json(
+      { error: (err as Error).message },
+      { status }
+    );
+  }
+}

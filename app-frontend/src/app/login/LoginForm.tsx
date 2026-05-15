@@ -99,9 +99,9 @@ export default function LoginForm() {
         <div className={s.field}>
           <div className={styles.passwordLabel}>
             <label htmlFor="password">Contraseña</label>
-            <span className={styles.forgotLink}>
+            <Link href="/forgot-password" className={styles.forgotLink}>
               ¿La olvidaste?
-            </span>
+            </Link>
           </div>
           <div className={s.passwordWrapper}>
             <input

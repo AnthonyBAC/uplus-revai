@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { forgotPassword } from "@/features/auth/lib/auth-client";
 import AuthLayout from "@/features/auth/components/layout/AuthLayout";
 import ForgotPasswordPanel from "@/features/auth/components/panels/ForgotPasswordPanel";
@@ -77,6 +78,10 @@ export default function ForgotPasswordForm() {
           </button>
         </form>
       )}
+
+      <p className={s.switchLinkMobile}>
+        ¿Recordaste tu contraseña? <Link href="/login">Inicia sesión →</Link>
+      </p>
     </AuthLayout>
   );
 }

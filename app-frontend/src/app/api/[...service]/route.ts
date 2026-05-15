@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const env = (key: string, fallback: string) => process.env[key] ?? process.env[fallback] ?? "";
-
 type Route = { prefix: string; baseUrl: string };
 
 function buildRoutes(): Route[] {
-  const auth = env("AUTH_SERVICE_URL", "NEXT_PUBLIC_AUTH_SERVICE_URL");
-  const analysis = env("ANALYSIS_SERVICE_URL", "NEXT_PUBLIC_ANALYSIS_SERVICE_URL");
+  const auth = process.env.AUTH_SERVICE_URL ?? "";
+  const analysis = process.env.ANALYSIS_SERVICE_URL ?? "";
 
   return [
     { prefix: "/api/auth/", baseUrl: auth },

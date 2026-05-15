@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Icon from '../primitives/Icon';
 import { useBusiness } from '../BusinessContext';
 import type { SessionResponse } from '@/types/api/session';
+import BrandLogo from '@/components/layout/BrandLogo';
 import s from './Sidebar.module.css';
 
 const NAV = [
@@ -29,8 +30,7 @@ export default function Sidebar({ session, counts = {} }: SidebarProps) {
   return (
     <aside className={s.sidebar}>
       <div className={s.brand}>
-        <div className={s.logo}>U+</div>
-        <div className={s.logoText}>Revai</div>
+        <BrandLogo variant="pastel" />
       </div>
 
       <nav className={s.nav}>

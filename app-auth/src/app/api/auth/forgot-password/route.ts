@@ -12,9 +12,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    console.log('[forgot-password] APP_URL:', process.env.APP_URL, 'NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL, 'redirectTo:', `${appUrl}/reset-password`);
+
     const supabase = getSupabaseAnon();
     const { error } = await supabase.auth.resetPasswordForEmail(body.email, {
-      redirectTo: `${process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password`,
+      redirectTo: `${appUrl}/reset-password`,
     });
 
     if (error) {

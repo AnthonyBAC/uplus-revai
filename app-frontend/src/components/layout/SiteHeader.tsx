@@ -6,6 +6,7 @@ import styles from "./SiteHeader.module.css";
 type SiteHeaderProps =
   | {
       mode: "marketing";
+      showCenterNav?: boolean;
     }
   | {
       mode: "simple";
@@ -16,14 +17,17 @@ type SiteHeaderProps =
 const marketingLabels = ["Producto", "Cómo funciona", "Precios", "Casos"];
 
 export default function SiteHeader(props: SiteHeaderProps) {
+  const showCenterNav = props.mode === "marketing" && props.showCenterNav !== false;
+  const useWideLayout = props.mode === "marketing" && !showCenterNav;
+
   return (
     <header className={styles.header}>
-      <div className={styles.inner}>
+      <div className={useWideLayout ? `${styles.inner} ${styles.innerWithoutCenter}` : styles.inner}>
         <Link href="/" className={styles.brand}>
           <BrandLogo variant="pastel" />
         </Link>
 
-        {props.mode === "marketing" ? (
+        {showCenterNav ? (
           <nav className={styles.nav} aria-label="Navegación principal">
             {marketingLabels.map((label) => (
               <span key={label} className={styles.navItem}>

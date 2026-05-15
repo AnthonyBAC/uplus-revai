@@ -1,8 +1,8 @@
 'use client';
 
-import LocalScreen from '@/components/dashboard/screens/LocalScreen';
-import { useLocal } from '@/hooks/useLocal';
-import { useBusiness } from '@/components/dashboard/BusinessContext';
+import LocalScreen from '@/features/dashboard/components/screens/LocalScreen';
+import { useLocal } from '@/features/dashboard/hooks/useLocal';
+import { useBusiness } from '@/features/dashboard/components/BusinessContext';
 
 export default function LocalPage() {
   const { activeMembership } = useBusiness();

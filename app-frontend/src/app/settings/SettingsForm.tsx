@@ -2,15 +2,19 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { updateFullName, updateEmail, updatePassword } from "@/lib/auth-client";
-import { getAccessToken } from "@/lib/session";
+import { updateFullName, updateEmail, updatePassword } from "@/features/auth/lib/auth-client";
+import { getAccessToken } from "@/features/auth/lib/session";
+import SettingsTabs from "./components/SettingsTabs";
+import NameTab from "./components/NameTab";
+import EmailTab from "./components/EmailTab";
+import PasswordTab from "./components/PasswordTab";
+import SettingsTipsPanel from "./components/SettingsTipsPanel";
+import type { SettingsTab } from "./components/types";
 import styles from "./settings.module.css";
-
-type Tab = "name" | "email" | "password";
 
 export default function SettingsForm() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<Tab>("name");
+  const [activeTab, setActiveTab] = useState<SettingsTab>("name");
 
   // Nombre
   const [fullName, setFullName] = useState("");
@@ -66,118 +70,43 @@ export default function SettingsForm() {
     }
   }
 
-  const tabs: { id: Tab; label: string }[] = [
-    { id: "name", label: "Nombre" },
-    { id: "email", label: "Correo" },
-    { id: "password", label: "Contraseña" },
-  ];
-
   return (
     <div className={styles.split}>
-      {/* Lado izquierdo */}
       <div className={styles.formSide}>
         <span className={styles.badge}>✦ Configuración de cuenta</span>
         <h1 className={styles.title}>
           Actualiza tu <span className={styles.accent}>información.</span>
         </h1>
 
-        {/* Tabs */}
-        <div className={styles.tabs}>
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              className={`${styles.tabBtn} ${activeTab === tab.id ? styles.tabActive : ""}`}
-              onClick={() => { setActiveTab(tab.id); reset(); }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <SettingsTabs
+          activeTab={activeTab}
+          onChange={(tab) => {
+            setActiveTab(tab);
+            reset();
+          }}
+        />
 
         <form onSubmit={handleSubmit} className={styles.form}>
-          {/* Tab: Nombre */}
           {activeTab === "name" && (
-            <div className={styles.field}>
-              <label htmlFor="fullName">Nuevo nombre</label>
-              <input
-                id="fullName"
-                type="text"
-                placeholder="María Contreras"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
+            <NameTab value={fullName} loading={loading} onChange={setFullName} />
           )}
 
-          {/* Tab: Correo */}
           {activeTab === "email" && (
-            <div className={styles.field}>
-              <label htmlFor="email">Nuevo correo</label>
-              <input
-                id="email"
-                type="email"
-                placeholder="nuevo@negocio.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={loading}
-              />
-              <span className={styles.hint}>
-                Te enviaremos un correo de confirmación al nuevo correo.
-              </span>
-            </div>
+            <EmailTab value={email} loading={loading} onChange={setEmail} />
           )}
 
-          {/* Tab: Contraseña */}
           {activeTab === "password" && (
-            <>
-              <div className={styles.field}>
-                <label htmlFor="currentPassword">Contraseña actual</label>
-                <div className={styles.passwordWrapper}>
-                  <input
-                    id="currentPassword"
-                    type={showCurrent ? "text" : "password"}
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    required
-                    disabled={loading}
-                  />
-                  <button
-                    type="button"
-                    className={styles.showBtn}
-                    onClick={() => setShowCurrent((v) => !v)}
-                  >
-                    {showCurrent ? "OCULTAR" : "VER"}
-                  </button>
-                </div>
-              </div>
-
-              <div className={styles.field}>
-                <label htmlFor="newPassword">Nueva contraseña</label>
-                <div className={styles.passwordWrapper}>
-                  <input
-                    id="newPassword"
-                    type={showNew ? "text" : "password"}
-                    placeholder="mín. 8 caracteres"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    required
-                    minLength={8}
-                    disabled={loading}
-                  />
-                  <button
-                    type="button"
-                    className={styles.showBtn}
-                    onClick={() => setShowNew((v) => !v)}
-                  >
-                    {showNew ? "OCULTAR" : "VER"}
-                  </button>
-                </div>
-              </div>
-            </>
+            <PasswordTab
+              currentPassword={currentPassword}
+              newPassword={newPassword}
+              showCurrent={showCurrent}
+              showNew={showNew}
+              loading={loading}
+              onCurrentPasswordChange={setCurrentPassword}
+              onNewPasswordChange={setNewPassword}
+              onToggleCurrent={() => setShowCurrent((v) => !v)}
+              onToggleNew={() => setShowNew((v) => !v)}
+            />
           )}
 
           {error && <p className={styles.error}>{error}</p>}
@@ -189,44 +118,7 @@ export default function SettingsForm() {
         </form>
       </div>
 
-      {/* Lado derecho */}
-      <div className={styles.rightSide}>
-        <span className={styles.rightTag}>● TU CUENTA</span>
-
-        <h2 className={styles.rightTitle}>
-          Mantén tu perfil <span className={styles.accent}>actualizado</span>.
-        </h2>
-
-        <ul className={styles.tipList}>
-          <li className={styles.tip}>
-            <span className={styles.tipIcon}>👤</span>
-            <div>
-              <p className={styles.tipTitle}>Nombre visible</p>
-              <p className={styles.tipDesc}>
-                Tu nombre aparece en los reportes y en el panel de administración.
-              </p>
-            </div>
-          </li>
-          <li className={styles.tip}>
-            <span className={styles.tipIcon}>📧</span>
-            <div>
-              <p className={styles.tipTitle}>Confirma tu nuevo correo</p>
-              <p className={styles.tipDesc}>
-                Al cambiar tu correo recibirás un enlace de confirmación antes de que el cambio sea efectivo.
-              </p>
-            </div>
-          </li>
-          <li className={styles.tip}>
-            <span className={styles.tipIcon}>🔑</span>
-            <div>
-              <p className={styles.tipTitle}>Contraseña segura</p>
-              <p className={styles.tipDesc}>
-                Usa al menos 8 caracteres combinando letras, números y símbolos.
-              </p>
-            </div>
-          </li>
-        </ul>
-      </div>
+      <SettingsTipsPanel />
     </div>
   );
 }

@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from '@/hooks/useSession';
-import { getAccessToken, getRefreshToken, saveSession } from '@/lib/session';
-import { registerBusiness, refresh } from '@/lib/auth-client';
-import AuthLayout from '@/components/auth/AuthLayout';
-import s from '@/components/auth/AuthLayout.module.css';
+import { useSession } from '@/features/auth/hooks/useSession';
+import { getAccessToken, getRefreshToken, saveSession } from '@/features/auth/lib/session';
+import { registerBusiness, refresh } from '@/features/auth/lib/auth-client';
+import AuthLayout from '@/features/auth/components/layout/AuthLayout';
+import s from '@/features/auth/components/layout/AuthLayout.module.css';
 import styles from './onboarding.module.css';
 
 function RightPanel() {

@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signup } from "@/lib/auth-client";
-import AuthLayout from "@/components/auth/AuthLayout";
-import s from "@/components/auth/AuthLayout.module.css";
+import { signup } from "@/features/auth/lib/auth-client";
+import AuthLayout from "@/features/auth/components/layout/AuthLayout";
+import s from "@/features/auth/components/layout/AuthLayout.module.css";
 import styles from "./register.module.css";
 
 function RightPanel() {

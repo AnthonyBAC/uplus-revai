@@ -1,37 +1,21 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useBusiness } from '@/components/dashboard/BusinessContext';
-import { useSession } from '@/hooks/useSession';
-import { useDashboard } from '@/hooks/useDashboard';
-import ResumenScreen from '@/components/dashboard/screens/ResumenScreen';
-import type { DashboardReview } from '@/types/api/dashboard';
-import type { ReviewItem } from '@/components/dashboard/ReviewCard';
-
-function toItem(r: DashboardReview): ReviewItem {
-  const name = r.authorName ?? 'Anónimo';
-  return {
-    id: r.id,
-    name,
-    initial: name[0]?.toUpperCase() ?? '?',
-    rating: r.rating,
-    date: new Date(r.publishedAt).toLocaleDateString('es-CL', { day: 'numeric', month: 'short' }),
-    source: r.source,
-    text: r.content,
-    tags: [],
-    reply: null,
-  };
-}
+import { useBusiness } from '@/features/dashboard/components/BusinessContext';
+import { mapDashboardReviewToItem } from '@/features/dashboard/mappers/review';
+import { useSession } from '@/features/auth/hooks/useSession';
+import { useDashboard } from '@/features/dashboard/hooks/useDashboard';
+import ResumenScreen from '@/features/dashboard/components/screens/ResumenScreen';
 
 export default function DashboardPage() {
   const { activeBusinessId, activeMembership } = useBusiness();
   const { session } = useSession();
-  const { data, loading } = useDashboard(activeBusinessId);
+  const { data, loading, refetch } = useDashboard(activeBusinessId);
   const [replyMap, setReplyMap] = useState<Record<string, string>>({});
 
   const reviews = useMemo(
     () => (data?.data.reviews ?? []).map((r) => {
-      const item = toItem(r);
+      const item = mapDashboardReviewToItem(r);
       return replyMap[item.id] ? { ...item, reply: replyMap[item.id] } : item;
     }),
     [data, replyMap],
@@ -43,6 +27,7 @@ export default function DashboardPage() {
       loading={loading}
       reviews={reviews}
       onReply={(id, text) => setReplyMap((prev) => ({ ...prev, [id]: text }))}
+      onRefresh={refetch}
       userName={session?.fullName}
       businessName={activeMembership?.businessName}
     />

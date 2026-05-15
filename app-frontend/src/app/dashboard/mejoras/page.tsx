@@ -1,7 +1,7 @@
 'use client';
 
-import MejorasScreen from '@/components/dashboard/screens/MejorasScreen';
-import { useActions } from '@/hooks/useActions';
+import MejorasScreen from '@/features/dashboard/components/screens/MejorasScreen';
+import { useActions } from '@/features/dashboard/hooks/useActions';
 
 export default function MejorasPage() {
   const { actions, update } = useActions();

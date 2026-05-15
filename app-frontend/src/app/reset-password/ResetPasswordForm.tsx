@@ -4,8 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { resetPassword } from "@/lib/auth-client";
-import styles from "./reset-password.module.css";
 import AuthLayout from "@/components/auth/AuthLayout";
+import s from "@/components/auth/AuthLayout.module.css";
 
 function parseRecoveryHash() {
   if (typeof window === "undefined") return { accessToken: "", refreshToken: "", valid: false };
@@ -18,36 +18,36 @@ function parseRecoveryHash() {
 
 function RightPanel() {
   return (
-    <div className={styles.rightSide}>
-      <span className={styles.rightTag}>● CREA UNA CONTRASEÑA SEGURA</span>
-      <h2 className={styles.rightTitle}>
+    <>
+      <span className={s.rightTag}>● CREA UNA CONTRASEÑA SEGURA</span>
+      <h2 style={{ fontSize: "1.9rem", fontWeight: 700, lineHeight: 1.3, fontFamily: "var(--font-title)" }}>
         Una buena contraseña es tu{" "}
-        <span className={styles.accent}>primera línea</span> de defensa.
+        <span style={{ color: "var(--color-accent-primary)" }}>primera línea</span> de defensa.
       </h2>
-      <ul className={styles.tipList}>
-        <li className={styles.tip}>
-          <span className={styles.tipIcon}>🔤</span>
+      <ul style={{ display: "flex", flexDirection: "column", gap: "1.5rem", listStyle: "none", padding: 0, margin: 0 }}>
+        <li style={{ display: "flex", alignItems: "flex-start", gap: "1.2rem" }}>
+          <span style={{ fontSize: "1.4rem", flexShrink: 0 }}>🔤</span>
           <div>
-            <p className={styles.tipTitle}>Mínimo 8 caracteres</p>
-            <p className={styles.tipDesc}>Mientras más larga, más difícil de adivinar.</p>
+            <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--color-bg-white)", margin: "0 0 0.2rem" }}>Mínimo 8 caracteres</p>
+            <p style={{ fontSize: "0.85rem", color: "var(--color-gray-500)", margin: 0, lineHeight: 1.5 }}>Mientras más larga, más difícil de adivinar.</p>
           </div>
         </li>
-        <li className={styles.tip}>
-          <span className={styles.tipIcon}>🔢</span>
+        <li style={{ display: "flex", alignItems: "flex-start", gap: "1.2rem" }}>
+          <span style={{ fontSize: "1.4rem", flexShrink: 0 }}>🔢</span>
           <div>
-            <p className={styles.tipTitle}>Mezcla letras y números</p>
-            <p className={styles.tipDesc}>Combina mayúsculas, minúsculas, números y símbolos.</p>
+            <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--color-bg-white)", margin: "0 0 0.2rem" }}>Mezcla letras y números</p>
+            <p style={{ fontSize: "0.85rem", color: "var(--color-gray-500)", margin: 0, lineHeight: 1.5 }}>Combina mayúsculas, minúsculas, números y símbolos.</p>
           </div>
         </li>
-        <li className={styles.tip}>
-          <span className={styles.tipIcon}>🚫</span>
+        <li style={{ display: "flex", alignItems: "flex-start", gap: "1.2rem" }}>
+          <span style={{ fontSize: "1.4rem", flexShrink: 0 }}>🚫</span>
           <div>
-            <p className={styles.tipTitle}>No reutilices contraseñas</p>
-            <p className={styles.tipDesc}>Usa una contraseña única para cada servicio que uses.</p>
+            <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--color-bg-white)", margin: "0 0 0.2rem" }}>No reutilices contraseñas</p>
+            <p style={{ fontSize: "0.85rem", color: "var(--color-gray-500)", margin: 0, lineHeight: 1.5 }}>Usa una contraseña única para cada servicio que uses.</p>
           </div>
         </li>
       </ul>
-    </div>
+    </>
   );
 }
 
@@ -90,67 +90,61 @@ export default function ResetPasswordForm() {
       topLinkHref="/login"
       rightPanel={<RightPanel />}
     >
-      <div className={styles.split}>
-        <div className={styles.formSide}>
-          <span className={styles.badge}>✦ Restablece tu contraseña</span>
+      <span className={s.badge}>
+        <span className={s.badgeIcon}>✦</span>
+        Restablece tu contraseña
+      </span>
 
-          <h1 className={styles.title}>
-            Crea una nueva{" "}
-            <span className={styles.accent}>contraseña</span>.
-          </h1>
+      <h1 style={{ fontSize: "2.1rem", fontWeight: 800, lineHeight: 1.2, color: "var(--color-text-primary)", maxWidth: 380 }}>
+        Crea una nueva <span style={{ color: "var(--color-accent-primary)" }}>contraseña</span>.
+      </h1>
 
-          <p className={styles.subtitle}>
-            Usa al menos 8 caracteres combinando letras, números y símbolos.
+      <p style={{ fontSize: "0.92rem", color: "var(--color-text-secondary)", maxWidth: 380 }}>
+        Usa al menos 8 caracteres combinando letras, números y símbolos.
+      </p>
+
+      {success ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", background: "#edf7ed", borderRadius: 10, padding: "1.5rem", maxWidth: 400 }}>
+          <p style={{ fontSize: "1rem", fontWeight: 700, color: "#2e7d32", margin: 0 }}>¡Contraseña actualizada!</p>
+          <p style={{ fontSize: "0.88rem", color: "#388e3c", margin: 0 }}>
+            Serás redirigido al login en unos segundos.
           </p>
-
-          {success ? (
-            <div className={styles.successBox}>
-              <p className={styles.successTitle}>¡Contraseña actualizada!</p>
-              <p className={styles.successDesc}>
-                Serás redirigido al login en unos segundos.
-              </p>
-              <Link href="/login" className={styles.backLink}>
-                Ir al login ahora →
-              </Link>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className={styles.form}>
-              <div className={styles.field}>
-                <label htmlFor="newPassword">Nueva contraseña</label>
-                <div className={styles.passwordWrapper}>
-                  <input
-                    id="newPassword"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="mín. 8 caracteres"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    required
-                    minLength={8}
-                    disabled={loading || !valid}
-                  />
-                  <button
-                    type="button"
-                    className={styles.showBtn}
-                    onClick={() => setShowPassword((v) => !v)}
-                  >
-                    {showPassword ? "OCULTAR" : "VER"}
-                  </button>
-                </div>
-              </div>
-
-              {error && <p className={styles.error}>{error}</p>}
-
-              <button
-                type="submit"
-                className={styles.submitBtn}
-                disabled={loading || !valid}
-              >
-                {loading ? "Guardando..." : "Guardar nueva contraseña →"}
-              </button>
-            </form>
-          )}
+          <Link href="/login" style={{ fontSize: "0.88rem", fontWeight: 600, color: "var(--color-accent-primary)", marginTop: "0.4rem" }}>
+            Ir al login ahora →
+          </Link>
         </div>
-      </div>
+      ) : (
+        <form onSubmit={handleSubmit} className={s.form}>
+          <div className={s.field}>
+            <label htmlFor="newPassword">Nueva contraseña</label>
+            <div className={s.passwordWrapper}>
+              <input
+                id="newPassword"
+                type={showPassword ? "text" : "password"}
+                placeholder="mín. 8 caracteres"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                minLength={8}
+                disabled={loading || !valid}
+              />
+              <button
+                type="button"
+                className={s.showBtn}
+                onClick={() => setShowPassword((v) => !v)}
+              >
+                {showPassword ? "OCULTAR" : "VER"}
+              </button>
+            </div>
+          </div>
+
+          {error && <p className={s.error}>{error}</p>}
+
+          <button type="submit" className={s.submitBtn} disabled={loading || !valid}>
+            {loading ? "Guardando..." : "Guardar nueva contraseña →"}
+          </button>
+        </form>
+      )}
     </AuthLayout>
   );
 }

@@ -9,7 +9,8 @@ export interface UseReviewsResult {
   refetch: () => void;
 }
 
-export function useReviews(): UseReviewsResult {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function useReviews(_businessId: string | null): UseReviewsResult {
   return {
     data: null,
     loading: false,

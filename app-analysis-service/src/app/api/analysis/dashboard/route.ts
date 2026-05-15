@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     }
 
     const { role } = await requireBusinessAccess(auth.appUserId, businessId);
-    await requireEndpointPermission(role, 'GET', '/api/dashboard');
+    await requireEndpointPermission(role, 'GET', '/api/analysis/dashboard');
 
     const token = req.headers.get('authorization');
     const reviewUrl = process.env.REVIEW_SERVICE_URL || 'http://localhost:3003';

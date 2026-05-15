@@ -59,6 +59,7 @@ const endpoints: EndpointDef[] = [
   { key: 'analysis.run', method: 'POST', path: '/api/analysis/run', description: 'Ejecutar análisis (orquesta IA)' },
   { key: 'analysis.results', method: 'GET', path: '/api/analysis/results', description: 'Consultar resultados de análisis' },
   { key: 'dashboard.get', method: 'GET', path: '/api/analysis/dashboard', description: 'Dashboard agregado' },
+  { key: 'analysis.reviews', method: 'GET', path: '/api/analysis/reviews', description: 'Listar reseñas desde analysis' },
 ];
 
 const trabajadorEndpoints = new Set([

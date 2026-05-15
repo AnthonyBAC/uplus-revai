@@ -1,36 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const SERVICE_MAP: Record<string, string | undefined> = {
-  auth: process.env.AUTH_SERVICE_URL ?? process.env.NEXT_PUBLIC_AUTH_SERVICE_URL,
-  analysis: process.env.ANALYSIS_SERVICE_URL ?? process.env.NEXT_PUBLIC_ANALYSIS_SERVICE_URL,
-};
+const env = (key: string, fallback: string) => process.env[key] ?? process.env[fallback] ?? "";
+
+type Route = { prefix: string; baseUrl: string };
+
+function buildRoutes(): Route[] {
+  const auth = env("AUTH_SERVICE_URL", "NEXT_PUBLIC_AUTH_SERVICE_URL");
+  const analysis = env("ANALYSIS_SERVICE_URL", "NEXT_PUBLIC_ANALYSIS_SERVICE_URL");
+
+  return [
+    { prefix: "/api/auth/", baseUrl: auth },
+    { prefix: "/api/roles", baseUrl: auth },
+    { prefix: "/api/branches", baseUrl: auth },
+    { prefix: "/api/businesses", baseUrl: auth },
+    { prefix: "/api/endpoints", baseUrl: auth },
+    { prefix: "/api/analysis/", baseUrl: analysis },
+  ].filter((r) => r.baseUrl.length > 0);
+}
 
 const SKIP_HEADERS = new Set(["host", "connection", "content-length", "transfer-encoding"]);
 
+function matchRoute(path: string, routes: Route[]): Route | undefined {
+  const ordered = routes.sort((a, b) => b.prefix.length - a.prefix.length);
+  for (const route of ordered) {
+    if (path.startsWith(route.prefix)) return route;
+  }
+  return undefined;
+}
+
 async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const segments = path.replace("/api/", "").split("/");
-  const service = segments[0];
-  const rest = segments.length > 1 ? `/${segments.slice(1).join("/")}` : "";
   const query = request.nextUrl.search;
 
-  const baseUrl = SERVICE_MAP[service];
-  if (!baseUrl) {
-    const missing = service === 'auth'
-      ? 'NEXT_PUBLIC_AUTH_SERVICE_URL'
-      : service === 'analysis'
-        ? 'NEXT_PUBLIC_ANALYSIS_SERVICE_URL'
-        : `NEXT_PUBLIC_${service.toUpperCase()}_SERVICE_URL`;
-    console.error(`[proxy] Missing env var: ${missing}`);
+  const routes = buildRoutes();
+  const route = matchRoute(path, routes);
+
+  if (!route) {
+    const tried = routes.map((r) => r.prefix);
+    console.error(`[proxy] No route for ${path}. Registered prefixes: ${tried.join(", ")}`);
     return NextResponse.json(
-      { error: `Servicio "${service}" no configurado. Falta la variable ${missing} en Vercel (Settings → Environment Variables → marcar Production, Preview y Development).` },
+      { error: `Ruta "${path}" no configurada en el proxy BFF.` },
       { status: 404 }
     );
   }
 
-  const url = `${baseUrl}/api/${service}${rest}${query}`;
-
-  console.log(`[proxy] ${request.method} ${path} → ${url}`);
+  const url = `${route.baseUrl}${path}${query}`;
 
   const headers: Record<string, string> = {};
   request.headers.forEach((value, key) => {
@@ -65,7 +79,6 @@ async function proxy(request: NextRequest) {
     return NextResponse.json(
       {
         error: "Error al conectar con el servicio backend",
-        service,
         url,
       },
       { status: 502 }

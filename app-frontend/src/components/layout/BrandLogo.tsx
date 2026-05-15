@@ -1,24 +1,22 @@
+import type { CSSProperties } from "react";
 import styles from "./BrandLogo.module.css";
 
 type BrandLogoProps = {
   className?: string;
   variant?: "default" | "pastel";
+  style?: CSSProperties;
 };
 
-export default function BrandLogo({
-  className,
-  variant = "default",
-}: BrandLogoProps) {
-  const classes = [styles.brand, className].filter(Boolean).join(" ");
-  const markClass = variant === "pastel" ? styles.markPastel : styles.markDefault;
+export default function BrandLogo({ className, variant = "default", style }: BrandLogoProps) {
+  const src = variant === "pastel" ? "/Revai_v2.webp" : "/Revai_v1.webp";
+  const classes = [styles.logo, className].filter(Boolean).join(" ");
 
   return (
-    <span className={classes}>
-      <span className={`${styles.mark} ${markClass}`} aria-hidden="true">
-        <span className={styles.u}>U</span>
-        <span className={styles.plus}>+</span>
-      </span>
-      <span className={styles.label}>Revai</span>
-    </span>
+    <img
+      src={src}
+      alt="U+ Revai"
+      className={classes}
+      style={style}
+    />
   );
 }

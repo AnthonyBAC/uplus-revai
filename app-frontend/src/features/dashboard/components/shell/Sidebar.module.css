@@ -15,28 +15,6 @@
   gap: 10px;
 }
 
-.logo {
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  background: var(--accent);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 13px;
-  letter-spacing: -0.3px;
-  flex-shrink: 0;
-}
-
-.logoText {
-  font-weight: 700;
-  font-size: 17px;
-  color: #fff;
-  letter-spacing: -0.3px;
-}
-
 .nav {
   padding: 6px 12px;
   display: flex;

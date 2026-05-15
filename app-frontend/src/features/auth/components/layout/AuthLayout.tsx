@@ -40,7 +40,7 @@ export default function AuthLayout({ topLinkText, topLinkCta, topLinkHref, right
         <div className={styles.formSide}>
           <motion.div className={styles.formHeader} {...reveal(0)}>
             <Link href="/" className={styles.brandLink}>
-              <BrandLogo variant="pastel" />
+              <BrandLogo variant="default" />
             </Link>
             <p className={styles.topLink}>
               {topLinkText}{" "}

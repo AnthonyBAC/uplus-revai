@@ -8,6 +8,7 @@ import {
   Star,
   TrendingUp,
 } from "lucide-react";
+import BrandLogo from "@/components/layout/BrandLogo";
 import styles from "./DashboardPreview.module.css";
 
 export default function DashboardPreview() {
@@ -38,11 +39,7 @@ export default function DashboardPreview() {
         <div className={styles.dashboardContent}>
           <aside className={styles.sidebar}>
             <div className={styles.sidebarBrand}>
-              <span className={styles.sidebarBrandMark}>
-                <span className={styles.sidebarBrandU}>U</span>
-                <span className={styles.sidebarBrandPlus}>+</span>
-              </span>
-              <span>Revai</span>
+              <BrandLogo variant="pastel" />
             </div>
             <div
               className={styles.sidebarItem}

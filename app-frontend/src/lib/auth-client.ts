@@ -147,3 +147,83 @@ export async function refresh(
     },
   };
 }
+
+// ---------- Forgot Password ----------
+
+export async function forgotPassword(email: string): Promise<void> {
+  const res = await fetch("/api/auth/forgot-password", {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? 'Error al enviar el correo');
+}
+
+// ---------- Update Profile ----------
+
+export async function updateFullName(
+  accessToken: string,
+  fullName: string
+): Promise<void> {
+  const res = await fetch("/api/auth/profile", {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ fullName }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? 'Error al actualizar el nombre');
+}
+
+export async function updateEmail(
+  accessToken: string,
+  email: string
+): Promise<void> {
+  const res = await fetch("/api/auth/email", {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ email }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? 'Error al actualizar el correo');
+}
+
+export async function updatePassword(
+  accessToken: string,
+  currentPassword: string,
+  newPassword: string
+): Promise<void> {
+  const res = await fetch("/api/auth/password", {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? 'Error al cambiar la contraseña');
+}
+
+// ---------- Reset Password ----------
+
+export async function resetPassword(
+  accessToken: string,
+  refreshToken: string,
+  newPassword: string
+): Promise<void> {
+  const res = await fetch('/api/auth/reset-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ accessToken, refreshToken, newPassword }),
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? 'Error al restablecer la contraseña');
+}

@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { login } from "@/lib/auth-client";
-import { saveSession } from "@/lib/session";
-import AuthLayout from "@/components/auth/AuthLayout";
-import s from "@/components/auth/AuthLayout.module.css";
+import { login } from "@/features/auth/lib/auth-client";
+import { saveSession } from "@/features/auth/lib/session";
+import AuthLayout from "@/features/auth/components/layout/AuthLayout";
+import s from "@/features/auth/components/layout/AuthLayout.module.css";
 import styles from "./login.module.css";
 
 function RightPanel() {

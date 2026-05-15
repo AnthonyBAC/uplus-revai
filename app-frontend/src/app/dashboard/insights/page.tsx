@@ -1,8 +1,8 @@
 'use client';
 
-import InsightsScreen from '@/components/dashboard/screens/InsightsScreen';
-import { useInsights } from '@/hooks/useInsights';
-import { useBusiness } from '@/components/dashboard/BusinessContext';
+import InsightsScreen from '@/features/dashboard/components/screens/InsightsScreen';
+import { useInsights } from '@/features/dashboard/hooks/useInsights';
+import { useBusiness } from '@/features/dashboard/components/BusinessContext';
 
 export default function InsightsPage() {
   const { activeBusinessId } = useBusiness();

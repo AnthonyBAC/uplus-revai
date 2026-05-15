@@ -13,6 +13,10 @@
   gap: 24px;
 }
 
+.innerWithoutCenter {
+  grid-template-columns: 1fr auto;
+}
+
 .brand {
   justify-self: start;
   text-decoration: none;
@@ -27,7 +31,6 @@
   border: 1px solid rgba(29, 30, 32, 0.08);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.72);
-  box-shadow: var(--shadow-soft);
   backdrop-filter: blur(14px);
 }
 

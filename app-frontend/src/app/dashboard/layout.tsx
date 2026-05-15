@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from '@/hooks/useSession';
-import { BusinessProvider } from '@/components/dashboard/BusinessContext';
-import DashboardShell from '@/components/dashboard/shell/DashboardShell';
+import { useSession } from '@/features/auth/hooks/useSession';
+import { BusinessProvider } from '@/features/dashboard/components/BusinessContext';
+import DashboardShell from '@/features/dashboard/components/shell/DashboardShell';
 
 const MIN_LOADING_MS = 2000;
 

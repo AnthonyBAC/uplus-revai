@@ -1,9 +1,13 @@
 'use client';
 
-import { getAccessToken, getRefreshToken, saveSession, clearSession } from '@/lib/session';
-import { refresh } from '@/lib/auth-client';
+import { getAccessToken, getRefreshToken, saveSession, clearSession } from '@/features/auth/lib/session';
+import { refresh } from '@/features/auth/lib/auth-client';
 
-async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
+type ApiFetchOptions = RequestInit & { skipRedirect?: boolean };
+
+async function apiFetch<T>(path: string, init: ApiFetchOptions = {}): Promise<T> {
+  const { skipRedirect, ...fetchInit } = init;
+
   const token = getAccessToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -11,7 +15,7 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
-  const res = await fetch(`/api${path}`, { ...init, headers });
+  const res = await fetch(`/api${path}`, { ...fetchInit, headers });
 
   if (res.status === 401) {
     const refreshToken = getRefreshToken();
@@ -20,17 +24,17 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
         const renewed = await refresh(refreshToken);
         saveSession(renewed.accessToken, renewed.refreshToken);
         const retryHeaders = { ...headers, Authorization: `Bearer ${renewed.accessToken}` };
-        const retry = await fetch(`/api${path}`, { ...init, headers: retryHeaders });
+        const retry = await fetch(`/api${path}`, { ...fetchInit, headers: retryHeaders });
         if (!retry.ok) throw new Error('Unauthorized');
         return retry.json() as Promise<T>;
       } catch {
         clearSession();
-        if (typeof window !== 'undefined') window.location.href = '/login';
+        if (!skipRedirect && typeof window !== 'undefined') window.location.href = '/login';
         throw new Error('Sesión expirada');
       }
     }
     clearSession();
-    if (typeof window !== 'undefined') window.location.href = '/login';
+    if (!skipRedirect && typeof window !== 'undefined') window.location.href = '/login';
     throw new Error('Sesión expirada');
   }
 

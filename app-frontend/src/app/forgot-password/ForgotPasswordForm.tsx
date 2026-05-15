@@ -1,51 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { forgotPassword } from "@/lib/auth-client";
-import AuthLayout from "@/components/auth/AuthLayout";
-import s from "@/components/auth/AuthLayout.module.css";
-
-function RightPanel() {
-  return (
-    <>
-      <span className={s.rightTag}>● SEGURIDAD DE TU CUENTA</span>
-
-      <h2 style={{ fontSize: "1.9rem", fontWeight: 700, lineHeight: 1.3, fontFamily: "var(--font-title)" }}>
-        Tu cuenta está <span style={{ color: "var(--color-accent-primary)" }}>protegida</span>.
-      </h2>
-
-      <ul style={{ display: "flex", flexDirection: "column", gap: "1.5rem", listStyle: "none", padding: 0, margin: 0 }}>
-        <li style={{ display: "flex", alignItems: "flex-start", gap: "1.2rem" }}>
-          <span style={{ fontSize: "1.4rem", flexShrink: 0 }}>🔐</span>
-          <div>
-            <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--color-bg-white)", margin: "0 0 0.2rem" }}>Enlace de un solo uso</p>
-            <p style={{ fontSize: "0.85rem", color: "var(--color-gray-500)", margin: 0, lineHeight: 1.5 }}>
-              El enlace que enviamos expira en 15 minutos y solo funciona una vez.
-            </p>
-          </div>
-        </li>
-        <li style={{ display: "flex", alignItems: "flex-start", gap: "1.2rem" }}>
-          <span style={{ fontSize: "1.4rem", flexShrink: 0 }}>📬</span>
-          <div>
-            <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--color-bg-white)", margin: "0 0 0.2rem" }}>Revisa tu spam</p>
-            <p style={{ fontSize: "0.85rem", color: "var(--color-gray-500)", margin: 0, lineHeight: 1.5 }}>
-              Si no ves el correo en tu bandeja principal, revisa la carpeta de spam.
-            </p>
-          </div>
-        </li>
-        <li style={{ display: "flex", alignItems: "flex-start", gap: "1.2rem" }}>
-          <span style={{ fontSize: "1.4rem", flexShrink: 0 }}>🛡️</span>
-          <div>
-            <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--color-bg-white)", margin: "0 0 0.2rem" }}>Nunca pedimos tu contraseña</p>
-            <p style={{ fontSize: "0.85rem", color: "var(--color-gray-500)", margin: 0, lineHeight: 1.5 }}>
-              U+ Revai jamás te solicitará tu contraseña por correo o chat.
-            </p>
-          </div>
-        </li>
-      </ul>
-    </>
-  );
-}
+import Link from "next/link";
+import { forgotPassword } from "@/features/auth/lib/auth-client";
+import AuthLayout from "@/features/auth/components/layout/AuthLayout";
+import ForgotPasswordPanel from "@/features/auth/components/panels/ForgotPasswordPanel";
+import s from "@/features/auth/components/layout/AuthLayout.module.css";
+import styles from "./forgot-password.module.css";
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
@@ -73,25 +34,25 @@ export default function ForgotPasswordForm() {
       topLinkText="¿Recordaste tu contraseña?"
       topLinkCta="Inicia sesión →"
       topLinkHref="/login"
-      rightPanel={<RightPanel />}
+      rightPanel={<ForgotPasswordPanel />}
     >
       <span className={s.badge}>
         <span className={s.badgeIcon}>✦</span>
         Recupera tu acceso
       </span>
 
-      <h1 style={{ fontSize: "2.1rem", fontWeight: 800, lineHeight: 1.2, color: "var(--color-text-primary)", maxWidth: 380 }}>
-        ¿Olvidaste tu <span style={{ color: "var(--color-accent-primary)" }}>contraseña</span>?
+      <h1 className={styles.title}>
+        ¿Olvidaste tu <span className={styles.accent}>contraseña</span>?
       </h1>
 
-      <p style={{ fontSize: "0.92rem", color: "var(--color-text-secondary)", maxWidth: 380 }}>
+      <p className={styles.subtitle}>
         Ingresa tu correo y te enviaremos un enlace para recuperar el acceso.
       </p>
 
       {success ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", background: "#edf7ed", borderRadius: 10, padding: "1.5rem", maxWidth: 400 }}>
-          <p style={{ fontSize: "1rem", fontWeight: 700, color: "#2e7d32", margin: 0 }}>¡Correo enviado!</p>
-          <p style={{ fontSize: "0.88rem", color: "#388e3c", margin: 0 }}>
+        <div className={styles.successCard}>
+          <p className={styles.successTitle}>¡Correo enviado!</p>
+          <p className={styles.successDesc}>
             Revisa tu bandeja de entrada. El enlace expira en 15 minutos.
           </p>
         </div>
@@ -117,6 +78,10 @@ export default function ForgotPasswordForm() {
           </button>
         </form>
       )}
+
+      <p className={s.switchLinkMobile}>
+        ¿Recordaste tu contraseña? <Link href="/login">Inicia sesión →</Link>
+      </p>
     </AuthLayout>
   );
 }

@@ -24,7 +24,7 @@ export default function SiteHeader(props: SiteHeaderProps) {
     <header className={styles.header}>
       <div className={useWideLayout ? `${styles.inner} ${styles.innerWithoutCenter}` : styles.inner}>
         <Link href="/" className={styles.brand}>
-          <BrandLogo variant="pastel" />
+          <BrandLogo variant="default" />
         </Link>
 
         {showCenterNav ? (

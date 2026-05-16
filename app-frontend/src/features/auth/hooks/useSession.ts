@@ -1,20 +1,39 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer } from 'react';
 import apiFetch from '@/services/http/client';
-import { getAccessToken, clearSession } from '@/features/auth/lib/session';
+import { getAccessToken, getSavedSession, clearSession } from '@/features/auth/lib/session';
 import type { SessionResponse } from '@/types/api/session';
 
-export type SessionStatus = 'loading' | 'authenticated' | 'unauthenticated';
+type SessionStatus = 'loading' | 'authenticated' | 'unauthenticated';
 
 export interface UseSessionResult {
   status: SessionStatus;
   session: SessionResponse | null;
 }
 
+type SessionState = UseSessionResult;
+
+type SessionAction =
+  | { type: 'authenticated'; session: SessionResponse }
+  | { type: 'unauthenticated' };
+
+function reducer(state: SessionState, action: SessionAction): SessionState {
+  switch (action.type) {
+    case 'authenticated':
+      return { status: 'authenticated', session: action.session };
+    case 'unauthenticated':
+      return { status: 'unauthenticated', session: null };
+    default:
+      return state;
+  }
+}
+
 export function useSession(): UseSessionResult {
-  const [status, setStatus] = useState<SessionStatus>('loading');
-  const [session, setSession] = useState<SessionResponse | null>(null);
+  const [state, dispatch] = useReducer(reducer, {
+    status: 'loading' as SessionStatus,
+    session: null,
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -22,7 +41,13 @@ export function useSession(): UseSessionResult {
     async function load() {
       const token = getAccessToken();
       if (!token) {
-        if (!cancelled) setStatus('unauthenticated');
+        if (!cancelled) dispatch({ type: 'unauthenticated' });
+        return;
+      }
+
+      const cachedSession = getSavedSession();
+      if (cachedSession) {
+        if (!cancelled) dispatch({ type: 'authenticated', session: cachedSession });
         return;
       }
 
@@ -30,13 +55,10 @@ export function useSession(): UseSessionResult {
         const data = await apiFetch<SessionResponse>('/auth/session', {
           skipRedirect: true,
         });
-        if (!cancelled) {
-          setSession(data);
-          setStatus('authenticated');
-        }
+        if (!cancelled) dispatch({ type: 'authenticated', session: data });
       } catch {
         clearSession();
-        if (!cancelled) setStatus('unauthenticated');
+        if (!cancelled) dispatch({ type: 'unauthenticated' });
       }
     }
 
@@ -44,5 +66,5 @@ export function useSession(): UseSessionResult {
     return () => { cancelled = true; };
   }, []);
 
-  return { status, session };
+  return state;
 }

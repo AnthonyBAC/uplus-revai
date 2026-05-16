@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useReducer } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { resetPassword } from "@/features/auth/lib/auth-client";
@@ -19,34 +19,22 @@ function parseRecoveryHash() {
 }
 
 export default function ResetPasswordForm() {
-  const router = useRouter();
+  const { push } = useRouter();
   const { accessToken, refreshToken, valid } = useMemo(() => parseRecoveryHash(), []);
-
-  const [newPassword, setNewPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(() => valid ? "" : "El enlace de recuperación es inválido o ya fue usado.");
-  const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (success) {
-      const timer = setTimeout(() => router.push("/login"), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [success, router]);
+  const [state, dispatch] = useReducer(resetPasswordReducer, createResetPasswordInitialState(valid));
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+    dispatch({ type: 'submit' });
 
     try {
-      await resetPassword(accessToken, refreshToken, newPassword);
-      setSuccess(true);
+      await resetPassword(accessToken, refreshToken, state.newPassword);
+      dispatch({ type: 'success' });
+      setTimeout(() => push("/login"), 3000);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Error al restablecer la contraseña");
+      dispatch({ type: 'error', error: err instanceof Error ? err.message : "Error al restablecer la contraseña" });
     } finally {
-      setLoading(false);
+      dispatch({ type: 'idle' });
     }
   }
 
@@ -70,7 +58,7 @@ export default function ResetPasswordForm() {
         Usa al menos 8 caracteres combinando letras, números y símbolos.
       </p>
 
-      {success ? (
+      {state.success ? (
         <div className={styles.successCard}>
           <p className={styles.successTitle}>¡Contraseña actualizada!</p>
           <p className={styles.successDesc}>
@@ -87,31 +75,76 @@ export default function ResetPasswordForm() {
             <div className={s.passwordWrapper}>
               <input
                 id="newPassword"
-                type={showPassword ? "text" : "password"}
+                type={state.showPassword ? "text" : "password"}
                 placeholder="mín. 8 caracteres"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
+                value={state.newPassword}
+                onChange={(e) => dispatch({ type: 'password', value: e.target.value })}
                 required
                 minLength={8}
-                disabled={loading || !valid}
+                disabled={state.loading || !valid}
               />
               <button
                 type="button"
                 className={s.showBtn}
-                onClick={() => setShowPassword((v) => !v)}
+                onClick={() => dispatch({ type: 'togglePassword' })}
               >
-                {showPassword ? "OCULTAR" : "VER"}
+                {state.showPassword ? "OCULTAR" : "VER"}
               </button>
             </div>
           </div>
 
-          {error && <p className={s.error}>{error}</p>}
+          {state.error && <p className={s.error}>{state.error}</p>}
 
-          <button type="submit" className={s.submitBtn} disabled={loading || !valid}>
-            {loading ? "Guardando..." : "Guardar nueva contraseña →"}
+          <button type="submit" className={s.submitBtn} disabled={state.loading || !valid}>
+            {state.loading ? "Guardando..." : "Guardar nueva contraseña →"}
           </button>
         </form>
       )}
     </AuthLayout>
   );
+}
+
+type ResetPasswordState = {
+  newPassword: string;
+  showPassword: boolean;
+  error: string;
+  success: boolean;
+  loading: boolean;
+};
+
+type ResetPasswordAction =
+  | { type: 'password'; value: string }
+  | { type: 'togglePassword' }
+  | { type: 'submit' }
+  | { type: 'success' }
+  | { type: 'idle' }
+  | { type: 'error'; error: string };
+
+function createResetPasswordInitialState(valid: boolean): ResetPasswordState {
+  return {
+    newPassword: '',
+    showPassword: false,
+    error: valid ? '' : 'El enlace de recuperación es inválido o ya fue usado.',
+    success: false,
+    loading: false,
+  };
+}
+
+function resetPasswordReducer(state: ResetPasswordState, action: ResetPasswordAction): ResetPasswordState {
+  switch (action.type) {
+    case 'password':
+      return { ...state, newPassword: action.value };
+    case 'togglePassword':
+      return { ...state, showPassword: !state.showPassword };
+    case 'submit':
+      return { ...state, error: '', loading: true };
+    case 'success':
+      return { ...state, success: true };
+    case 'idle':
+      return { ...state, loading: false };
+    case 'error':
+      return { ...state, error: action.error, loading: false };
+    default:
+      return state;
+  }
 }

@@ -1,37 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from '@/features/auth/hooks/useSession';
+import { redirect } from 'next/navigation';
+import { SessionProvider, useSessionContext } from '@/features/auth/components/SessionProvider';
 import { BusinessProvider } from '@/features/dashboard/components/BusinessContext';
 import DashboardShell from '@/features/dashboard/components/shell/DashboardShell';
 
-const MIN_LOADING_MS = 2000;
-
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { status, session } = useSession();
-  const router = useRouter();
-  const [ready, setReady] = useState(false);
+  return (
+    <SessionProvider>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </SessionProvider>
+  );
+}
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.replace('/login');
-      return;
-    }
-    if (status === 'authenticated' && session && !session.isOnboarded) {
-      router.replace('/onboarding');
-    }
-  }, [status, session, router]);
+function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
+  const { status, session } = useSessionContext();
 
-  useEffect(() => {
-    if (status !== 'authenticated' || !session?.isOnboarded) return;
-    const elapsed = Date.now();
-    const remaining = Math.max(0, MIN_LOADING_MS - (elapsed % MIN_LOADING_MS));
-    const timer = setTimeout(() => setReady(true), remaining);
-    return () => clearTimeout(timer);
-  }, [status, session]);
+  if (status === 'unauthenticated') redirect('/login');
+  if (status === 'authenticated' && session && !session.isOnboarded) redirect('/onboarding');
 
-  if (status === 'loading' || !session || !session.isOnboarded || !ready) {
+  if (status === 'loading' || !session || !session.isOnboarded) {
     return (
       <div style={{
         display: 'flex',

@@ -6,10 +6,11 @@ type Params = { params: Promise<{ id: string }> };
 
 export async function GET(req: NextRequest, { params }: Params) {
   try {
-    const { id } = await params;
-    const auth = await requireAuth(req);
-
-    const survey = await prisma.survey.findUnique({ where: { id } });
+    const [{ id }, auth, survey] = await Promise.all([
+      params,
+      requireAuth(req),
+      params.then(({ id: surveyId }) => prisma.survey.findUnique({ where: { id: surveyId } })),
+    ]);
     if (!survey) {
       return NextResponse.json({ error: 'Encuesta no encontrada' }, { status: 404 });
     }

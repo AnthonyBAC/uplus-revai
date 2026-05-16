@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { MembershipInfo } from '@/types/api/session';
 
-export interface Integration {
+interface Integration {
   id: string;
   name: string;
   note: string;
@@ -11,7 +11,7 @@ export interface Integration {
   connected: boolean;
 }
 
-export interface TeamMember {
+interface TeamMember {
   name: string;
   email: string;
   role: string;

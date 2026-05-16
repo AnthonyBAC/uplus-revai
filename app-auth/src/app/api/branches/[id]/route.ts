@@ -8,8 +8,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireAuth(req);
-    const { id } = await params;
+    const [auth, { id }] = await Promise.all([requireAuth(req), params]);
 
     const branch = await prisma.branches.findUnique({
       where: { id },
@@ -47,9 +46,11 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireAuth(req);
-    const { id } = await params;
-    const body: unknown = await req.json();
+    const [auth, { id }, body] = await Promise.all([
+      requireAuth(req),
+      params,
+      req.json() as Promise<unknown>,
+    ]);
     if (!isRecord(body)) {
       return NextResponse.json({ error: 'Body JSON inválido' }, { status: 400 });
     }
@@ -104,8 +105,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireAuth(req);
-    const { id } = await params;
+    const [auth, { id }] = await Promise.all([requireAuth(req), params]);
 
     const branch = await prisma.branches.findUnique({
       where: { id },

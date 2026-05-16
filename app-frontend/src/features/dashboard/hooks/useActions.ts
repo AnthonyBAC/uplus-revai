@@ -1,29 +1,52 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { fetchImprovements } from '@/features/dashboard/services/improvements';
+import { useAsyncResource } from '@/features/dashboard/hooks/shared/useAsyncResource';
+import type {
+  ImprovementAction,
+  ImprovementsResponse,
+} from '@/types/api/dashboard';
 
-export type ActionStatus = 'sugerida' | 'en-curso' | 'completada' | 'descartada';
-export type ActionImpact = 'alto' | 'medio' | 'bajo';
+export type Action = ImprovementAction;
 
-export interface Action {
-  id: string;
-  title: string;
-  why: string;
-  impact: ActionImpact;
-  steps: number;
-  eta: string;
-  status: ActionStatus;
-  progress: number;
-  tag: string;
-  detail: string[];
-}
+export function useActions(businessId: string | null) {
+  const [overridesByBusiness, setOverridesByBusiness] = useState<Record<string, Record<string, Partial<Action>>>>({});
+  const { data, loading, error, refetch } = useAsyncResource<ImprovementsResponse>({
+    enabled: !!businessId,
+    deps: [businessId],
+    fetcher: () => fetchImprovements(businessId as string),
+    cacheKey: businessId ? `uplus_cache_improvements_${businessId}` : undefined,
+  });
 
-export function useActions() {
-  const [actions, setActions] = useState<Action[]>([]);
+  const activeOverrides = useMemo(
+    () => (businessId ? (overridesByBusiness[businessId] ?? {}) : {}),
+    [businessId, overridesByBusiness]
+  );
+
+  const actions = useMemo(
+    () => (data?.actions ?? []).map((action) => ({ ...action, ...(activeOverrides[action.id] ?? {}) })),
+    [activeOverrides, data]
+  );
 
   const update = (id: string, patch: Partial<Action>) => {
-    setActions((prev) => prev.map((a) => (a.id === id ? { ...a, ...patch } : a)));
+    if (!businessId) return;
+
+    setOverridesByBusiness((prev) => ({
+      ...prev,
+      [businessId]: {
+        ...(prev[businessId] ?? {}),
+        [id]: { ...(prev[businessId]?.[id] ?? {}), ...patch },
+      },
+    }));
   };
 
-  return { actions, setActions, update };
+  return {
+    actions,
+    update,
+    loading,
+    error,
+    totalReviews: data?.totalReviews ?? 0,
+    refetch,
+  };
 }

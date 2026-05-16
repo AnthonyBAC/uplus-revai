@@ -7,13 +7,15 @@ type Params = { params: Promise<{ id: string }> };
 
 export async function GET(req: NextRequest, { params }: Params) {
   try {
-    const { id } = await params;
-    const auth = await requireAuth(req);
-
-    const survey = await prisma.survey.findUnique({
-      where: { id },
-      include: { questions: { orderBy: { order: 'asc' } } },
-    });
+    const [auth, survey] = await Promise.all([
+      requireAuth(req),
+      params.then(({ id }) =>
+        prisma.survey.findUnique({
+          where: { id },
+          include: { questions: { orderBy: { order: 'asc' } } },
+        })
+      ),
+    ]);
 
     if (!survey) {
       return NextResponse.json({ error: 'Encuesta no encontrada' }, { status: 404 });
@@ -31,10 +33,11 @@ export async function GET(req: NextRequest, { params }: Params) {
 
 export async function PATCH(req: NextRequest, { params }: Params) {
   try {
-    const { id } = await params;
-    const auth = await requireAuth(req);
-
-    const survey = await prisma.survey.findUnique({ where: { id } });
+    const [auth, body, survey] = await Promise.all([
+      requireAuth(req),
+      req.json() as Promise<unknown>,
+      params.then(({ id }) => prisma.survey.findUnique({ where: { id } })),
+    ]);
     if (!survey) {
       return NextResponse.json({ error: 'Encuesta no encontrada' }, { status: 404 });
     }
@@ -42,7 +45,6 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     const { role } = await requireBusinessAccess(auth.appUserId, survey.businessId);
     await requireEndpointPermission(role, 'PATCH', '/api/surveys/:id');
 
-    const body: unknown = await req.json();
     const parsed = UpdateSurveySchema.safeParse(body);
 
     if (!parsed.success) {
@@ -50,7 +52,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     }
 
     const updated = await prisma.survey.update({
-      where: { id },
+      where: { id: survey.id },
       data: parsed.data,
     });
 
@@ -63,10 +65,10 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
 export async function DELETE(req: NextRequest, { params }: Params) {
   try {
-    const { id } = await params;
-    const auth = await requireAuth(req);
-
-    const survey = await prisma.survey.findUnique({ where: { id } });
+    const [auth, survey] = await Promise.all([
+      requireAuth(req),
+      params.then(({ id }) => prisma.survey.findUnique({ where: { id } })),
+    ]);
     if (!survey) {
       return NextResponse.json({ error: 'Encuesta no encontrada' }, { status: 404 });
     }
@@ -74,7 +76,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     const { role } = await requireBusinessAccess(auth.appUserId, survey.businessId);
     await requireEndpointPermission(role, 'DELETE', '/api/surveys/:id');
 
-    await prisma.survey.delete({ where: { id } });
+    await prisma.survey.delete({ where: { id: survey.id } });
 
     return new NextResponse(null, { status: 204 });
   } catch (err: unknown) {

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { redirect, useRouter } from 'next/navigation';
 import { useSession } from '@/features/auth/hooks/useSession';
 import { getAccessToken, getRefreshToken, saveSession } from '@/features/auth/lib/session';
 import { registerBusiness, refresh } from '@/features/auth/lib/auth-client';
@@ -59,21 +59,15 @@ function slugify(name: string): string {
 }
 
 export default function OnboardingPage() {
-  const router = useRouter();
+  const { replace } = useRouter();
   const { status, session } = useSession();
   const [businessName, setBusinessName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [navigating, setNavigating] = useState(false);
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.replace('/login');
-    }
-    if (status === 'authenticated' && session?.isOnboarded) {
-      router.replace('/dashboard');
-    }
-  }, [status, session, router]);
+  if (status === 'unauthenticated') redirect('/login');
+  if (status === 'authenticated' && session?.isOnboarded) redirect('/dashboard');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -99,17 +93,17 @@ export default function OnboardingPage() {
         token
       );
 
-      const refreshToken = getRefreshToken();
-      if (refreshToken) {
-        try {
-          const renewed = await refresh(refreshToken);
-          saveSession(renewed.accessToken, renewed.refreshToken);
-        } catch {
-        }
+        const refreshToken = getRefreshToken();
+        if (refreshToken) {
+          try {
+            const renewed = await refresh(refreshToken);
+            saveSession(renewed.accessToken, renewed.refreshToken, renewed.profile);
+          } catch {
+          }
       }
 
       setNavigating(true);
-      router.replace('/dashboard');
+      replace('/dashboard');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al crear el negocio');
       setLoading(false);

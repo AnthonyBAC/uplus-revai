@@ -61,27 +61,28 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      const branch = await tx.branches.create({
-        data: {
-          id: crypto.randomUUID(),
-          business_id: business.id,
-          name: 'Principal',
-          slug: 'principal',
-          updated_at: new Date(),
-        },
-      });
-
-      const membership = await tx.business_memberships.create({
-        data: {
-          id: crypto.randomUUID(),
-          user_id: user.id,
-          business_id: business.id,
-          role_id: role.id,
-          is_owner: true,
-          has_full_branch_access: true,
-          updated_at: new Date(),
-        },
-      });
+      const [branch, membership] = await Promise.all([
+        tx.branches.create({
+          data: {
+            id: crypto.randomUUID(),
+            business_id: business.id,
+            name: 'Principal',
+            slug: 'principal',
+            updated_at: new Date(),
+          },
+        }),
+        tx.business_memberships.create({
+          data: {
+            id: crypto.randomUUID(),
+            user_id: user.id,
+            business_id: business.id,
+            role_id: role.id,
+            is_owner: true,
+            has_full_branch_access: true,
+            updated_at: new Date(),
+          },
+        }),
+      ]);
 
       await tx.user_branch_accesses.create({
         data: {

@@ -7,8 +7,7 @@ type Params = { params: Promise<{ id: string }> };
 
 export async function GET(req: NextRequest, { params }: Params) {
   try {
-    const { id } = await params;
-    const auth = await requireAuth(req);
+    const [{ id }, auth] = await Promise.all([params, requireAuth(req)]);
 
     const survey = await prisma.survey.findUnique({ where: { id } });
     if (!survey) {
@@ -32,8 +31,11 @@ export async function GET(req: NextRequest, { params }: Params) {
 
 export async function POST(req: NextRequest, { params }: Params) {
   try {
-    const { id } = await params;
-    const auth = await requireAuth(req);
+    const [{ id }, auth, body] = await Promise.all([
+      params,
+      requireAuth(req),
+      req.json() as Promise<unknown>,
+    ]);
 
     const survey = await prisma.survey.findUnique({ where: { id } });
     if (!survey) {
@@ -43,7 +45,6 @@ export async function POST(req: NextRequest, { params }: Params) {
     const { role } = await requireBusinessAccess(auth.appUserId, survey.businessId);
     await requireEndpointPermission(role, 'POST', '/api/surveys/:id/questions');
 
-    const body: unknown = await req.json();
     const parsed = CreateQuestionSchema.safeParse(body);
 
     if (!parsed.success) {

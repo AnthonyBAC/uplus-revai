@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 // ---------- Enums ----------
 
-export const QuestionTypeSchema = z.enum([
+const QuestionTypeSchema = z.enum([
   'TEXT',
   'RATING',
   'SINGLE_CHOICE',
@@ -49,7 +49,6 @@ export const CreateSurveyResponseSchema = z.object({
 // ---------- Types ----------
 
 export type CreateSurveyInput = z.infer<typeof CreateSurveySchema>;
-export type UpdateSurveyInput = z.infer<typeof UpdateSurveySchema>;
 export type CreateSurveyResponseInput = z.infer<typeof CreateSurveyResponseSchema>;
 
 // ---------- Questions ----------
@@ -66,5 +65,3 @@ export const UpdateQuestionSchema = z.object({
   order: z.number().int().min(1).optional(),
 });
 
-export type CreateQuestionInput = z.infer<typeof CreateQuestionSchema>;
-export type UpdateQuestionInput = z.infer<typeof UpdateQuestionSchema>;

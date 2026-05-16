@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useReducer } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { login } from "@/features/auth/lib/auth-client";
@@ -43,26 +43,19 @@ function RightPanel() {
 }
 
 export default function LoginForm() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [navigating, setNavigating] = useState(false);
+  const { replace } = useRouter();
+  const [state, dispatch] = useReducer(loginReducer, LOGIN_INITIAL_STATE);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+    dispatch({ type: 'submit' });
     try {
-      const session = await login(email, password);
-      saveSession(session.accessToken, session.refreshToken);
-      setNavigating(true);
-      router.replace(session.user.isOnboarded ? "/dashboard" : "/onboarding");
+      const session = await login(state.email, state.password);
+      saveSession(session.accessToken, session.refreshToken, session.profile);
+      dispatch({ type: 'navigating' });
+      replace(session.profile.isOnboarded ? "/dashboard" : "/onboarding");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Error al iniciar sesión");
-      setLoading(false);
+      dispatch({ type: 'error', error: err instanceof Error ? err.message : "Error al iniciar sesión" });
     }
   }
 
@@ -89,10 +82,10 @@ export default function LoginForm() {
             id="email"
             type="email"
             placeholder="tu@correo.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={state.email}
+            onChange={(e) => dispatch({ type: 'field', field: 'email', value: e.target.value })}
             required
-            disabled={loading || navigating}
+            disabled={state.loading || state.navigating}
           />
         </div>
 
@@ -106,28 +99,28 @@ export default function LoginForm() {
           <div className={s.passwordWrapper}>
             <input
               id="password"
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={loading || navigating}
-            />
+                type={state.showPassword ? "text" : "password"}
+                value={state.password}
+                onChange={(e) => dispatch({ type: 'field', field: 'password', value: e.target.value })}
+                required
+                disabled={state.loading || state.navigating}
+              />
             <button
               type="button"
               className={s.showBtn}
-              onClick={() => setShowPassword((v) => !v)}
-            >
-              {showPassword ? "OCULTAR" : "VER"}
-            </button>
+                onClick={() => dispatch({ type: 'togglePassword' })}
+              >
+                {state.showPassword ? "OCULTAR" : "VER"}
+              </button>
+            </div>
           </div>
-        </div>
 
-        {error && <p className={s.error}>{error}</p>}
+          {state.error && <p className={s.error}>{state.error}</p>}
 
-        <button type="submit" className={s.submitBtn} disabled={loading || navigating}>
-          {loading || navigating ? "Entrando..." : "Entrar al panel →"}
-        </button>
-      </form>
+          <button type="submit" className={s.submitBtn} disabled={state.loading || state.navigating}>
+            {state.loading || state.navigating ? "Entrando..." : "Entrar al panel →"}
+          </button>
+        </form>
 
       <p className={s.switchLinkMobile}>
         ¿Aún no tienes cuenta?{" "}
@@ -135,4 +128,46 @@ export default function LoginForm() {
       </p>
     </AuthLayout>
   );
+}
+
+type LoginState = {
+  email: string;
+  password: string;
+  showPassword: boolean;
+  error: string;
+  loading: boolean;
+  navigating: boolean;
+};
+
+type LoginAction =
+  | { type: 'field'; field: 'email' | 'password'; value: string }
+  | { type: 'togglePassword' }
+  | { type: 'submit' }
+  | { type: 'navigating' }
+  | { type: 'error'; error: string };
+
+const LOGIN_INITIAL_STATE: LoginState = {
+  email: '',
+  password: '',
+  showPassword: false,
+  error: '',
+  loading: false,
+  navigating: false,
+};
+
+function loginReducer(state: LoginState, action: LoginAction): LoginState {
+  switch (action.type) {
+    case 'field':
+      return { ...state, [action.field]: action.value };
+    case 'togglePassword':
+      return { ...state, showPassword: !state.showPassword };
+    case 'submit':
+      return { ...state, error: '', loading: true };
+    case 'navigating':
+      return { ...state, navigating: true };
+    case 'error':
+      return { ...state, error: action.error, loading: false };
+    default:
+      return state;
+  }
 }

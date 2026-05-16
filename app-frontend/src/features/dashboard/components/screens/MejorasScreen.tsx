@@ -16,9 +16,11 @@ interface MejorasScreenProps {
   actions: Action[];
   onUpdate: (id: string, patch: Partial<Action>) => void;
   totalReviews: number;
+  loading: boolean;
+  error: string | null;
 }
 
-export default function MejorasScreen({ actions, onUpdate, totalReviews }: MejorasScreenProps) {
+export default function MejorasScreen({ actions, onUpdate, totalReviews, loading, error }: MejorasScreenProps) {
   const [filter, setFilter] = useState<'todas' | 'sugerida' | 'en-curso' | 'completada'>('todas');
   const [openAction, setOpenAction] = useState<Action | null>(null);
 
@@ -37,6 +39,21 @@ export default function MejorasScreen({ actions, onUpdate, totalReviews }: Mejor
     ['en-curso', 'En curso'],
     ['completada', 'Completadas'],
   ] as const;
+
+  if (loading) {
+    return <div style={{ color: 'var(--ink-mute)', padding: 40, textAlign: 'center' }}>Cargando…</div>;
+  }
+
+  if (error) {
+    return (
+      <>
+        <SectionHead title="Tus mejoras" />
+        <Card style={{ textAlign: 'center', color: 'var(--ink-mute)', padding: 40, fontSize: 14 }}>
+          {error}
+        </Card>
+      </>
+    );
+  }
 
   if (actions.length === 0) {
     return (

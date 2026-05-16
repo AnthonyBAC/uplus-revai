@@ -29,9 +29,10 @@ export async function GET() {
         method: endpoint.method,
         path: endpoint.path,
         description: endpoint.description,
-        allowedRoles: endpoint.role_endpoint_permissions
-          .filter((permission: { allowed: boolean }) => permission.allowed)
-          .map((permission: { roles: { name: string } }) => permission.roles.name),
+        allowedRoles: endpoint.role_endpoint_permissions.reduce<string[]>((roles, permission) => {
+          if (permission.allowed) roles.push(permission.roles.name);
+          return roles;
+        }, []),
       }))
     );
   } catch (err: unknown) {

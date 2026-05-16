@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { CSSProperties } from "react";
 import styles from "./BrandLogo.module.css";
 
@@ -12,11 +13,14 @@ export default function BrandLogo({ className, variant = "default", style }: Bra
   const classes = [styles.logo, className].filter(Boolean).join(" ");
 
   return (
-    <img
+    <Image
       src={src}
       alt="U+ Revai"
       className={classes}
       style={style}
+      width={160}
+      height={44}
+      priority
     />
   );
 }

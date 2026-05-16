@@ -21,7 +21,9 @@ interface SidebarProps {
   counts?: Partial<Record<string, number>>;
 }
 
-export default function Sidebar({ session, counts = {} }: SidebarProps) {
+const EMPTY_COUNTS: Partial<Record<string, number>> = {};
+
+export default function Sidebar({ session, counts = EMPTY_COUNTS }: SidebarProps) {
   const pathname = usePathname();
   const { activeMembership } = useBusiness();
 

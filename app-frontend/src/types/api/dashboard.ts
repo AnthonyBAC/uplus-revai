@@ -10,7 +10,7 @@ export interface DashboardReview {
   publishedAt: string;
 }
 
-export interface DashboardReport {
+interface DashboardReport {
   id: string;
   businessId: string;
   title: string;
@@ -20,7 +20,7 @@ export interface DashboardReport {
   createdAt: string;
 }
 
-export interface DashboardSurvey {
+interface DashboardSurvey {
   id: string;
   businessId: string;
   title: string;
@@ -38,4 +38,42 @@ export interface DashboardResponse {
     surveys: DashboardSurvey[];
     reports: DashboardReport[];
   };
+}
+
+interface InsightsTheme {
+  name: string;
+  sentiment: 'positivo' | 'negativo' | 'neutro';
+  mentions: number;
+  trend: number;
+}
+
+export interface InsightsResponse {
+  businessId: string;
+  branchId?: string;
+  ratingTrend: number[];
+  volumeTrend: number[];
+  themes: InsightsTheme[];
+}
+
+type ImprovementActionStatus = 'sugerida' | 'en-curso' | 'completada' | 'descartada';
+type ImprovementActionImpact = 'alto' | 'medio' | 'bajo';
+
+export interface ImprovementAction {
+  id: string;
+  title: string;
+  why: string;
+  impact: ImprovementActionImpact;
+  steps: number;
+  eta: string;
+  status: ImprovementActionStatus;
+  progress: number;
+  tag: string;
+  detail: string[];
+}
+
+export interface ImprovementsResponse {
+  businessId: string;
+  branchId?: string;
+  totalReviews: number;
+  actions: ImprovementAction[];
 }

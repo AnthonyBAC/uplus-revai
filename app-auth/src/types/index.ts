@@ -41,14 +41,6 @@ export interface RefreshInput {
   refreshToken: string;
 }
 
-export interface AuthSessionData {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: number | null;
-  expiresIn: number | null;
-  tokenType: string;
-}
-
 export interface SessionResponse {
   authenticated: boolean;
   isOnboarded: boolean;
@@ -61,7 +53,13 @@ export interface SessionResponse {
 
 export interface AuthResponsePayload {
   user: SessionResponse;
-  session: AuthSessionData | null;
+  session: {
+    accessToken: string;
+    refreshToken: string;
+    expiresAt: number | null;
+    expiresIn: number | null;
+    tokenType: string;
+  } | null;
   requiresEmailConfirmation: boolean;
 }
 

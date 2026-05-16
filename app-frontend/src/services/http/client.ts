@@ -5,7 +5,14 @@ import { refresh } from '@/features/auth/lib/auth-client';
 
 type ApiFetchOptions = RequestInit & { skipRedirect?: boolean };
 
-async function apiFetch<T>(path: string, init: ApiFetchOptions = {}): Promise<T> {
+const inflightGetRequests = new Map<string, Promise<unknown>>();
+
+function buildRequestKey(path: string, init: RequestInit): string | null {
+  const method = (init.method ?? 'GET').toUpperCase();
+  return method === 'GET' ? `${method}:${path}` : null;
+}
+
+async function executeApiFetch<T>(path: string, init: ApiFetchOptions = {}): Promise<T> {
   const { skipRedirect, ...fetchInit } = init;
 
   const token = getAccessToken();
@@ -22,7 +29,7 @@ async function apiFetch<T>(path: string, init: ApiFetchOptions = {}): Promise<T>
     if (refreshToken) {
       try {
         const renewed = await refresh(refreshToken);
-        saveSession(renewed.accessToken, renewed.refreshToken);
+        saveSession(renewed.accessToken, renewed.refreshToken, renewed.profile);
         const retryHeaders = { ...headers, Authorization: `Bearer ${renewed.accessToken}` };
         const retry = await fetch(`/api${path}`, { ...fetchInit, headers: retryHeaders });
         if (!retry.ok) throw new Error('Unauthorized');
@@ -44,6 +51,26 @@ async function apiFetch<T>(path: string, init: ApiFetchOptions = {}): Promise<T>
   }
 
   return res.json() as Promise<T>;
+}
+
+async function apiFetch<T>(path: string, init: ApiFetchOptions = {}): Promise<T> {
+  const requestKey = buildRequestKey(path, init);
+
+  if (requestKey) {
+    const existing = inflightGetRequests.get(requestKey);
+    if (existing) return existing as Promise<T>;
+  }
+
+  const request = executeApiFetch<T>(path, init);
+
+  if (!requestKey) return request;
+
+  inflightGetRequests.set(requestKey, request as Promise<unknown>);
+  try {
+    return await request;
+  } finally {
+    inflightGetRequests.delete(requestKey);
+  }
 }
 
 export default apiFetch;

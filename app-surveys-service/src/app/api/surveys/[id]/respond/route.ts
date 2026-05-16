@@ -8,8 +8,11 @@ type Params = { params: Promise<{ id: string }> };
 
 export async function POST(req: NextRequest, { params }: Params) {
   try {
-    const { id } = await params;
-    const auth = await requireAuth(req);
+    const [{ id }, auth, body] = await Promise.all([
+      params,
+      requireAuth(req),
+      req.json() as Promise<unknown>,
+    ]);
 
     const survey = await prisma.survey.findUnique({
       where: { id },
@@ -24,7 +27,6 @@ export async function POST(req: NextRequest, { params }: Params) {
       return NextResponse.json({ error: 'Esta encuesta no está activa' }, { status: 409 });
     }
 
-    const body: unknown = await req.json();
     const parsed = CreateSurveyResponseSchema.safeParse(body);
 
     if (!parsed.success) {

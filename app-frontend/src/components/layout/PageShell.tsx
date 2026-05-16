@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { LazyMotion, domAnimation, m, useReducedMotion } from "motion/react";
 import styles from "./PageShell.module.css";
 
 type PageShellProps = {
@@ -30,25 +30,27 @@ export default function PageShell({
       };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.clipHost}>
-        <motion.div transition={{ duration: 0.45, ease: "easeOut" }} {...animation}>
-          {header}
-        </motion.div>
-        <motion.main
-          className={mainClasses}
-          transition={{ duration: 0.55, delay: 0.08, ease: "easeOut" }}
-          {...animation}
-        >
-          {children}
-        </motion.main>
-        <motion.div
-          transition={{ duration: 0.45, delay: 0.16, ease: "easeOut" }}
-          {...animation}
-        >
-          {footer}
-        </motion.div>
+    <LazyMotion features={domAnimation}>
+      <div className={styles.page}>
+        <div className={styles.clipHost}>
+          <m.div transition={{ duration: 0.45, ease: "easeOut" }} {...animation}>
+            {header}
+          </m.div>
+          <m.main
+            className={mainClasses}
+            transition={{ duration: 0.55, delay: 0.08, ease: "easeOut" }}
+            {...animation}
+          >
+            {children}
+          </m.main>
+          <m.div
+            transition={{ duration: 0.45, delay: 0.16, ease: "easeOut" }}
+            {...animation}
+          >
+            {footer}
+          </m.div>
+        </div>
       </div>
-    </div>
+    </LazyMotion>
   );
 }

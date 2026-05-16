@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { LazyMotion, domAnimation, m, useReducedMotion } from "motion/react";
 import BrandLogo from "@/components/layout/BrandLogo";
 import styles from "./AuthLayout.module.css";
 
@@ -26,7 +26,7 @@ export default function AuthLayout({ topLinkText, topLinkCta, topLinkHref, right
           transition: { duration: 0.45, delay, ease: "easeOut" as const },
         };
 
-  const revealRight = prefersReducedMotion
+const revealRight = prefersReducedMotion
     ? {}
     : {
         initial: { opacity: 0 },
@@ -35,37 +35,39 @@ export default function AuthLayout({ topLinkText, topLinkCta, topLinkHref, right
       };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.split}>
-        <div className={styles.formSide}>
-          <motion.div className={styles.formHeader} {...reveal(0)}>
-            <Link href="/" className={styles.brandLink}>
-              <BrandLogo variant="default" />
-            </Link>
-            <p className={styles.topLink}>
-              {topLinkText}{" "}
-              <Link href={topLinkHref}>{topLinkCta}</Link>
-            </p>
-          </motion.div>
+    <LazyMotion features={domAnimation}>
+      <div className={styles.page}>
+        <div className={styles.split}>
+          <div className={styles.formSide}>
+            <m.div className={styles.formHeader} {...reveal(0)}>
+              <Link href="/" className={styles.brandLink}>
+                <BrandLogo variant="default" />
+              </Link>
+              <p className={styles.topLink}>
+                {topLinkText}{" "}
+                <Link href={topLinkHref}>{topLinkCta}</Link>
+              </p>
+            </m.div>
 
-          <motion.div className={styles.formContent} {...reveal(0.1)}>
-            <div className={styles.formInner}>{children}</div>
-          </motion.div>
+            <m.div className={styles.formContent} {...reveal(0.1)}>
+              <div className={styles.formInner}>{children}</div>
+            </m.div>
 
-          <motion.div className={styles.formFooter} {...reveal(0.2)}>
-            <span>© 2026 U+ Revai</span>
-            <div className={styles.footerLinks}>
-              <a href="#">Privacidad</a>
-              <a href="#">Términos</a>
-              <a href="#">Soporte</a>
-            </div>
-          </motion.div>
+            <m.div className={styles.formFooter} {...reveal(0.2)}>
+              <span>© 2026 U+ Revai</span>
+              <div className={styles.footerLinks}>
+                <Link href="/privacidad">Privacidad</Link>
+                <Link href="/terminos">Términos</Link>
+                <Link href="/soporte">Soporte</Link>
+              </div>
+            </m.div>
+          </div>
+
+          <m.div className={styles.rightSide} {...revealRight}>
+            <div className={styles.rightContent}>{rightPanel}</div>
+          </m.div>
         </div>
-
-        <motion.div className={styles.rightSide} {...revealRight}>
-          <div className={styles.rightContent}>{rightPanel}</div>
-        </motion.div>
       </div>
-    </div>
+    </LazyMotion>
   );
 }

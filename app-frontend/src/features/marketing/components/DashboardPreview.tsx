@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { LazyMotion, domAnimation, m, useReducedMotion } from "motion/react";
 import {
   BarChart3,
   Eye,
@@ -15,13 +15,14 @@ export default function DashboardPreview() {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <motion.div
-      className={styles.dashboardPreview}
-      initial={prefersReducedMotion ? false : { opacity: 0, x: 24, scale: 0.985 }}
-      animate={{ opacity: 1, x: 0, scale: 1 }}
-      transition={{ duration: 0.6, delay: 0.18, ease: "easeOut" }}
-    >
-      <div className={styles.dashboardCard}>
+    <LazyMotion features={domAnimation}>
+      <m.div
+        className={styles.dashboardPreview}
+        initial={prefersReducedMotion ? false : { opacity: 0, x: 24, scale: 0.985 }}
+        animate={{ opacity: 1, x: 0, scale: 1 }}
+        transition={{ duration: 0.6, delay: 0.18, ease: "easeOut" }}
+      >
+        <div className={styles.dashboardCard}>
         <div className={styles.dashboardToolbar}>
           <div className={styles.toolbarDots}>
             <span className={`${styles.toolbarDot} ${styles.toolbarDotRed}`} />
@@ -157,7 +158,8 @@ export default function DashboardPreview() {
             </div>
           </main>
         </div>
-      </div>
-    </motion.div>
+        </div>
+      </m.div>
+    </LazyMotion>
   );
 }

@@ -6,10 +6,10 @@ type Params = { params: Promise<{ id: string }> };
 
 export async function GET(req: NextRequest, { params }: Params) {
   try {
-    const { id } = await params;
-    const auth = await requireAuth(req);
-
-    const review = await prisma.review.findUnique({ where: { id } });
+    const [auth, review] = await Promise.all([
+      requireAuth(req),
+      params.then(({ id: reviewId }) => prisma.review.findUnique({ where: { id: reviewId } })),
+    ]);
     if (!review) {
       return NextResponse.json({ error: 'Reseña no encontrada' }, { status: 404 });
     }
@@ -26,10 +26,10 @@ export async function GET(req: NextRequest, { params }: Params) {
 
 export async function DELETE(req: NextRequest, { params }: Params) {
   try {
-    const { id } = await params;
-    const auth = await requireAuth(req);
-
-    const review = await prisma.review.findUnique({ where: { id } });
+    const [auth, review] = await Promise.all([
+      requireAuth(req),
+      params.then(({ id: reviewId }) => prisma.review.findUnique({ where: { id: reviewId } })),
+    ]);
     if (!review) {
       return NextResponse.json({ error: 'Reseña no encontrada' }, { status: 404 });
     }
@@ -37,7 +37,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     const { role } = await requireBusinessAccess(auth.appUserId, review.businessId);
     await requireEndpointPermission(role, 'DELETE', '/api/reviews/:id');
 
-    await prisma.review.delete({ where: { id } });
+    await prisma.review.delete({ where: { id: review.id } });
 
     return new NextResponse(null, { status: 204 });
   } catch (err: unknown) {

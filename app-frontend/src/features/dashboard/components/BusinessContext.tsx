@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, use, useState, type ReactNode } from 'react';
 import type { MembershipInfo } from '@/types/api/session';
 
 interface BusinessContextValue {
@@ -33,13 +33,8 @@ export function BusinessProvider({
     return valid ? stored : (memberships[0]?.businessId ?? null);
   });
 
-  useEffect(() => {
-    if (activeBusinessId) {
-      localStorage.setItem(STORAGE_KEY, activeBusinessId);
-    }
-  }, [activeBusinessId]);
-
   const setActiveBusinessId = (id: string) => {
+    localStorage.setItem(STORAGE_KEY, id);
     setActiveBusinessIdState(id);
   };
 
@@ -53,5 +48,5 @@ export function BusinessProvider({
 }
 
 export function useBusiness() {
-  return useContext(BusinessContext);
+  return use(BusinessContext);
 }

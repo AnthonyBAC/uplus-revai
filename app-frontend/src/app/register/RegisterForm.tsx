@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useReducer } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signup } from "@/features/auth/lib/auth-client";
@@ -65,25 +65,19 @@ function RightPanel() {
 }
 
 export default function RegisterForm() {
-  const router = useRouter();
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { push } = useRouter();
+  const [state, dispatch] = useReducer(registerReducer, REGISTER_INITIAL_STATE);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+    dispatch({ type: 'submit' });
     try {
-      await signup(email, password, fullName);
-      router.push("/login");
+      await signup(state.email, state.password, state.fullName);
+      push("/login");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Error al crear la cuenta");
+      dispatch({ type: 'error', error: err instanceof Error ? err.message : "Error al crear la cuenta" });
     } finally {
-      setLoading(false);
+      dispatch({ type: 'idle' });
     }
   }
 
@@ -115,10 +109,10 @@ export default function RegisterForm() {
             id="fullName"
             type="text"
             placeholder="John Doe"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            value={state.fullName}
+            onChange={(e) => dispatch({ type: 'field', field: 'fullName', value: e.target.value })}
             required
-            disabled={loading}
+            disabled={state.loading}
           />
         </div>
 
@@ -128,10 +122,10 @@ export default function RegisterForm() {
             id="email"
             type="email"
             placeholder="tu@negocio.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={state.email}
+            onChange={(e) => dispatch({ type: 'field', field: 'email', value: e.target.value })}
             required
-            disabled={loading}
+            disabled={state.loading}
           />
         </div>
 
@@ -140,30 +134,30 @@ export default function RegisterForm() {
           <div className={s.passwordWrapper}>
             <input
               id="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="mín. 8 caracteres"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={8}
-              disabled={loading}
-            />
+                type={state.showPassword ? "text" : "password"}
+                placeholder="mín. 8 caracteres"
+                value={state.password}
+                onChange={(e) => dispatch({ type: 'field', field: 'password', value: e.target.value })}
+                required
+                minLength={8}
+                disabled={state.loading}
+              />
             <button
               type="button"
               className={s.showBtn}
-              onClick={() => setShowPassword((v) => !v)}
-            >
-              {showPassword ? "OCULTAR" : "VER"}
-            </button>
+                onClick={() => dispatch({ type: 'togglePassword' })}
+              >
+                {state.showPassword ? "OCULTAR" : "VER"}
+              </button>
+            </div>
           </div>
-        </div>
 
-        {error && <p className={s.error}>{error}</p>}
+          {state.error && <p className={s.error}>{state.error}</p>}
 
-        <button type="submit" className={s.submitBtn} disabled={loading}>
-          {loading ? "Creando cuenta..." : "Crear cuenta gratis →"}
-        </button>
-      </form>
+          <button type="submit" className={s.submitBtn} disabled={state.loading}>
+            {state.loading ? "Creando cuenta..." : "Crear cuenta gratis →"}
+          </button>
+        </form>
 
       <p className={s.switchLinkMobile}>
         ¿Ya tienes cuenta?{" "}
@@ -171,4 +165,46 @@ export default function RegisterForm() {
       </p>
     </AuthLayout>
   );
+}
+
+type RegisterState = {
+  fullName: string;
+  email: string;
+  password: string;
+  showPassword: boolean;
+  error: string;
+  loading: boolean;
+};
+
+type RegisterAction =
+  | { type: 'field'; field: 'fullName' | 'email' | 'password'; value: string }
+  | { type: 'togglePassword' }
+  | { type: 'submit' }
+  | { type: 'idle' }
+  | { type: 'error'; error: string };
+
+const REGISTER_INITIAL_STATE: RegisterState = {
+  fullName: '',
+  email: '',
+  password: '',
+  showPassword: false,
+  error: '',
+  loading: false,
+};
+
+function registerReducer(state: RegisterState, action: RegisterAction): RegisterState {
+  switch (action.type) {
+    case 'field':
+      return { ...state, [action.field]: action.value };
+    case 'togglePassword':
+      return { ...state, showPassword: !state.showPassword };
+    case 'submit':
+      return { ...state, error: '', loading: true };
+    case 'idle':
+      return { ...state, loading: false };
+    case 'error':
+      return { ...state, error: action.error, loading: false };
+    default:
+      return state;
+  }
 }

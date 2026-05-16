@@ -1,26 +1,17 @@
+import type { SessionResponse } from '@/types/api/session';
+
 // ---------- Tipos ----------
 
 export interface AuthSession {
   accessToken: string;
   refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    fullName: string | null;
-    isOnboarded: boolean;
-  };
+  profile: SessionResponse;
 }
 
 // ---------- Mapper interno ----------
 
 interface AuthResponsePayload {
-  user: {
-    supabaseUserId: string;
-    appUserId: string | null;
-    email: string;
-    fullName: string | null;
-    isOnboarded: boolean;
-  };
+  user: SessionResponse;
   session: {
     accessToken: string;
     refreshToken: string;
@@ -35,12 +26,7 @@ function toAuthSession(data: AuthResponsePayload): AuthSession {
   return {
     accessToken: data.session?.accessToken ?? '',
     refreshToken: data.session?.refreshToken ?? '',
-    user: {
-      id: data.user.supabaseUserId,
-      email: data.user.email,
-      fullName: data.user.fullName,
-      isOnboarded: data.user.isOnboarded,
-    },
+    profile: data.user,
   };
 }
 
@@ -94,13 +80,6 @@ export async function signup(email: string, password: string, fullName: string):
 
 export async function logout(accessToken: string): Promise<void> {
   await authRequest<void>('/logout', { method: 'POST', token: accessToken });
-}
-
-// ---------- Session ----------
-
-export async function getSession(accessToken: string): Promise<AuthSession> {
-  const data = await authRequest<AuthResponsePayload>('/session', { token: accessToken });
-  return toAuthSession(data);
 }
 
 // ---------- Register Business ----------

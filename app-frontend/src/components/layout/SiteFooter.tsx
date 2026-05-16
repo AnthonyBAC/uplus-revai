@@ -1,3 +1,4 @@
+import Link from "next/link";
 import styles from "./SiteFooter.module.css";
 
 export default function SiteFooter() {
@@ -6,9 +7,9 @@ export default function SiteFooter() {
       <div className={styles.inner}>
         <span className={styles.copy}>© 2026 U+ Revai</span>
         <div className={styles.links}>
-          <a href="#">Privacidad</a>
-          <a href="#">Términos</a>
-          <a href="#">Contacto</a>
+          <Link href="/privacidad">Privacidad</Link>
+          <Link href="/terminos">Términos</Link>
+          <Link href="/contacto">Contacto</Link>
         </div>
       </div>
     </footer>

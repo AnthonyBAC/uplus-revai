@@ -23,7 +23,7 @@ interface TopbarProps {
 
 export default function Topbar({ noReply = 0, highActions = 0 }: TopbarProps) {
   const pathname = usePathname();
-  const router = useRouter();
+  const { push, replace } = useRouter();
   const { memberships, activeBusinessId, activeMembership, setActiveBusinessId } = useBusiness();
   const [openNotif, setOpenNotif] = useState(false);
   const [period, setPeriod] = useState('7d');
@@ -45,7 +45,7 @@ export default function Topbar({ noReply = 0, highActions = 0 }: TopbarProps) {
     const token = getAccessToken();
     if (token) await logout(token).catch(() => {});
     clearSession();
-    router.replace('/login');
+    replace('/login');
   };
 
   return (
@@ -96,7 +96,7 @@ export default function Topbar({ noReply = 0, highActions = 0 }: TopbarProps) {
             <div className={s.dropdown}>
               <div className={s.dropdownHead}>Notificaciones</div>
               {noReply > 0 && (
-                <button className={s.notifItem} onClick={() => { router.push('/dashboard/resenas'); setOpenNotif(false); }}>
+                <button className={s.notifItem} onClick={() => { push('/dashboard/resenas'); setOpenNotif(false); }}>
                   <span className={s.notifDot} style={{ background: 'var(--accent)' }} />
                   <div>
                     <div className={s.notifTitle}>{noReply} reseñas sin responder</div>
@@ -105,7 +105,7 @@ export default function Topbar({ noReply = 0, highActions = 0 }: TopbarProps) {
                 </button>
               )}
               {highActions > 0 && (
-                <button className={s.notifItem} onClick={() => { router.push('/dashboard/mejoras'); setOpenNotif(false); }}>
+                <button className={s.notifItem} onClick={() => { push('/dashboard/mejoras'); setOpenNotif(false); }}>
                   <span className={s.notifDot} style={{ background: 'var(--warn)' }} />
                   <div>
                     <div className={s.notifTitle}>{highActions} acciones de alto impacto sugeridas</div>

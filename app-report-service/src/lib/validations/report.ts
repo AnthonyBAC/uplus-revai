@@ -20,13 +20,6 @@ export const CreateReportSchema = z.object({
   periodEnd: z.iso.datetime(),
 });
 
-// PATCH /api/reports/:id
-export const UpdateReportSchema = z.object({
-  status: ReportStatusSchema.optional(),
-  content: z.record(z.string(), z.unknown()).optional(),
-  generatedAt: z.iso.datetime().optional(),
-});
-
 // GET /api/analysis
 export const ListAnalysisQuerySchema = z.object({
   businessId: z.string().uuid(),

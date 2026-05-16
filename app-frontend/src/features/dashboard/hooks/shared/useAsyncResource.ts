@@ -46,6 +46,7 @@ export interface UseAsyncResourceResult<T> {
 
 export function useAsyncResource<T>(options: UseAsyncResourceOptions<T>): UseAsyncResourceResult<T> {
   const { enabled, deps, fetcher, cacheKey } = options;
+  const depsKey = deps.map((value) => String(value ?? '')).join('|');
 
   const [state, dispatch] = useReducer(reducer<T>, {
     data: null,
@@ -82,7 +83,7 @@ export function useAsyncResource<T>(options: UseAsyncResourceOptions<T>): UseAsy
     return () => {
       cancelled = true;
     };
-  }, [enabled, state.tick, cacheKey, ...deps]);
+  }, [enabled, state.tick, cacheKey, fetcher, depsKey]);
 
   return {
     data: state.data,

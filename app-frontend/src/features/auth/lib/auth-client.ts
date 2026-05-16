@@ -11,13 +11,7 @@ export interface AuthSession {
 // ---------- Mapper interno ----------
 
 interface AuthResponsePayload {
-  user: {
-    supabaseUserId: string;
-    appUserId: string | null;
-    email: string;
-    fullName: string | null;
-    isOnboarded: boolean;
-  };
+  user: SessionResponse;
   session: {
     accessToken: string;
     refreshToken: string;

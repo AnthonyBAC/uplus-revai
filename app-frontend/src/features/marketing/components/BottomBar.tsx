@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { LazyMotion, domAnimation, m, useReducedMotion } from "motion/react";
 import styles from "./BottomBar.module.css";
 
 export default function BottomBar() {
@@ -20,15 +20,16 @@ export default function BottomBar() {
         };
 
   return (
-    <motion.section className={styles.section} {...getReveal(0)}>
-      <motion.div className={styles.sectionHeader} {...getReveal(0)}>
-        <span className={styles.sectionLabel}>Cómo funciona</span>
-      </motion.div>
+    <LazyMotion features={domAnimation}>
+      <m.section className={styles.section} {...getReveal(0)}>
+        <m.div className={styles.sectionHeader} {...getReveal(0)}>
+          <span className={styles.sectionLabel}>Cómo funciona</span>
+        </m.div>
 
-      <div className={styles.bottomBar}>
-        <motion.div className={styles.step} {...getReveal(1)}>
-          <div className={styles.stepDigit}>01</div>
-          <div className={styles.stepText}>
+        <div className={styles.bottomBar}>
+          <m.div className={styles.step} {...getReveal(1)}>
+            <div className={styles.stepDigit}>01</div>
+            <div className={styles.stepText}>
             <span className={styles.stepTitle}>Conectas tus reseñas</span>
             <span className={styles.stepSubtitle}>Google Reviews</span>
             <span className={styles.stepDescription}>
@@ -36,9 +37,9 @@ export default function BottomBar() {
               saltar entre plataformas.
             </span>
           </div>
-        </motion.div>
+          </m.div>
 
-        <motion.div className={styles.step} {...getReveal(2)}>
+          <m.div className={styles.step} {...getReveal(2)}>
           <div className={styles.stepDigit}>02</div>
           <div className={styles.stepText}>
             <span className={styles.stepTitle}>La IA encuentra patrones</span>
@@ -48,9 +49,9 @@ export default function BottomBar() {
               la experiencia real de tus clientes.
             </span>
           </div>
-        </motion.div>
+          </m.div>
 
-        <motion.div className={styles.step} {...getReveal(3)}>
+          <m.div className={styles.step} {...getReveal(3)}>
           <div className={styles.stepDigit}>03</div>
           <div className={styles.stepText}>
             <span className={styles.stepTitle}>Plan semanal</span>
@@ -60,8 +61,9 @@ export default function BottomBar() {
               primero lo que más mueve el negocio.
             </span>
           </div>
-        </motion.div>
-      </div>
-    </motion.section>
+          </m.div>
+        </div>
+      </m.section>
+    </LazyMotion>
   );
 }

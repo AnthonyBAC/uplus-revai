@@ -8,8 +8,6 @@ vi.mock('@/lib/auth', () => ({
   getBearerToken: mockGetBearerToken,
   resolveSessionResponseFromToken: mockResolveSession,
   requireAuth: vi.fn(),
-  getSupabaseUserFromToken: vi.fn(),
-  getPlatformUserByEmail: vi.fn(),
 }));
 
 vi.mock('@/lib/supabase', () => ({

@@ -10,8 +10,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireAuth(req);
-    const { id: businessId } = await params;
+    const [auth, { id: businessId }] = await Promise.all([requireAuth(req), params]);
 
     await requirePermission(auth, {
       method: 'GET',

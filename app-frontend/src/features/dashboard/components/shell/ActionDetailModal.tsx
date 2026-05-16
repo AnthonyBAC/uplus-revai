@@ -16,9 +16,16 @@ interface ActionDetailModalProps {
 export default function ActionDetailModal({ action, onClose, onUpdate }: ActionDetailModalProps) {
   if (!action) return null;
 
+  const handleOverlayKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ' || event.key === 'Escape') {
+      event.preventDefault();
+      onClose();
+    }
+  };
+
   return (
-    <div className={s.overlay} onClick={onClose}>
-      <div className={s.panel} onClick={(e) => e.stopPropagation()}>
+    <div className={s.overlay} onClick={onClose} onKeyDown={handleOverlayKeyDown} role="button" tabIndex={0}>
+      <div className={s.panel} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()} role="dialog" aria-modal="true" tabIndex={-1}>
         <div className={s.header}>
           <Badge tone="ink">IA · {action.tag}</Badge>
           <button className={s.closeBtn} onClick={onClose}>
@@ -40,7 +47,7 @@ export default function ActionDetailModal({ action, onClose, onUpdate }: ActionD
 
         <div className={s.stepsLabel}>Pasos sugeridos</div>
         <ol className={s.stepsList}>
-          {action.detail.map((step, i) => <li key={i}>{step}</li>)}
+          {action.detail.map((step) => <li key={step}>{step}</li>)}
         </ol>
 
         <div className={s.footer}>

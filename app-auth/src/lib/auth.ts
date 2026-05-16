@@ -43,7 +43,7 @@ export function getBearerToken(req: NextRequest): string | null {
   return header.slice(7);
 }
 
-export async function getSupabaseUserFromToken(token: string): Promise<User> {
+async function getSupabaseUserFromToken(token: string): Promise<User> {
   const supabase = getSupabaseAnon();
   const { data, error } = await supabase.auth.getUser(token);
 
@@ -54,7 +54,7 @@ export async function getSupabaseUserFromToken(token: string): Promise<User> {
   return data.user;
 }
 
-export async function getPlatformUserByEmail(email: string) {
+async function getPlatformUserByEmail(email: string) {
   if (!email) return null;
 
   return prisma.app_users.findUnique({

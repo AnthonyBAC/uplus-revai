@@ -8,9 +8,11 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string; userId: string }> }
 ) {
   try {
-    const auth = await requireAuth(req);
-    const { id: businessId, userId } = await params;
-    const body: unknown = await req.json();
+    const [auth, { id: businessId, userId }, body] = await Promise.all([
+      requireAuth(req),
+      params,
+      req.json() as Promise<unknown>,
+    ]);
     if (!isRecord(body)) {
       return NextResponse.json({ error: 'Body JSON inválido' }, { status: 400 });
     }
@@ -115,20 +117,12 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; userId: string }> }
 ) {
   try {
-    const auth = await requireAuth(req);
-    const { id: businessId, userId } = await params;
+    const [auth, { id: businessId, userId }] = await Promise.all([requireAuth(req), params]);
 
     await requirePermission(auth, {
       method: 'DELETE',
       path: '/api/businesses/:id/members/:userId',
       businessId,
-    });
-
-    await prisma.user_branch_accesses.deleteMany({
-      where: {
-        user_id: userId,
-        business_id: businessId,
-      },
     });
 
     await prisma.business_memberships.delete({

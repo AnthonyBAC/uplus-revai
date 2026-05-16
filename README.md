@@ -594,8 +594,9 @@ uplus-revai/
 │   ├── vercel.json                ← Vercel sin auto-deploy por Git
 │   └── src/app/api/
 │       ├── dashboard/route.ts
-│       ├── analysis/run/route.ts
-│       └── analysis/results/route.ts
+│       ├── analysis/insights/route.ts
+│       ├── analysis/improvements/route.ts
+│       └── analysis/reviews/route.ts
 │
 ├── app-review-service/            ← reseñas Google (puerto 3003)
 │   ├── package.json

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useReducer, useState } from 'react';
 import SectionHead from '../ui/SectionHead';
 import Card from '../ui/Card';
 import Badge from '../ui/Badge';
@@ -17,12 +17,31 @@ interface LocalScreenProps {
   onToggleIntegration: (id: string) => void;
 }
 
+type DraftState = Partial<Pick<LocalData, 'name' | 'hours' | 'phone'>>;
+
+type DraftAction =
+  | { type: 'set'; field: keyof DraftState; value: string }
+  | { type: 'reset' };
+
+function reducer(state: DraftState, action: DraftAction): DraftState {
+  switch (action.type) {
+    case 'set':
+      return { ...state, [action.field]: action.value };
+    case 'reset':
+      return {};
+    default:
+      return state;
+  }
+}
+
 export default function LocalScreen({ data, onUpdateField, onToggleIntegration }: LocalScreenProps) {
-  const [name, setName] = useState(data.name);
-  const [hours, setHours] = useState(data.hours);
-  const [phone, setPhone] = useState(data.phone);
+  const [draft, dispatch] = useReducer(reducer, {});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const name = draft.name ?? data.name;
+  const hours = draft.hours ?? data.hours;
+  const phone = draft.phone ?? data.phone;
 
   const dirty = name !== data.name || hours !== data.hours || phone !== data.phone;
 
@@ -32,6 +51,7 @@ export default function LocalScreen({ data, onUpdateField, onToggleIntegration }
       onUpdateField('name', name);
       onUpdateField('hours', hours);
       onUpdateField('phone', phone);
+      dispatch({ type: 'reset' });
       setSaving(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 1800);
@@ -45,9 +65,9 @@ export default function LocalScreen({ data, onUpdateField, onToggleIntegration }
       <Card className={s.profileCard}>
         <Placeholder label="foto de portada · 1600×600" height={160} style={{ borderRadius: 0, border: 'none', borderBottom: '1px solid var(--line)' }} />
         <div className={s.fields}>
-          <Field label="Nombre" value={name} onChange={setName} />
-          <Field label="Teléfono" value={phone} onChange={setPhone} />
-          <Field label="Horario" value={hours} onChange={setHours} full />
+          <Field label="Nombre" value={name} onChange={(value) => dispatch({ type: 'set', field: 'name', value })} />
+          <Field label="Teléfono" value={phone} onChange={(value) => dispatch({ type: 'set', field: 'phone', value })} />
+          <Field label="Horario" value={hours} onChange={(value) => dispatch({ type: 'set', field: 'hours', value })} full />
           <div className={s.saveRow}>
             {saved && (
               <Badge tone="good">

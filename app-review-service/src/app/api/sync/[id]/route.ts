@@ -6,8 +6,7 @@ type Params = { params: Promise<{ id: string }> };
 
 export async function GET(req: NextRequest, { params }: Params) {
   try {
-    const { id } = await params;
-    const auth = await requireAuth(req);
+    const [{ id }, auth] = await Promise.all([params, requireAuth(req)]);
 
     const job = await prisma.reviewSyncJob.findUnique({
       where: { id },

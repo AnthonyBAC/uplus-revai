@@ -1,0 +1,11 @@
+.root {
+  background: repeating-linear-gradient(45deg, #ECE3D9 0 8px, #F4ECE2 8px 16px);
+  border: 1px dashed #C9BBAA;
+  color: #8E827A;
+  font-family: monospace;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}

@@ -1,29 +1,23 @@
 'use client';
 
-export interface Theme {
-  name: string;
-  sentiment: 'positivo' | 'negativo' | 'neutro';
-  mentions: number;
-  trend: number;
-}
+import { fetchInsights } from '@/features/dashboard/services/insights';
+import { useAsyncResource } from '@/features/dashboard/hooks/shared/useAsyncResource';
+import type { InsightsResponse } from '@/types/api/dashboard';
 
-export interface InsightsData {
-  ratingTrend: number[];
-  volumeTrend: number[];
-  themes: Theme[];
-}
+export type InsightsData = InsightsResponse;
 
 export interface UseInsightsResult {
   data: InsightsData | null;
   loading: boolean;
   error: string | null;
+  refetch: () => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function useInsights(_businessId: string | null): UseInsightsResult {
-  return {
-    data: null,
-    loading: false,
-    error: null,
-  };
+export function useInsights(businessId: string | null): UseInsightsResult {
+  return useAsyncResource<InsightsResponse>({
+    enabled: !!businessId,
+    deps: [businessId],
+    fetcher: () => fetchInsights(businessId as string),
+    cacheKey: businessId ? `uplus_cache_insights_${businessId}` : undefined,
+  });
 }

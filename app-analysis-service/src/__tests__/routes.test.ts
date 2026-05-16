@@ -11,79 +11,9 @@ const mockFetch = vi.fn();
 
 vi.stubGlobal('fetch', mockFetch);
 
-import { POST } from '@/app/api/analysis/run/route';
-import { GET as getResults } from '@/app/api/analysis/results/route';
 import { GET as getDashboard } from '@/app/api/analysis/dashboard/route';
-
-describe('POST /api/analysis/run', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('debe orquestar análisis y retornar resultado de IA', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ ok: true, businessId: '550e8400-e29b-41d4-a716-446655440000', itemsAnalyzed: 10 }),
-    });
-
-    const req = new NextRequest('http://localhost/api/analysis/run', {
-      method: 'POST',
-      body: JSON.stringify({ businessId: '550e8400-e29b-41d4-a716-446655440000' }),
-    });
-
-    const res = await POST(req);
-    expect(res.status).toBe(200);
-
-    const body = await res.json();
-    expect(body.itemsAnalyzed).toBe(10);
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('/api/v1/analysis/generate'),
-      expect.objectContaining({ method: 'POST' })
-    );
-  });
-
-  it('debe retornar 400 si falta businessId', async () => {
-    const req = new NextRequest('http://localhost/api/analysis/run', {
-      method: 'POST',
-      body: JSON.stringify({}),
-    });
-
-    const res = await POST(req);
-    expect(res.status).toBe(400);
-  });
-
-  it('debe retornar error si IA falla', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      text: () => Promise.resolve('Internal error'),
-      status: 500,
-    });
-
-    const req = new NextRequest('http://localhost/api/analysis/run', {
-      method: 'POST',
-      body: JSON.stringify({ businessId: '550e8400-e29b-41d4-a716-446655440000' }),
-    });
-
-    const res = await POST(req);
-    expect(res.status).toBe(500);
-  });
-});
-
-describe('GET /api/analysis/results', () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it('debe consultar resultados desde report-service', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve([{ id: 'a1', summary: 'Resumen' }]),
-    });
-
-    const req = new NextRequest('http://localhost/api/analysis/results?businessId=550e8400-e29b-41d4-a716-446655440000');
-    const res = await getResults(req);
-    expect(res.status).toBe(200);
-
-    const body = await res.json();
-    expect(body).toHaveLength(1);
-  });
-});
+import { GET as getInsights } from '@/app/api/analysis/insights/route';
+import { GET as getImprovements } from '@/app/api/analysis/improvements/route';
 
 describe('GET /api/analysis/dashboard', () => {
   beforeEach(() => vi.clearAllMocks());
@@ -108,5 +38,64 @@ describe('GET /api/analysis/dashboard', () => {
   it('debe retornar 400 si falta businessId', async () => {
     const res = await getDashboard(new NextRequest('http://localhost/api/analysis/dashboard'));
     expect(res.status).toBe(400);
+  });
+});
+
+describe('GET /api/analysis/insights', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('debe agregar tendencias y temas desde reviews y analysis', async () => {
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve([
+          { rating: 5, publishedAt: '2026-05-01T00:00:00.000Z' },
+          { rating: 3, publishedAt: '2026-05-02T00:00:00.000Z' },
+        ]),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve([
+          { keywords: ['servicio'], sentiment: 'NEGATIVE', createdAt: '2026-05-01T00:00:00.000Z' },
+          { keywords: ['servicio', 'ambiente'], sentiment: 'POSITIVE', createdAt: '2026-05-02T00:00:00.000Z' },
+        ]),
+      });
+
+    const res = await getInsights(new NextRequest('http://localhost/api/analysis/insights?businessId=550e8400-e29b-41d4-a716-446655440000'));
+    expect(res.status).toBe(200);
+
+    const body = await res.json();
+    expect(body.ratingTrend).toHaveLength(6);
+    expect(body.volumeTrend).toHaveLength(6);
+    expect(body.themes[0].name).toBe('servicio');
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('GET /api/analysis/improvements', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('debe derivar acciones sugeridas desde análisis negativos', async () => {
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve([{ rating: 2 }, { rating: 4 }]),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve([
+          { keywords: ['espera'], sentiment: 'NEGATIVE', createdAt: '2026-05-03T00:00:00.000Z' },
+          { keywords: ['espera'], sentiment: 'NEGATIVE', createdAt: '2026-05-05T00:00:00.000Z' },
+        ]),
+      });
+
+    const res = await getImprovements(new NextRequest('http://localhost/api/analysis/improvements?businessId=550e8400-e29b-41d4-a716-446655440000'));
+    expect(res.status).toBe(200);
+
+    const body = await res.json();
+    expect(body.totalReviews).toBe(2);
+    expect(body.actions[0].tag).toBe('espera');
+    expect(body.actions[0].status).toBe('sugerida');
+    expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 });

@@ -7,8 +7,11 @@ type Params = { params: Promise<{ id: string; questionId: string }> };
 
 export async function PATCH(req: NextRequest, { params }: Params) {
   try {
-    const { id, questionId } = await params;
-    const auth = await requireAuth(req);
+    const [{ id, questionId }, auth, body] = await Promise.all([
+      params,
+      requireAuth(req),
+      req.json() as Promise<unknown>,
+    ]);
 
     const question = await prisma.surveyQuestion.findUnique({
       where: { id: questionId },
@@ -22,7 +25,6 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     const { role } = await requireBusinessAccess(auth.appUserId, question.survey.businessId);
     await requireEndpointPermission(role, 'PATCH', '/api/surveys/:id/questions/:questionId');
 
-    const body: unknown = await req.json();
     const parsed = UpdateQuestionSchema.safeParse(body);
 
     if (!parsed.success) {
@@ -43,8 +45,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
 export async function DELETE(req: NextRequest, { params }: Params) {
   try {
-    const { id, questionId } = await params;
-    const auth = await requireAuth(req);
+    const [{ id, questionId }, auth] = await Promise.all([params, requireAuth(req)]);
 
     const question = await prisma.surveyQuestion.findUnique({
       where: { id: questionId },

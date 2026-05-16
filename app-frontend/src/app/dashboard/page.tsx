@@ -3,13 +3,13 @@
 import { useState, useMemo } from 'react';
 import { useBusiness } from '@/features/dashboard/components/BusinessContext';
 import { mapDashboardReviewToItem } from '@/features/dashboard/mappers/review';
-import { useSession } from '@/features/auth/hooks/useSession';
+import { useSessionContext } from '@/features/auth/components/SessionProvider';
 import { useDashboard } from '@/features/dashboard/hooks/useDashboard';
 import ResumenScreen from '@/features/dashboard/components/screens/ResumenScreen';
 
 export default function DashboardPage() {
   const { activeBusinessId, activeMembership } = useBusiness();
-  const { session } = useSession();
+  const { session } = useSessionContext();
   const { data, loading, refetch } = useDashboard(activeBusinessId);
   const [replyMap, setReplyMap] = useState<Record<string, string>>({});
 

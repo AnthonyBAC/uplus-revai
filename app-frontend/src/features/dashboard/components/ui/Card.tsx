@@ -9,16 +9,25 @@ interface CardProps {
 }
 
 export default function Card({ children, style, className, onClick, hover }: CardProps) {
+  const classes = [
+    s.card,
+    hover ? s.hover : '',
+    onClick ? s.clickable : '',
+    className ?? '',
+  ].join(' ');
+
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} style={style} className={classes}>
+        {children}
+      </button>
+    );
+  }
+
   return (
     <div
-      onClick={onClick}
       style={style}
-      className={[
-        s.card,
-        hover ? s.hover : '',
-        onClick ? s.clickable : '',
-        className ?? '',
-      ].join(' ')}
+      className={classes}
     >
       {children}
     </div>

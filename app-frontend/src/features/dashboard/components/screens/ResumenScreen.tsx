@@ -133,7 +133,7 @@ export default function ResumenScreen({ data, loading, reviews, onReply, onRefre
               <Card key={rep.id} style={{ padding: '14px 18px' }}>
                 <div style={{ fontWeight: 600, fontSize: 14 }}>{rep.title}</div>
                 <div style={{ fontSize: 12, color: 'var(--ink-mute)', marginTop: 4 }}>
-                  {new Date(rep.periodStart).toLocaleDateString('es-CL')} – {new Date(rep.periodEnd).toLocaleDateString('es-CL')} · {rep.status}
+                  {formatReportPeriod(rep.periodStart, rep.periodEnd)} · {rep.status}
                 </div>
               </Card>
             ))
@@ -142,4 +142,8 @@ export default function ResumenScreen({ data, loading, reviews, onReply, onRefre
       </div>
     </>
   );
+}
+
+function formatReportPeriod(periodStart: string, periodEnd: string): string {
+  return `${new Date(periodStart).toLocaleDateString('es-CL')} – ${new Date(periodEnd).toLocaleDateString('es-CL')}`;
 }

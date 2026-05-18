@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import Toast from './Toast';
@@ -14,12 +15,21 @@ interface DashboardShellProps {
 
 export default function DashboardShell({ session, children }: DashboardShellProps) {
   const [toast, setToast] = useState('');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Cierra el drawer al navegar en móvil
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMobileNavOpen(false);
+  }, [pathname]);
 
   return (
     <div className={s.root}>
-      <Sidebar session={session} />
+      <Sidebar session={session} open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
+      {mobileNavOpen && <div className={s.backdrop} onClick={() => setMobileNavOpen(false)} />}
       <div className={s.main}>
-        <Topbar />
+        <Topbar onOpenMobileNav={() => setMobileNavOpen(true)} />
         <div className={s.scroll}>
           <div className={s.inner}>
             {children}

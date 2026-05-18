@@ -4,10 +4,16 @@ import Link from 'next/link';
 import SectionHead from '../ui/SectionHead';
 import Kpi from '../ui/Kpi';
 import Card from '../ui/Card';
-import Badge from '../ui/Badge';
 import Btn from '../ui/Btn';
-import Sparkline from '../primitives/Sparkline';
+import BarChart from '../primitives/BarChart';
+import Donut from '../primitives/Donut';
 import ReviewCard, { type ReviewItem } from '../ReviewCard';
+import {
+  getStarDistribution,
+  getSourceDistribution,
+  getSentimentFromRatings,
+  getPositiveRate,
+} from '../../mappers/charts';
 import type { DashboardResponse } from '@/types/api/dashboard';
 import s from './ResumenScreen.module.css';
 
@@ -21,11 +27,20 @@ interface ResumenScreenProps {
   businessName?: string | null;
 }
 
-export default function ResumenScreen({ data, loading, reviews, onReply, onRefresh, userName, businessName }: ResumenScreenProps) {
+export default function ResumenScreen({
+  data,
+  loading,
+  reviews,
+  onReply,
+  onRefresh,
+  userName,
+  businessName,
+}: ResumenScreenProps) {
   if (loading) {
-    return <div style={{ color: 'var(--ink-mute)', padding: 40, textAlign: 'center' }}>Cargando…</div>;
+    return <div className={s.loading}>Cargando…</div>;
   }
 
+  const rawReviews = data?.data.reviews ?? [];
   const totalReviews = data?.reviews ?? 0;
   const totalSurveys = data?.surveys ?? 0;
   const noReply = reviews.filter((r) => !r.reply).length;
@@ -37,69 +52,55 @@ export default function ResumenScreen({ data, loading, reviews, onReply, onRefre
     ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
     : '—';
 
-  const starCounts = [5, 4, 3, 2, 1].map((star) => ({
-    star,
-    count: reviews.filter((r) => r.rating === star).length,
-  }));
+  const starDist = getStarDistribution(rawReviews);
+  const sourceDist = getSourceDistribution(rawReviews);
+  const sentiment = getSentimentFromRatings(rawReviews);
+  const positiveRate = getPositiveRate(rawReviews);
 
   return (
     <>
       <SectionHead
         title="Resumen"
         sub={sub}
-        right={
-          <div style={{ display: 'flex', gap: 8 }}>
-            <Btn kind="outline" size="sm" icon="refresh" onClick={onRefresh}>Actualizar</Btn>
-          </div>
-        }
+        right={<Btn kind="outline" size="sm" icon="refresh" onClick={onRefresh}>Actualizar</Btn>}
       />
 
-      <div className={s.kpis}>
+      <div className="grid-kpi" style={{ marginBottom: 16 }}>
         <Kpi label="Rating prom." value={ratingAvg} sub="últimas reseñas" accent="var(--accent-deep)" />
         <Kpi label="Reseñas" value={totalReviews} sub="en total" accent="var(--accent-deep)" />
         <Kpi label="Sin responder" value={noReply} sub={noReply > 5 ? 'Atención' : 'Al día'} accent={noReply > 5 ? 'var(--bad)' : 'var(--good)'} />
         <Kpi label="Encuestas" value={totalSurveys} sub="activas" accent="var(--accent-deep)" />
       </div>
 
-      <div className={s.charts}>
+      <div className="grid-split" style={{ marginBottom: 14 }}>
         <Card>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 10 }}>
-            <div>
-              <div className={s.chartLabel}>Rating · últimos 14 días</div>
-              <div className={s.chartValue}>
-                {ratingAvg}
-                <span className={s.chartDelta}>↑ dato referencial</span>
-              </div>
-            </div>
-            <Badge tone="soft">14d</Badge>
+          <div className={s.chartHead}>
+            <div className={s.chartLabel}>Distribución de estrellas</div>
           </div>
-          <Sparkline data={Array(14).fill(0)} color="var(--accent)" height={90} />
-          <div className={s.chartFooter}>
-            <span>Hace 14 días</span>
-            <span>Hoy</span>
-          </div>
+          <BarChart data={starDist} height={160} />
         </Card>
 
         <Card>
-          <div className={s.chartLabel} style={{ marginBottom: 12 }}>Distribución de estrellas</div>
-          {starCounts.map(({ star, count }) => {
-            const pct = reviews.length ? (count / reviews.length) * 100 : 0;
-            const fillColor = star >= 4 ? 'var(--accent)' : star === 3 ? 'var(--warn)' : 'var(--bad)';
-            return (
-              <div key={star} className={s.starRow}>
-                <span className={s.starNum}>{star}</span>
-                <svg width={12} height={12} viewBox="0 0 24 24" fill="var(--accent)" stroke="var(--accent)" strokeWidth="1.6">
-                  <path d="M12 2.5l2.9 6 6.6.8-4.8 4.6 1.2 6.6L12 17.4 6.1 20.5l1.2-6.6L2.5 9.3l6.6-.8z" />
-                </svg>
-                <div className={s.starBar}>
-                  <div className={s.starFill} style={{ width: `${pct}%`, background: fillColor }} />
-                </div>
-                <span className={s.starCount}>{count}</span>
-              </div>
-            );
-          })}
+          <div className={s.chartHead}>
+            <div className={s.chartLabel}>Sentimiento</div>
+          </div>
+          <Donut
+            data={sentiment}
+            size={140}
+            thickness={22}
+            center={{ value: `${positiveRate}%`, label: 'positivas' }}
+          />
         </Card>
       </div>
+
+      {sourceDist.length > 0 && (
+        <Card style={{ marginBottom: 14 }}>
+          <div className={s.chartHead}>
+            <div className={s.chartLabel}>Reseñas por fuente</div>
+          </div>
+          <Donut data={sourceDist} size={140} thickness={22} center={{ value: rawReviews.length, label: 'muestra' }} />
+        </Card>
+      )}
 
       <div className={s.section}>
         <SectionHead
@@ -112,9 +113,7 @@ export default function ResumenScreen({ data, loading, reviews, onReply, onRefre
         />
         <div className={s.list}>
           {reviews.length === 0 ? (
-            <Card className={s.empty}>
-              Aún no hay reseñas para este negocio.
-            </Card>
+            <Card className={s.empty}>Aún no hay reseñas para este negocio.</Card>
           ) : (
             reviews.slice(0, 3).map((r) => (
               <ReviewCard key={r.id} r={r} onReply={(text) => onReply(r.id, text)} />

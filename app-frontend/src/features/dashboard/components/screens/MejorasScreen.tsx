@@ -73,7 +73,7 @@ export default function MejorasScreen({ actions, onUpdate, totalReviews, loading
         right={<Badge tone="accent">+ {totalReviews} reseñas</Badge>}
       />
 
-      <div className={s.kpis}>
+      <div className="grid-kpi" style={{ marginBottom: 16 }}>
         <Kpi label="Reseñas" value={totalReviews} sub="en total" accent="var(--accent-deep)" />
         <Kpi label="Acciones" value={actions.filter((a) => a.status !== 'completada').length} sub={`${priorit} prioritarias`} accent="var(--accent-deep)" />
         <Kpi label="Completadas" value={counts.completada} sub="esta semana" accent="var(--good)" />

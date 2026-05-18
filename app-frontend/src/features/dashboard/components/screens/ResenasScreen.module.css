@@ -1,3 +1,17 @@
+.loading {
+  color: var(--ink-mute);
+  padding: 40px;
+  text-align: center;
+}
+
+.searchWrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 180px;
+}
+
 .searchInput {
   flex: 1;
   border: none;
@@ -6,6 +20,7 @@
   font-family: var(--font-ui);
   background: transparent;
   color: var(--ink);
+  min-width: 0;
 }
 
 .sourceSelect {
@@ -15,6 +30,14 @@
   font-size: 12.5px;
   background: #FCF8F3;
   font-family: var(--font-ui);
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.chartLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .chips {

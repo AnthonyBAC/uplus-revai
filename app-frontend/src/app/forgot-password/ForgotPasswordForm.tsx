@@ -80,7 +80,7 @@ export default function ForgotPasswordForm() {
       )}
 
       <p className={s.switchLinkMobile}>
-        ¿Recordaste tu contraseña? <Link href="/login">Inicia sesión →</Link>
+        ¿Recordaste tu contraseña? <Link href="/login" prefetch={false}>Inicia sesión →</Link>
       </p>
     </AuthLayout>
   );

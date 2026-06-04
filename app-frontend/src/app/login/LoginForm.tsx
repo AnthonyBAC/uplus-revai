@@ -92,7 +92,7 @@ export default function LoginForm() {
         <div className={s.field}>
           <div className={styles.passwordLabel}>
             <label htmlFor="password">Contraseña</label>
-            <Link href="/forgot-password" className={styles.forgotLink}>
+            <Link href="/forgot-password" prefetch={false} className={styles.forgotLink}>
               ¿La olvidaste?
             </Link>
           </div>
@@ -124,7 +124,7 @@ export default function LoginForm() {
 
       <p className={s.switchLinkMobile}>
         ¿Aún no tienes cuenta?{" "}
-        <Link href="/register">Crear cuenta →</Link>
+          <Link href="/register" prefetch={false}>Crear cuenta →</Link>
       </p>
     </AuthLayout>
   );

@@ -161,7 +161,7 @@ export default function RegisterForm() {
 
       <p className={s.switchLinkMobile}>
         ¿Ya tienes cuenta?{" "}
-        <Link href="/login">Inicia sesión →</Link>
+        <Link href="/login" prefetch={false}>Inicia sesión →</Link>
       </p>
     </AuthLayout>
   );

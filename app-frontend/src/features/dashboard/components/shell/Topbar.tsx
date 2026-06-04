@@ -19,9 +19,10 @@ const PAGE_LABELS: Record<string, string> = {
 interface TopbarProps {
   noReply?: number;
   highActions?: number;
+  onOpenMobileNav?: () => void;
 }
 
-export default function Topbar({ noReply = 0, highActions = 0 }: TopbarProps) {
+export default function Topbar({ noReply = 0, highActions = 0, onOpenMobileNav }: TopbarProps) {
   const pathname = usePathname();
   const { push, replace } = useRouter();
   const { memberships, activeBusinessId, activeMembership, setActiveBusinessId } = useBusiness();
@@ -50,10 +51,19 @@ export default function Topbar({ noReply = 0, highActions = 0 }: TopbarProps) {
 
   return (
     <div className={s.topbar}>
-      <div className={s.breadcrumb}>
-        <span className={s.bizName}>{activeMembership?.businessName ?? '—'}</span>
-        <span className={s.sep}>/</span>
-        <span className={s.page}>{pageLabel}</span>
+      <div className={s.left}>
+        <button
+          className={s.hamburger}
+          onClick={onOpenMobileNav}
+          aria-label="Abrir menú"
+        >
+          <Icon name="menu" size={18} stroke={2} />
+        </button>
+        <div className={s.breadcrumb}>
+          <span className={s.bizName}>{activeMembership?.businessName ?? '—'}</span>
+          <span className={s.sep}>/</span>
+          <span className={s.page}>{pageLabel}</span>
+        </div>
       </div>
 
       <div className={s.right}>

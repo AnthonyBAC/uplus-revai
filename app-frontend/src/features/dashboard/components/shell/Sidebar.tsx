@@ -19,18 +19,27 @@ const NAV = [
 interface SidebarProps {
   session: SessionResponse;
   counts?: Partial<Record<string, number>>;
+  open?: boolean;
+  onClose?: () => void;
 }
 
 const EMPTY_COUNTS: Partial<Record<string, number>> = {};
 
-export default function Sidebar({ session, counts = EMPTY_COUNTS }: SidebarProps) {
+export default function Sidebar({ session, counts = EMPTY_COUNTS, open = false, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { activeMembership } = useBusiness();
 
   const initial = (session.fullName ?? session.email ?? '?')[0].toUpperCase();
 
   return (
-    <aside className={s.sidebar}>
+    <aside className={[s.sidebar, open ? s.open : ''].join(' ')}>
+      <button
+        className={s.closeBtn}
+        onClick={onClose}
+        aria-label="Cerrar menú"
+      >
+        <Icon name="x" size={20} stroke={2} />
+      </button>
       <div className={s.brand}>
         <BrandLogo variant="pastel" />
       </div>

@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import SectionHead from '../ui/SectionHead';
 import Card from '../ui/Card';
 import Btn from '../ui/Btn';
 import Icon from '../primitives/Icon';
+import BarChart from '../primitives/BarChart';
+import Donut from '../primitives/Donut';
 import ReviewCard, { type ReviewItem } from '../ReviewCard';
 import s from './ResenasScreen.module.css';
 
@@ -20,14 +22,40 @@ export default function ResenasScreen({ reviews, loading, error, onReply }: Rese
   const [source, setSource] = useState('Todas');
   const [query, setQuery] = useState('');
 
-  if (loading) return <div style={{ color: 'var(--ink-mute)', padding: 40, textAlign: 'center' }}>Cargando…</div>;
+  const starDist = useMemo(
+    () =>
+      [5, 4, 3, 2, 1].map((star) => ({
+        label: `${star}★`,
+        value: reviews.filter((r) => r.rating === star).length,
+        color: star >= 4 ? 'var(--good)' : star === 3 ? 'var(--warn)' : 'var(--bad)',
+      })),
+    [reviews],
+  );
+
+  const sourceDist = useMemo(() => {
+    const counts = new Map<string, number>();
+    reviews.forEach((r) => counts.set(r.source, (counts.get(r.source) ?? 0) + 1));
+    const palette = ['#D9684D', '#4F7A4A', '#C28427', '#1877F2', '#8E827A', '#34E0A1'];
+    return Array.from(counts.entries()).map(([label, value], i) => ({
+      label,
+      value,
+      color: palette[i % palette.length],
+    }));
+  }, [reviews]);
+
+  if (loading) return <div className={s.loading}>Cargando…</div>;
 
   const list = reviews.filter((r) => {
     if (filter === 'sin-respuesta' && r.reply) return false;
     if (filter === 'negativas' && r.rating > 3) return false;
     if (filter === 'positivas' && r.rating < 4) return false;
     if (source !== 'Todas' && r.source !== source) return false;
-    if (query && !r.text.toLowerCase().includes(query.toLowerCase()) && !r.name.toLowerCase().includes(query.toLowerCase())) return false;
+    if (
+      query &&
+      !r.text.toLowerCase().includes(query.toLowerCase()) &&
+      !r.name.toLowerCase().includes(query.toLowerCase())
+    )
+      return false;
     return true;
   });
 
@@ -47,16 +75,31 @@ export default function ResenasScreen({ reviews, loading, error, onReply }: Rese
         </Card>
       )}
 
+      {!error && reviews.length > 0 && (
+        <div className="grid-split" style={{ marginBottom: 14 }}>
+          <Card>
+            <div className={s.chartLabel} style={{ marginBottom: 12 }}>Distribución por estrellas</div>
+            <BarChart data={starDist} height={140} />
+          </Card>
+          <Card>
+            <div className={s.chartLabel} style={{ marginBottom: 12 }}>Por fuente</div>
+            <Donut data={sourceDist} size={130} thickness={20} center={{ value: reviews.length, label: 'reseñas' }} />
+          </Card>
+        </div>
+      )}
+
       {!error && (
         <>
-          <Card style={{ padding: 10, marginBottom: 14, display: 'flex', gap: 8, alignItems: 'center' }}>
-            <Icon name="search" size={16} stroke={2} style={{ color: 'var(--ink-mute)', marginLeft: 4 }} />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar en reseñas…"
-              className={s.searchInput}
-            />
+          <Card style={{ padding: 10, marginBottom: 14, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <div className={s.searchWrap}>
+              <Icon name="search" size={16} stroke={2} style={{ color: 'var(--ink-mute)', marginLeft: 4 }} />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Buscar en reseñas…"
+                className={s.searchInput}
+              />
+            </div>
             <select value={source} onChange={(e) => setSource(e.target.value)} className={s.sourceSelect}>
               <option>Todas</option>
               <option>Google</option>

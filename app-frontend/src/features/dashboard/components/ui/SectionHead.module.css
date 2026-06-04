@@ -1,20 +1,22 @@
 .head {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   margin: 4px 0 14px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .title {
   margin: 0;
-  font-size: 22px;
+  font-size: clamp(18px, 2.4vw, 22px);
   font-weight: 700;
   letter-spacing: -0.3px;
   font-family: var(--font-ui);
 }
 
 .sub {
-  font-size: 13px;
+  font-size: clamp(12px, 1.3vw, 13px);
   color: var(--ink-mute);
   margin-top: 3px;
 }

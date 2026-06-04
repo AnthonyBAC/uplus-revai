@@ -23,7 +23,7 @@ export default function SiteHeader(props: SiteHeaderProps) {
   return (
     <header className={styles.header}>
       <div className={useWideLayout ? `${styles.inner} ${styles.innerWithoutCenter}` : styles.inner}>
-        <Link href="/" className={styles.brand}>
+        <Link href="/" prefetch={false} className={styles.brand}>
           <BrandLogo variant="default" />
         </Link>
 
@@ -39,17 +39,17 @@ export default function SiteHeader(props: SiteHeaderProps) {
 
         {props.mode === "marketing" ? (
           <div className={styles.actions}>
-            <Link href="/login" className={styles.linkButton}>
+            <Link href="/login" prefetch={false} className={styles.linkButton}>
               Login
             </Link>
-            <Link href="/demo" className={styles.primaryButton}>
+            <Link href="/demo" prefetch={false} className={styles.primaryButton}>
               <LogIn size={16} />
               Ir a demo
             </Link>
           </div>
         ) : (
           <div className={styles.back}>
-            <Link href={props.backHref} className={styles.backLink}>
+            <Link href={props.backHref} prefetch={false} className={styles.backLink}>
               <ArrowLeft size={16} />
               {props.backLabel}
             </Link>

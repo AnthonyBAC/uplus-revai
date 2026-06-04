@@ -40,11 +40,11 @@ export default function HeroSection() {
         </m.p>
 
         <m.div className={styles.heroActions} {...getReveal(3)}>
-          <Link href="/demo" className={styles.heroCtaPrimary}>
+          <Link href="/demo" prefetch={false} className={styles.heroCtaPrimary}>
             Probar 14 días gratis
             <ArrowRight size={16} />
           </Link>
-          <Link href="/demo" className={styles.heroCtaSecondary}>
+          <Link href="/demo" prefetch={false} className={styles.heroCtaSecondary}>
             <PlayCircle size={16} />
             Ver demo
           </Link>

@@ -64,7 +64,7 @@ export default function ResetPasswordForm() {
           <p className={styles.successDesc}>
             Serás redirigido al login en unos segundos.
           </p>
-          <Link href="/login" className={styles.successLink}>
+          <Link href="/login" prefetch={false} className={styles.successLink}>
             Ir al login ahora →
           </Link>
         </div>

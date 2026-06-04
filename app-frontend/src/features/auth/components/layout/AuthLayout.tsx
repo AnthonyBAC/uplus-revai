@@ -40,12 +40,12 @@ const revealRight = prefersReducedMotion
         <div className={styles.split}>
           <div className={styles.formSide}>
             <m.div className={styles.formHeader} {...reveal(0)}>
-              <Link href="/" className={styles.brandLink}>
+              <Link href="/" prefetch={false} className={styles.brandLink}>
                 <BrandLogo variant="default" />
               </Link>
               <p className={styles.topLink}>
                 {topLinkText}{" "}
-                <Link href={topLinkHref}>{topLinkCta}</Link>
+                <Link href={topLinkHref} prefetch={false}>{topLinkCta}</Link>
               </p>
             </m.div>
 
@@ -56,9 +56,9 @@ const revealRight = prefersReducedMotion
             <m.div className={styles.formFooter} {...reveal(0.2)}>
               <span>© 2026 U+ Revai</span>
               <div className={styles.footerLinks}>
-                <Link href="/privacidad">Privacidad</Link>
-                <Link href="/terminos">Términos</Link>
-                <Link href="/soporte">Soporte</Link>
+                <Link href="/privacidad" prefetch={false}>Privacidad</Link>
+                <Link href="/terminos" prefetch={false}>Términos</Link>
+                <Link href="/soporte" prefetch={false}>Soporte</Link>
               </div>
             </m.div>
           </div>

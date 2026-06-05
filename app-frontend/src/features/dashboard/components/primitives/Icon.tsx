@@ -2,7 +2,7 @@ import {
   BarChart2, Star, TrendingUp, Eye, Home, Bell, Search, ChevronRight,
   ChevronDown, Plus, Check, X, ArrowRight, Flag, Clock, User, MessageCircle,
   Filter, Sparkles, Zap, Play, MoreHorizontal, Calendar, Settings, Pin,
-  Download, RefreshCw, File,
+  Download, RefreshCw, File, Menu,
 } from 'lucide-react';
 
 const ICON_MAP = {
@@ -34,6 +34,7 @@ const ICON_MAP = {
   download:    Download,
   refresh:     RefreshCw,
   file:        File,
+  menu:        Menu,
 } as const;
 
 export type IconName = keyof typeof ICON_MAP;

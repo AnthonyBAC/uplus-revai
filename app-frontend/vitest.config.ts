@@ -8,12 +8,16 @@ export default defineConfig({
     name: 'app-frontend',
     environment: 'happy-dom',
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
-    setupFiles: ['./vitest.setup.ts'],
+    setupFiles: ['./vitest.setup.tsx'],
     globals: true,
     css: { modules: { classNameStrategy: 'non-scoped' } },
+    server: { deps: { inline: ['react', 'react-dom'] } },
   },
   resolve: {
     alias: {
+      'react': path.resolve(__dirname, '../node_modules/react'),
+      'react-dom': path.resolve(__dirname, '../node_modules/react-dom'),
+      'react-dom/client': path.resolve(__dirname, '../node_modules/react-dom/client'),
       '@': path.resolve(__dirname, './src'),
       '@uplus/db': path.resolve(__dirname, '../packages/db/src'),
       '@uplus/auth': path.resolve(__dirname, '../packages/auth/src'),

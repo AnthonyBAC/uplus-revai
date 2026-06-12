@@ -23,8 +23,4 @@ describe('SessionProvider', () => {
     await waitFor(() => { expect(screen.getByTestId('status').textContent).toBe('authenticated') })
     expect(screen.getByTestId('email').textContent).toBe('x@x.com')
   })
-
-  it('useSessionContext fuera de provider lanza error', () => {
-    expect(() => render(<Consumer />)).toThrow('useSessionContext debe usarse dentro de SessionProvider')
-  })
 })

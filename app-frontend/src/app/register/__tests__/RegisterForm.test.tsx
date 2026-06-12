@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { server } from '@/mocks/server'
 import RegisterForm from '../../register/RegisterForm'
 

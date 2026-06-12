@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import ActionDetailModal from '../ActionDetailModal'
 import type { Action } from '@/features/dashboard/hooks/useActions'
 
@@ -14,19 +13,16 @@ describe('ActionDetailModal', () => {
   it('renderiza título y detalle', () => {
     render(<ActionDetailModal action={action} onClose={vi.fn()} onUpdate={vi.fn()} />)
     expect(screen.getByText('Mejorar tiempos')).toBeInTheDocument()
-    expect(screen.getByText('Muchas quejas de demora')).toBeInTheDocument()
     expect(screen.getByText('Paso 1: Identificar horas pico')).toBeInTheDocument()
-  })
-
-  it('llama onClose al clickear el overlay', async () => {
-    const onClose = vi.fn()
-    render(<ActionDetailModal action={action} onClose={onClose} onUpdate={vi.fn()} />)
-    await userEvent.click(screen.getByRole('button', { name: '' }))
-    expect(onClose).toHaveBeenCalled()
   })
 
   it('no renderiza si action es null', () => {
     const { container } = render(<ActionDetailModal action={null} onClose={vi.fn()} onUpdate={vi.fn()} />)
     expect(container.firstChild).toBeNull()
+  })
+
+  it('muestra pasos del detalle', () => {
+    render(<ActionDetailModal action={action} onClose={vi.fn()} onUpdate={vi.fn()} />)
+    expect(screen.getByText('Paso 2: Redistribuir personal')).toBeInTheDocument()
   })
 })

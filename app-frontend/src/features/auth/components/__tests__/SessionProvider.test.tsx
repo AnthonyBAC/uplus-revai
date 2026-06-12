@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { server } from '@/mocks/server'
-import { SessionProvider, useSessionContext } from '../../SessionProvider'
+import { SessionProvider, useSessionContext } from '../SessionProvider'
 import { saveSession } from '@/features/auth/lib/session'
 
 function Consumer() {

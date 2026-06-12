@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { NextRequest } from 'next/server'
-import { GET } from '../../../api/[...service]/route'
+import { GET } from '../[...service]/route'
 
 describe('BFF proxy', () => {
   const origAuth = process.env.AUTH_SERVICE_URL

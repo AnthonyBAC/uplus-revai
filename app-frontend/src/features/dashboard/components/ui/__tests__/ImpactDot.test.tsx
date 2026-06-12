@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react'
-import ImpactDot from '../ui/ImpactDot'
+import ImpactDot from '../ImpactDot'
 
 describe('ImpactDot', () => {
   it('alto es rojo', () => {

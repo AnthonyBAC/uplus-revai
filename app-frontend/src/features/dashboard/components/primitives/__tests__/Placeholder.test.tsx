@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react'
-import Placeholder from '../primitives/Placeholder'
+import Placeholder from '../Placeholder'
 
 describe('Placeholder', () => {
   it('renderiza div con tamaño', () => {

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import ActionDetailModal from '../shell/ActionDetailModal'
+import ActionDetailModal from '../ActionDetailModal'
 import type { Action } from '@/features/dashboard/hooks/useActions'
 
 const action: Action = {

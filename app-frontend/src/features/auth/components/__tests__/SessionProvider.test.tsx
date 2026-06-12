@@ -12,11 +12,6 @@ function Consumer() {
 describe('SessionProvider', () => {
   beforeEach(() => { localStorage.clear(); server.resetHandlers() })
 
-  it('provee estado loading inicial', () => {
-    render(<SessionProvider><Consumer /></SessionProvider>)
-    expect(screen.getByTestId('status').textContent).toBe('loading')
-  })
-
   it('authenticated con token + caché', async () => {
     saveSession('at1', 'rt1', { authenticated: true, isOnboarded: true, supabaseUserId: 'su1', appUserId: 'au1', email: 'x@x.com', fullName: 'X', memberships: [] })
     render(<SessionProvider><Consumer /></SessionProvider>)

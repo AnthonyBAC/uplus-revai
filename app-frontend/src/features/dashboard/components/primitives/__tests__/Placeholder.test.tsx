@@ -3,10 +3,14 @@ import { render } from '@testing-library/react'
 import Placeholder from '../Placeholder'
 
 describe('Placeholder', () => {
-  it('renderiza div con tamaño', () => {
-    const { container } = render(<Placeholder w={100} h={50} />)
+  it('renderiza div con label por defecto', () => {
+    const { container } = render(<Placeholder />)
     const div = container.firstChild as HTMLElement
-    expect(div.style.width).toBe('100px')
-    expect(div.style.height).toBe('50px')
+    expect(div.textContent).toBe('image')
+  })
+
+  it('renderiza label personalizado', () => {
+    const { container } = render(<Placeholder label="Cargando..." />)
+    expect(container.firstChild?.textContent).toBe('Cargando...')
   })
 })

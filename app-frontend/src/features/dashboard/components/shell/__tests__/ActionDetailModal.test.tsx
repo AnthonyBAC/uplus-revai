@@ -12,21 +12,21 @@ const action: Action = {
 
 describe('ActionDetailModal', () => {
   it('renderiza título y detalle', () => {
-    render(<ActionDetailModal action={action} onClose={vi.fn()} onStatusChange={vi.fn()} />)
+    render(<ActionDetailModal action={action} onClose={vi.fn()} onUpdate={vi.fn()} />)
     expect(screen.getByText('Mejorar tiempos')).toBeInTheDocument()
     expect(screen.getByText('Muchas quejas de demora')).toBeInTheDocument()
     expect(screen.getByText('Paso 1: Identificar horas pico')).toBeInTheDocument()
   })
 
-  it('llama onClose al clickear cerrar', async () => {
+  it('llama onClose al clickear el overlay', async () => {
     const onClose = vi.fn()
-    render(<ActionDetailModal action={action} onClose={onClose} onStatusChange={vi.fn()} />)
-    await userEvent.click(screen.getByLabelText('Cerrar'))
+    render(<ActionDetailModal action={action} onClose={onClose} onUpdate={vi.fn()} />)
+    await userEvent.click(screen.getByRole('button', { name: '' }))
     expect(onClose).toHaveBeenCalled()
   })
 
-  it('muestra pasos del detalle', () => {
-    render(<ActionDetailModal action={action} onClose={vi.fn()} onStatusChange={vi.fn()} />)
-    expect(screen.getByText('Paso 2: Redistribuir personal')).toBeInTheDocument()
+  it('no renderiza si action es null', () => {
+    const { container } = render(<ActionDetailModal action={null} onClose={vi.fn()} onUpdate={vi.fn()} />)
+    expect(container.firstChild).toBeNull()
   })
 })

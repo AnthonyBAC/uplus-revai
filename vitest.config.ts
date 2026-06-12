@@ -25,7 +25,7 @@ export default defineConfig({
       service('app-review-service'),
       service('app-report-service'),
       service('app-analysis-service'),
-      service('app-frontend'),
+      'app-frontend',
     ],
   },
 });

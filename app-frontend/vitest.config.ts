@@ -6,11 +6,12 @@ export default defineConfig({
   plugins: [react()],
   test: {
     name: 'app-frontend',
-    environment: 'happy-dom',
+    environment: 'jsdom',
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
     setupFiles: ['./vitest.setup.ts'],
     globals: true,
     css: { modules: { classNameStrategy: 'non-scoped' } },
+    server: { deps: { inline: ['react', 'react-dom'] } },
   },
   resolve: {
     alias: {

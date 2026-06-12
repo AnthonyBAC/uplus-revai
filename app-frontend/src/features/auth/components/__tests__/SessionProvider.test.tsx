@@ -1,6 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
-import { http, HttpResponse } from 'msw'
 import { server } from '@/mocks/server'
 import { SessionProvider, useSessionContext } from '../../SessionProvider'
 import { saveSession } from '@/features/auth/lib/session'

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { server } from '@/mocks/server'
 import apiFetch from '../client'
-import { saveSession, getAccessToken, getRefreshToken, clearSession } from '@/features/auth/lib/session'
+import { saveSession, getAccessToken } from '@/features/auth/lib/session'
 
 describe('apiFetch', () => {
   beforeEach(() => {
@@ -84,7 +84,7 @@ describe('apiFetch', () => {
       }),
     )
 
-    const [a, b] = await Promise.all([
+    await Promise.all([
       apiFetch<{ calls: number }>('/test/post', { method: 'POST' }),
       apiFetch<{ calls: number }>('/test/post', { method: 'POST' }),
     ])

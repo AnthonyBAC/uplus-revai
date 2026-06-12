@@ -15,8 +15,8 @@ vi.stubGlobal('scrollTo', vi.fn())
 
 vi.mock('next/image', () => ({
   default: (props: Record<string, unknown>) => {
-    const { src, alt, width, height, priority: _p, ...rest } = props as Record<string, unknown>
-    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+    const { src, alt, width, height, ...rest } = props as Record<string, unknown>
+    // eslint-disable-next-line @next/next/no-img-element
     return <img src={src as string} alt={alt as string} width={width as number} height={height as number} {...rest} />
   },
 }))

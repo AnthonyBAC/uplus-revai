@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, act } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { render, screen } from '@testing-library/react'
 import LocalScreen from '../LocalScreen'
 import type { LocalData } from '@/features/dashboard/hooks/useLocal'
 

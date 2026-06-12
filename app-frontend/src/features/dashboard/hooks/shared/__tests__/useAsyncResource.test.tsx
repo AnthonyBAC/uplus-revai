@@ -3,11 +3,12 @@ import { render, waitFor, act } from '@testing-library/react'
 import { useAsyncResource } from '../useAsyncResource'
 import type { UseAsyncResourceResult } from '../useAsyncResource'
 
-function HookTest<T>({ reporter, options }: {
-  reporter: { current: UseAsyncResourceResult<T> | null }
+function HookTest<T>({ reporterRef, options }: {
+  reporterRef: React.MutableRefObject<UseAsyncResourceResult<T> | null>
   options: Parameters<typeof useAsyncResource<T>>[0]
 }) {
-  reporter.current = useAsyncResource<T>(options)
+  // eslint-disable-next-line react-hooks/refs
+  reporterRef.current = useAsyncResource<T>(options)
   return null
 }
 
@@ -17,7 +18,7 @@ describe('useAsyncResource', () => {
   it('estado inicial: loading=true', () => {
     const fetcher = vi.fn().mockResolvedValue({ ok: true })
     const r = { current: null as UseAsyncResourceResult<unknown> | null }
-    render(<HookTest reporter={r} options={{ enabled: true, deps: [], fetcher }} />)
+    render(<HookTest reporterRef={r} options={{ enabled: true, deps: [], fetcher }} />)
     expect(r.current!.loading).toBe(true)
     expect(r.current!.data).toBeNull()
   })
@@ -25,7 +26,7 @@ describe('useAsyncResource', () => {
   it('carga datos exitosamente', async () => {
     const fetcher = vi.fn().mockResolvedValue({ hello: 'world' })
     const r = { current: null as UseAsyncResourceResult<unknown> | null }
-    render(<HookTest reporter={r} options={{ enabled: true, deps: [], fetcher }} />)
+    render(<HookTest reporterRef={r} options={{ enabled: true, deps: [], fetcher }} />)
     await waitFor(() => { expect(r.current!.loading).toBe(false) })
     expect(r.current!.data).toEqual({ hello: 'world' })
   })
@@ -33,7 +34,7 @@ describe('useAsyncResource', () => {
   it('maneja error', async () => {
     const fetcher = vi.fn().mockRejectedValue(new Error('falló'))
     const r = { current: null as UseAsyncResourceResult<unknown> | null }
-    render(<HookTest reporter={r} options={{ enabled: true, deps: [], fetcher }} />)
+    render(<HookTest reporterRef={r} options={{ enabled: true, deps: [], fetcher }} />)
     await waitFor(() => { expect(r.current!.error).not.toBeNull() })
     expect(r.current!.error).toBe('falló')
   })
@@ -41,7 +42,7 @@ describe('useAsyncResource', () => {
   it('no ejecuta fetcher si enabled=false', () => {
     const fetcher = vi.fn().mockResolvedValue({})
     const r = { current: null as UseAsyncResourceResult<unknown> | null }
-    render(<HookTest reporter={r} options={{ enabled: false, deps: [], fetcher }} />)
+    render(<HookTest reporterRef={r} options={{ enabled: false, deps: [], fetcher }} />)
     expect(r.current!.loading).toBe(false)
     expect(fetcher).not.toHaveBeenCalled()
   })
@@ -49,7 +50,7 @@ describe('useAsyncResource', () => {
   it('refetch dispara nueva carga', async () => {
     const fetcher = vi.fn().mockResolvedValueOnce({ v: 1 }).mockResolvedValueOnce({ v: 2 })
     const r = { current: null as UseAsyncResourceResult<unknown> | null }
-    render(<HookTest reporter={r} options={{ enabled: true, deps: [], fetcher }} />)
+    render(<HookTest reporterRef={r} options={{ enabled: true, deps: [], fetcher }} />)
     await waitFor(() => { expect(r.current!.data).toEqual({ v: 1 }) })
     act(() => r.current!.refetch())
     await waitFor(() => { expect(r.current!.data).toEqual({ v: 2 }) })
@@ -60,7 +61,7 @@ describe('useAsyncResource', () => {
     const cacheKey = 'uplus_cache_test_key'
     const fetcher = vi.fn().mockResolvedValue({ cached: true })
     const r = { current: null as UseAsyncResourceResult<unknown> | null }
-    render(<HookTest reporter={r} options={{ enabled: true, deps: [], fetcher, cacheKey }} />)
+    render(<HookTest reporterRef={r} options={{ enabled: true, deps: [], fetcher, cacheKey }} />)
     await waitFor(() => { expect(r.current!.data).toEqual({ cached: true }) })
     expect(localStorage.getItem(cacheKey)).not.toBeNull()
   })
@@ -70,7 +71,7 @@ describe('useAsyncResource', () => {
     localStorage.setItem(cacheKey, JSON.stringify({ restored: true }))
     const fetcher = vi.fn().mockResolvedValue({})
     const r = { current: null as UseAsyncResourceResult<unknown> | null }
-    render(<HookTest reporter={r} options={{ enabled: true, deps: [], fetcher, cacheKey }} />)
+    render(<HookTest reporterRef={r} options={{ enabled: true, deps: [], fetcher, cacheKey }} />)
     await waitFor(() => { expect(r.current!.data).toEqual({ restored: true }) })
     expect(fetcher).not.toHaveBeenCalled()
   })

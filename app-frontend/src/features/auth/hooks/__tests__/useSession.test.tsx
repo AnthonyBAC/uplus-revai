@@ -6,8 +6,9 @@ import { useSession } from '../useSession'
 import { saveSession } from '@/features/auth/lib/session'
 import type { UseSessionResult } from '../useSession'
 
-function HookTest({ reporter }: { reporter: { current: UseSessionResult | null } }) {
-  reporter.current = useSession()
+function HookTest({ reporterRef }: { reporterRef: React.MutableRefObject<UseSessionResult | null> }) {
+  // eslint-disable-next-line react-hooks/refs
+  reporterRef.current = useSession()
   return null
 }
 
@@ -16,13 +17,7 @@ describe('useSession', () => {
 
   it('inicia loading y pasa a unauthenticated sin token', async () => {
     const r = { current: null as UseSessionResult | null }
-    render(<HookTest reporter={r} />)
-    await waitFor(() => { expect(r.current!.status).toBe('unauthenticated') })
-  })
-
-  it('sin token → unauthenticated', async () => {
-    const r = { current: null as UseSessionResult | null }
-    render(<HookTest reporter={r} />)
+    render(<HookTest reporterRef={r} />)
     await waitFor(() => { expect(r.current!.status).toBe('unauthenticated') })
   })
 
@@ -33,7 +28,7 @@ describe('useSession', () => {
       email: 'cached@x.com', fullName: 'Cached', memberships: [],
     })
     const r = { current: null as UseSessionResult | null }
-    render(<HookTest reporter={r} />)
+    render(<HookTest reporterRef={r} />)
     await waitFor(() => { expect(r.current!.status).toBe('authenticated') })
     expect(r.current!.session?.email).toBe('cached@x.com')
   })
@@ -42,7 +37,7 @@ describe('useSession', () => {
     saveSession('bad-at', 'bad-rt')
     server.use(http.get('/api/auth/session', () => new HttpResponse(null, { status: 401 })))
     const r = { current: null as UseSessionResult | null }
-    render(<HookTest reporter={r} />)
+    render(<HookTest reporterRef={r} />)
     await waitFor(() => { expect(r.current!.status).toBe('unauthenticated') })
     expect(localStorage.getItem('uplus_access_token')).toBeNull()
   })

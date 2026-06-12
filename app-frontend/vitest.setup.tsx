@@ -37,10 +37,15 @@ vi.mock('next/navigation', () => ({
 vi.mock('motion/react', () => ({
   LazyMotion: ({ children }: { children: React.ReactNode }) => children,
   domAnimation: {},
-  m: {
-    div: ({ children, ...rest }: Record<string, unknown>) => <div {...rest}>{children as React.ReactNode}</div>,
-    main: ({ children, ...rest }: Record<string, unknown>) => <main {...rest}>{children as React.ReactNode}</main>,
-  },
+  m: new Proxy({} as Record<string, React.FC<Record<string, unknown>>>, {
+    get: (_target, prop: string) => {
+      if (prop === '$$typeof') return undefined
+      return ({ children, ...rest }: Record<string, unknown>) => {
+        const Tag = (prop === 'p' ? 'p' : prop === 'h1' ? 'h1' : prop === 'h2' ? 'h2' : prop === 'section' ? 'section' : prop === 'a' ? 'a' : prop === 'button' ? 'button' : prop === 'span' ? 'span' : prop === 'main' ? 'main' : 'div') as React.ElementType
+        return <Tag {...rest}>{children as React.ReactNode}</Tag>
+      }
+    },
+  }),
   useReducedMotion: () => true,
 }))
 

@@ -22,7 +22,7 @@ describe('Kpi', () => {
 
   it('aplica color accent al sub', () => {
     render(<Kpi label="X" value={1} sub="sub" accent="#00ff00" />)
-    expect(screen.getByText('sub').style.color).toBe('rgb(0, 255, 0)')
+    expect(screen.getByText('sub').style.color).toBe('#00ff00')
   })
 
   it('acepta value string', () => {

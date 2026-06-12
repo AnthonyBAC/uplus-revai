@@ -51,6 +51,6 @@ describe('Stars', () => {
   it('aplica color por defecto', () => {
     const { container } = render(<Stars value={1} />)
     const span = container.firstChild as HTMLElement
-    expect(span.style.color).toBe('rgb(217, 104, 77)')
+    expect(span.style.color).toBe('#D9684D')
   })
 })

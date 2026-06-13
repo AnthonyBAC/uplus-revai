@@ -35,6 +35,7 @@ Monorepo de U+ Revai con servicios Node/Next.js, paquetes internos compartidos (
 - [AGENTS Por Servicio](#agents-por-servicio)
 - [Flujo De Ramas](#flujo-de-ramas)
 - [CI/CD Y Deploy](#cicd-y-deploy)
+- [Documentacion De La API Swagger](#documentacion-de-la-api-swagger)
 - [Diagrama](#diagrama)
 - [Instalacion Inicial](#instalacion-inicial)
 - [Prisma Global](#prisma-global)
@@ -213,6 +214,39 @@ Secrets esperados en GitHub Actions:
 - `VERCEL_PROJECT_ID_REPORT`
 - `VERCEL_PROJECT_ID_SURVEYS`
 - `VERCEL_PROJECT_ID_FRONTEND`
+
+---
+
+## Documentacion De La API Swagger
+
+Cada servicio expone su documentacion interactiva OpenAPI/Swagger en la ruta `/docs`.
+El spec OpenAPI en formato JSON esta disponible en `/api/docs` para integracion con otras herramientas (generadores de clientes, importers a Postman, etc.).
+
+| Servicio | URL Produccion (Swagger UI) | Spec JSON | Descripcion |
+| --- | --- | --- | --- |
+| `app-auth` | https://app-auth-uplusrevais-projects.vercel.app/docs | [/api/docs](https://app-auth-uplusrevais-projects.vercel.app/api/docs) | Autenticacion y autorizacion |
+| `app-analysis-service` | https://app-analysis-service-uplusrevais-projects.vercel.app/docs | [/api/docs](https://app-analysis-service-uplusrevais-projects.vercel.app/api/docs) | Analisis de resenas con IA |
+| `app-review-service` | https://app-review-service-uplusrevais-projects.vercel.app/docs | [/api/docs](https://app-review-service-uplusrevais-projects.vercel.app/api/docs) | Gestion de resenas y sincronizacion con Google |
+| `app-report-service` | https://app-report-service.vercel.app/docs | [/api/docs](https://app-report-service.vercel.app/api/docs) | Generacion de reportes ejecutivos |
+| `app-surveys-service` | https://app-surveys-service-uplusrevais-projects.vercel.app/docs | [/api/docs](https://app-surveys-service-uplusrevais-projects.vercel.app/api/docs) | Encuestas internas |
+| `app-frontend` | https://app-frontend-rho-murex.vercel.app | - | Dashboard (no expone Swagger) |
+
+Endpoints organizados por tags en cada UI:
+
+- **app-auth**: `auth`, `businesses`, `branches`, `roles`, `endpoints`
+- **app-review-service**: `reviews`, `sync`, `connections`
+- **app-analysis-service**: `analysis`
+- **app-report-service**: `reports`, `analysis`
+- **app-surveys-service**: `surveys`, `questions`, `responses`
+
+> [!NOTE]
+> **Acceso local durante desarrollo**
+> Cada servicio expone su Swagger en `http://localhost:<puerto>/docs` al levantarlo con los scripts `dev:*` desde la raiz.
+> Ver la seccion [Servicios](#servicios) para los puertos de cada uno.
+
+> [!IMPORTANT]
+> Las URLs de Vercel mostradas arriba apuntan a la documentacion Swagger de cada backend.
+> El frontend (`app-frontend`) es la UI de la aplicacion y no expone Swagger.
 
 ---
 
